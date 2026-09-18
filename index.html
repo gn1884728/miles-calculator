@@ -41,7 +41,7 @@
         </button>
       </div>
 
-      <!-- 參數抽屜 -->
+      <!-- 參數抽屜 (包含可手動修改的萬豪點數收購成本) -->
       <div v-if="showSettings" class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5 space-y-3 text-xs">
         <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
           <span class="text-slate-400 font-bold">點數與多國匯率參數設定</span>
@@ -63,6 +63,10 @@
           <div>
             <label class="text-slate-400 block mb-1">國泰小樹點 (元/點)</label>
             <input type="number" step="0.01" v-model.number="rates.cube_rate" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-emerald-400 font-bold">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">萬豪點數成本 (元/點)</label>
+            <input type="number" step="0.01" v-model.number="rates.marriott_val" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-purple-400 font-bold">
           </div>
         </div>
       </div>
@@ -244,11 +248,11 @@
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs">
               <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
-                <div class="text-slate-400 text-[10px]">特價買點估算</div>
+                <div class="text-slate-400 text-[10px]">特價買點估算 (0.6元/哩)</div>
                 <div class="text-amber-300 font-black text-sm">NT$ {{ calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy').toLocaleString() }}</div>
               </div>
               <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
-                <div class="text-slate-400 text-[10px]">萬豪轉點</div>
+                <div class="text-slate-400 text-[10px]">萬豪轉點 (3換1 + 紅利)</div>
                 <div class="text-purple-300 font-black text-sm">NT$ {{ calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott').toLocaleString() }}</div>
               </div>
             </div>
@@ -280,11 +284,11 @@
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs">
             <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
-              <div class="text-slate-400 text-[10px]">特價買點估算</div>
+              <div class="text-slate-400 text-[10px]">特價買點估算 (0.6元/哩)</div>
               <div class="text-amber-300 font-black text-sm">NT$ {{ calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy').toLocaleString() }}</div>
             </div>
             <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
-              <div class="text-slate-400 text-[10px]">萬豪轉點</div>
+              <div class="text-slate-400 text-[10px]">萬豪轉點 (3換1 + 紅利)</div>
               <div class="text-purple-300 font-black text-sm">NT$ {{ calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott').toLocaleString() }}</div>
             </div>
           </div>
@@ -303,11 +307,11 @@
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs">
               <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
-                <div class="text-slate-400 text-[10px]">特價買點估算</div>
+                <div class="text-slate-400 text-[10px]">特價買點估算 (0.6元/哩)</div>
                 <div class="text-amber-300 font-black text-sm">NT$ {{ calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy').toLocaleString() }}</div>
               </div>
               <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
-                <div class="text-slate-400 text-[10px]">萬豪轉點</div>
+                <div class="text-slate-400 text-[10px]">萬豪轉點 (3換1 + 紅利)</div>
                 <div class="text-purple-300 font-black text-sm">NT$ {{ calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott').toLocaleString() }}</div>
               </div>
             </div>
@@ -354,7 +358,8 @@
           usd_twd: 31.8,
           jpy_twd: 0.21,
           aed_twd: 8.7,
-          cube_rate: 0.42
+          cube_rate: 0.42,
+          marriott_val: 0.25
         });
 
         const routesData = ref([]);
@@ -425,10 +430,13 @@
         const calcAsCost = (miles, taxUsd, type) => {
           if (!miles) return 0;
           const taxTwd = Number(taxUsd || 44) * rates.value.usd_twd;
+          const m = Number(miles);
+
           if (type === 'buy') {
-            return Math.round(Number(miles) * 0.60 + taxTwd);
+            return Math.round(m * 0.60 + taxTwd);
           } else if (type === 'marriott') {
-            return Math.round(Number(miles) * 3 * rates.value.marriott_rate + taxTwd);
+            const requiredMarriottPoints = m * 2.4;
+            return Math.round(requiredMarriottPoints * rates.value.marriott_val + taxTwd);
           }
           return 0;
         };
