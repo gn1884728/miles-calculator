@@ -29,16 +29,11 @@
 
   <div id="app" class="w-full max-w-xl space-y-4">
     
-    <!-- 頂部卡片 -->
+    <!-- 頂部卡片 (已移除上方兩個炫耀標籤) -->
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4">
       <div class="flex justify-between items-center">
         <div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2.5 py-0.5 rounded-full">Flights 專業精算版</span>
-            <span v-if="loading" class="text-xs text-amber-400 animate-pulse">連線更新中...</span>
-            <span v-else class="text-[11px] text-emerald-400 font-medium">● 資料庫同步完成</span>
-          </div>
-          <h1 class="text-xl font-black text-white mt-1">常旅客哩程票最佳兌換精算</h1>
+          <h1 class="text-xl font-black text-white">常旅客哩程票最佳兌換精算</h1>
         </div>
         <button @click="showSettings = !showSettings" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1.5 rounded-xl border border-slate-700 transition">
           {{ showSettings ? '收合參數' : '自訂成本' }}
@@ -71,7 +66,7 @@
         </div>
       </div>
 
-      <!-- 💡 上方區塊：精確航線與多人預算試算 -->
+      <!-- 上方區塊：精確航線與多人預算試算 -->
       <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-amber-400 flex items-center gap-1.5 pb-1 border-b border-slate-800">
           <span>✈️</span> 【精確航線與多人預算試算】
@@ -94,20 +89,20 @@
           </div>
         </div>
 
-        <!-- 去程設定 -->
+        <!-- 去程設定 (加入 @change 自動清空舊方案) -->
         <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-xs">
           <div class="font-bold text-slate-300">✈️ 去程 (必須指定出發地與目的地)</div>
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="text-[10px] text-slate-400 block mb-1">出發地</label>
-              <select v-model="flightSearch.outOrigin" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none">
+              <select v-model="flightSearch.outOrigin" @change="onOutPortChange" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none">
                 <option value="">選擇出發機場</option>
                 <option v-for="apt in allAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
               </select>
             </div>
             <div>
               <label class="text-[10px] text-slate-400 block mb-1">目的地</label>
-              <select v-model="flightSearch.outDest" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none">
+              <select v-model="flightSearch.outDest" @change="onOutPortChange" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none">
                 <option value="">選擇抵達機場</option>
                 <option v-for="apt in allAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
               </select>
@@ -121,20 +116,20 @@
           </select>
         </div>
 
-        <!-- 回程設定 -->
+        <!-- 回程設定 (加入 @change 自動清空舊方案) -->
         <div v-if="flightSearch.tripType === 'round'" class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-xs">
           <div class="font-bold text-slate-300">🔄 回程 (支援不同點進出)</div>
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="text-[10px] text-slate-400 block mb-1">出發地 (回程)</label>
-              <select v-model="flightSearch.inOrigin" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none">
+              <select v-model="flightSearch.inOrigin" @change="onInPortChange" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none">
                 <option value="">選擇出發機場</option>
                 <option v-for="apt in allAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
               </select>
             </div>
             <div>
               <label class="text-[10px] text-slate-400 block mb-1">目的地 (回程)</label>
-              <select v-model="flightSearch.inDest" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none">
+              <select v-model="flightSearch.inDest" @change="onInPortChange" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none">
                 <option value="">選擇抵達機場</option>
                 <option v-for="apt in allAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
               </select>
@@ -165,14 +160,13 @@
 
       </div>
 
-      <!-- 💡 下方區塊：兩層聯動式「國家 ➔ 機場 ➔ 所有航點呈現」 -->
+      <!-- 下方區塊：兩層聯動式導覽 -->
       <div class="space-y-3 pt-3 border-t border-slate-800">
         <div class="text-xs font-black text-cyan-400 flex items-center gap-1.5">
           <span>🔍</span> 【航點大探索：先選國家，再選出發機場】
         </div>
 
         <div class="grid grid-cols-3 gap-2 text-xs">
-          <!-- 第 1 層：選國家 -->
           <div>
             <label class="text-[10px] text-slate-400 font-bold block mb-1">1️⃣ 出發國家</label>
             <select v-model="selectedCountry" @change="onCountryChange" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none">
@@ -182,7 +176,6 @@
             </select>
           </div>
 
-          <!-- 第 2 層：選機場 (聯動) -->
           <div>
             <label class="text-[10px] text-slate-400 font-bold block mb-1">2️⃣ 出發機場</label>
             <select v-model="selectedAirport" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none">
@@ -193,7 +186,6 @@
             </select>
           </div>
 
-          <!-- 快速檢視艙等 -->
           <div>
             <label class="text-[10px] text-slate-400 font-bold block mb-1">3️⃣ 艙等篩選</label>
             <select v-model="selectedCabin" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-bold text-white focus:outline-none">
@@ -353,7 +345,6 @@
         const loading = ref(true);
         const showSettings = ref(false);
 
-        // 下方兩層聯動狀態
         const selectedCountry = ref('ALL');
         const selectedAirport = ref('ALL');
         const selectedCabin = ref('ALL');
@@ -367,7 +358,6 @@
 
         const routesData = ref([]);
 
-        // 機場與所屬國家對照
         const allAirports = [
           { code: 'TPE', name: '台北桃園', country: 'TW' },
           { code: 'RMQ', name: '台中清泉崗', country: 'TW' },
@@ -383,7 +373,6 @@
           { code: 'UKB', name: '神戶', country: 'JP' }
         ];
 
-        // Google Flights 精確搜尋狀態
         const flightSearch = ref({
           tripType: 'oneWay',
           passengers: 1,
@@ -394,6 +383,16 @@
           outboundKey: '',
           inboundKey: ''
         });
+
+        // 當去程機場變更時，立即自動清空原本選定的方案，達到即時變更效果
+        const onOutPortChange = () => {
+          flightSearch.value.outboundKey = '';
+        };
+
+        // 當回程機場變更時，立即自動清空原本選定的方案
+        const onInPortChange = () => {
+          flightSearch.value.inboundKey = '';
+        };
 
         const fetchData = async () => {
           loading.value = true;
@@ -413,12 +412,10 @@
           fetchData();
         });
 
-        // 國家切換時重設機場為全部
         const onCountryChange = () => {
           selectedAirport.value = 'ALL';
         };
 
-        // 依據選取的國家動態決定第二層可選的機場
         const linkedAirports = computed(() => {
           if (selectedCountry.value === 'ALL') {
             return allAirports;
@@ -527,19 +524,15 @@
           };
         });
 
-        // 下方兩層聯動過濾：依據出發國家與出發機場，一次列出所有可飛的目的地
         const filteredRoutes = computed(() => {
           return routesData.value.filter(item => {
-            // 1. 機場過濾 (若有具體選機場)
             if (selectedAirport.value !== 'ALL') {
               if (item.origin !== selectedAirport.value) return false;
             } else if (selectedCountry.value !== 'ALL') {
-              // 若只選國家，看該出發地是否屬於該國
               const matchedApt = allAirports.find(a => a.code === item.origin);
               if (!matchedApt || matchedApt.country !== selectedCountry.value) return false;
             }
 
-            // 2. 艙等過濾
             if (selectedCabin.value === 'biz') return !!(item.biz_miles || item.ey_biz_miles);
             if (selectedCabin.value === 'prem') return !!(item.prem_miles);
             if (selectedCabin.value === 'eco') return !!(item.eco_miles || item.ey_eco_miles);
@@ -564,6 +557,8 @@
           filteredOutboundOptions,
           filteredInboundOptions,
           flightSummary,
+          onOutPortChange,
+          onInPortChange,
           fetchData,
           calcAsCost,
           calcEyCost
