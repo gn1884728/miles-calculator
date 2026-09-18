@@ -101,7 +101,7 @@
         <!-- 去程設定 -->
         <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-sm">
           <div class="flex justify-between items-center text-xs font-bold text-slate-300">
-            <span>✈️ 去程航段 (支援 1500哩內中停)</span>
+            <span>✈️ 去程航段</span>
             <select v-model="flightSearch.outCabin" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-cyan-400 font-bold text-xs focus:outline-none">
               <option value="ALL">全部艙等</option>
               <option value="biz">👑 商務</option>
@@ -128,7 +128,7 @@
           <select v-model="flightSearch.outboundKey" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white font-bold text-sm focus:outline-none mt-1">
             <option value="">-- 請選擇去程具體兌換方案 --</option>
             <option v-for="opt in filteredOutboundOptions" :key="opt.id" :value="opt.id">
-              {{ opt.shortLabel }} (買點: ${{ opt.costBuy }} | 轉點: ${{ opt.costMarriott }})
+              {{ opt.shortLabel }} - NT$ {{ opt.cost }}
             </option>
           </select>
         </div>
@@ -163,7 +163,7 @@
           <select v-model="flightSearch.inboundKey" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white font-bold text-sm focus:outline-none mt-1">
             <option value="">-- 請選擇回程具體兌換方案 --</option>
             <option v-for="opt in filteredInboundOptions" :key="opt.id" :value="opt.id">
-              {{ opt.shortLabel }} (買點: ${{ opt.costBuy }} | 轉點: ${{ opt.costMarriott }})
+              {{ opt.shortLabel }} - NT$ {{ opt.cost }}
             </option>
           </select>
         </div>
@@ -172,36 +172,24 @@
         <div v-if="flightSummary" class="bg-gradient-to-r from-amber-950/50 to-slate-900 border border-amber-500/40 rounded-xl p-3.5 space-y-2 text-sm">
           <div class="flex justify-between items-center border-b border-amber-500/20 pb-2">
             <span class="text-amber-300 font-black text-xs sm:text-sm">
-              ✨ 總計 ({{ flightSearch.passengers }}人) : {{ flightSummary.totalMiles.toLocaleString() }} 哩 + 稅金 {{ flightSummary.totalTaxText }}
+              ✨ 總計 ({{ flightSearch.passengers }}人) : 總成本 NT$ {{ flightSummary.totalCost.toLocaleString() }}
             </span>
           </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div :class="flightSummary.bestMethod === 'buy' ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-lg shadow-emerald-900/50' : 'border border-slate-800 bg-slate-900'" class="rounded-xl p-3 relative flex flex-col justify-between">
-              <div v-if="flightSummary.bestMethod === 'buy'" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-full shadow">
-                👑 最佳省錢首選
-              </div>
-              <div class="text-slate-400 text-xs mt-1">特價買點總成本</div>
-              <div class="text-amber-300 font-black text-base mt-1">NT$ {{ flightSummary.totalCostBuy.toLocaleString() }}</div>
-            </div>
-            <div :class="flightSummary.bestMethod === 'marriott' ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-lg shadow-emerald-900/50' : 'border border-slate-800 bg-slate-900'" class="rounded-xl p-3 relative flex flex-col justify-between">
-              <div v-if="flightSummary.bestMethod === 'marriott'" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-full shadow">
-                👑 最佳省錢首選
-              </div>
-              <div class="text-slate-400 text-xs mt-1">萬豪轉點總成本</div>
-              <div class="text-purple-300 font-black text-base mt-1">NT$ {{ flightSummary.totalCostMarriott.toLocaleString() }}</div>
-            </div>
+          <div class="text-xs text-slate-300 space-y-1">
+            <div>去程：{{ flightSummary.outLabel }}</div>
+            <div v-if="flightSearch.tripType === 'round'">回程：{{ flightSummary.inLabel }}</div>
           </div>
         </div>
 
       </div>
 
-      <!-- 下方區塊：兩層聯動式導覽 + 價格排序 -->
+      <!-- 下方區塊：航點大探索 (新增目的地機場篩選) -->
       <div class="space-y-3 pt-3 border-t border-slate-800">
         <div class="text-xs font-black text-cyan-400 flex items-center justify-between">
           <span>🔍 【航點大探索】</span>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
           <div>
             <label class="text-[11px] text-slate-400 font-bold block mb-1">1️⃣ 國家</label>
             <select v-model="selectedCountry" @change="onCountryChange" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none">
@@ -209,8 +197,6 @@
               <option value="TW">台灣</option>
               <option value="JP">日本</option>
               <option value="MO">澳門</option>
-              <option value="KR">韓國 (預留)</option>
-              <option value="VN">越南 (預留)</option>
             </select>
           </div>
 
@@ -224,8 +210,19 @@
             </select>
           </div>
 
+          <!-- 💡 新增：下方目的地機場篩選 -->
           <div>
-            <label class="text-[11px] text-slate-400 font-bold block mb-1">3️⃣ 艙等</label>
+            <label class="text-[11px] text-slate-400 font-bold block mb-1">3️⃣ 目的地機場</label>
+            <select v-model="selectedDestAirport" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none">
+              <option value="ALL">全部目的地</option>
+              <option v-for="apt in allAirports" :key="apt.code" :value="apt.code">
+                {{ apt.name }} ({{ apt.code }})
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-400 font-bold block mb-1">4️⃣ 艙等</label>
             <select v-model="selectedCabin" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs font-bold text-white focus:outline-none">
               <option value="ALL">全部艙等</option>
               <option value="biz">商務艙</option>
@@ -235,10 +232,10 @@
           </div>
 
           <div>
-            <label class="text-[11px] text-slate-400 font-bold block mb-1">4️⃣ 價格排序</label>
+            <label class="text-[11px] text-slate-400 font-bold block mb-1">5️⃣ 價格排序</label>
             <select v-model="sortOrder" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs font-bold text-amber-400 focus:outline-none">
-              <option value="asc">📉 價格：由低到高</option>
-              <option value="desc">📈 價格：由高到低</option>
+              <option value="asc">📉 由低到高</option>
+              <option value="desc">📈 由高到低</option>
             </select>
           </div>
         </div>
@@ -249,7 +246,7 @@
       </div>
     </div>
 
-    <!-- 下方區塊：動態航線卡片展示 -->
+    <!-- 下方區塊：動態航線卡片展示 (跨方案全域最低價自動掛上綠框與最佳省錢首選) -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 text-slate-500 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -276,108 +273,43 @@
           </span>
         </div>
 
-        <!-- 商務艙 -->
-        <div v-if="(item.biz_miles || item.ey_biz_miles) && (selectedCabin === 'ALL' || selectedCabin === 'biz')" class="bg-slate-950 border border-amber-500/20 rounded-2xl p-3 space-y-3">
-          <div class="text-xs font-extrabold text-amber-400 flex items-center gap-1.5 border-b border-slate-900 pb-2">
-            <span>👑</span> 商務艙 (Business) 兌換方案
-          </div>
+        <!-- 艙等總覽與全域最低價判定 -->
+        <div v-for="cabinKey in ['biz', 'prem', 'eco']" :key="cabinKey">
+          <div v-if="shouldShowCabinCard(item, cabinKey)" class="bg-slate-950 border border-slate-800 rounded-2xl p-3 space-y-3 mt-2">
+            <div class="text-xs font-extrabold text-amber-400 flex items-center gap-1.5 border-b border-slate-900 pb-2">
+              <span>{{ cabinKey === 'biz' ? '👑 商務艙 (Business)' : cabinKey === 'prem' ? '⭐ 豪華經濟艙 (Prem Eco)' : '✈️ 經濟艙 (Economy)' }}</span>
+            </div>
 
-          <div v-if="item.biz_miles" class="space-y-2">
-            <div class="flex justify-between items-center text-xs text-slate-400">
-              <span>✈️ 阿拉斯加航空 (AS) 兌換</span>
-              <span class="text-slate-200 font-bold">{{ Number(item.biz_miles).toLocaleString() }} 哩 + {{ item.biz_tax_usd || 44 }} USD</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <div :class="calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy') <= calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott') ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
-                <span v-if="calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy') <= calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott')" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
-                <div class="text-slate-400 text-xs mt-1">特價買點估算</div>
-                <div class="text-amber-300 font-black text-base mt-1">NT$ {{ calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy').toLocaleString() }}</div>
+            <!-- 取得該艙等下所有方案的成本，找出全場最低價 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              
+              <!-- 1. 阿拉斯加買點 -->
+              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy')) ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
+                <span v-if="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy'))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
+                <div class="text-slate-400 text-xs mt-1">AS 特價買點 ({{ getCabinMiles(item, cabinKey, 'as').toLocaleString() }}哩)</div>
+                <div class="text-amber-300 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'buy').toLocaleString() }}</div>
               </div>
-              <div :class="calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott') < calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy') ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
-                <span v-if="calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott') < calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy')" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
-                <div class="text-slate-400 text-xs mt-1">萬豪轉點</div>
-                <div class="text-purple-300 font-black text-base mt-1">NT$ {{ calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott').toLocaleString() }}</div>
-              </div>
-            </div>
-          </div>
 
-          <div v-if="item.ey_biz_miles" class="space-y-1.5 pt-1">
-            <div class="flex justify-between items-center text-xs text-slate-400">
-              <span>⭐ 阿提哈德 (EY) 換 (CUBE 420點=1000哩)</span>
-              <span class="text-emerald-300 font-bold">{{ Number(item.ey_biz_miles).toLocaleString() }} 哩 + {{ item.ey_biz_tax_curr || 'TWD' }} {{ Number(item.ey_biz_tax_val || 0).toLocaleString() }}</span>
-            </div>
-            <div class="bg-slate-900/90 rounded-xl p-3 border border-emerald-500/30 flex justify-between items-center">
-              <div>
-                <div class="text-xs text-slate-400">需刷 CUBE 累積小樹點</div>
-                <div class="text-slate-200 font-bold text-sm mt-0.5">{{ Math.ceil((Number(item.ey_biz_miles) / 1000) * 420) }} 點</div>
+              <!-- 2. 阿拉斯加萬豪轉點 -->
+              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott')) ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
+                <span v-if="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott'))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
+                <div class="text-slate-400 text-xs mt-1">AS 萬豪轉點 ({{ getCabinMiles(item, cabinKey, 'as').toLocaleString() }}哩)</div>
+                <div class="text-purple-300 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'marriott').toLocaleString() }}</div>
               </div>
-              <div class="text-right">
-                <div class="text-xs text-slate-400">總成本 (含外幣稅金換算)</div>
-                <div class="text-emerald-300 font-black text-base mt-0.5">NT$ {{ calcEyCost(item.ey_biz_miles, item.ey_biz_tax_val, item.ey_biz_tax_curr).toLocaleString() }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- 豪華經濟艙 -->
-        <div v-if="item.prem_miles && (selectedCabin === 'ALL' || selectedCabin === 'prem')" class="bg-slate-950 border border-purple-500/20 rounded-2xl p-3 space-y-3">
-          <div class="text-xs font-extrabold text-purple-400 border-b border-slate-900 pb-2">
-            <span class="flex items-center gap-1.5"><span>⭐</span> 豪華經濟艙 (Prem Eco)</span>
-            <span class="text-slate-200 font-bold">{{ Number(item.prem_miles).toLocaleString() }} 哩 + {{ item.prem_tax_usd || 44 }} USD</span>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div :class="calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy') <= calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott') ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
-              <span v-if="calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy') <= calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott')" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
-              <div class="text-slate-400 text-xs mt-1">特價買點估算</div>
-              <div class="text-amber-300 font-black text-base mt-1">NT$ {{ calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy').toLocaleString() }}</div>
-            </div>
-            <div :class="calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott') < calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy') ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
-              <span v-if="calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott') < calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy')" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
-              <div class="text-slate-400 text-xs mt-1">萬豪轉點</div>
-              <div class="text-purple-300 font-black text-base mt-1">NT$ {{ calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott').toLocaleString() }}</div>
-            </div>
-          </div>
-        </div>
+              <!-- 3. 阿提哈德 EY 換票 (如果您截圖中的沖繩 EY 方案) -->
+              <div v-if="getCabinEyMiles(item, cabinKey)" :class="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey)) ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between sm:col-span-2">
+                <span v-if="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
+                <div class="flex justify-between items-center text-xs text-slate-400 mt-1">
+                  <span>⭐ 阿提哈德 (EY) 換 (CUBE 420點=1000哩)</span>
+                  <span class="text-emerald-300 font-bold">{{ getCabinEyMiles(item, cabinKey).toLocaleString() }} 哩</span>
+                </div>
+                <div class="flex justify-between items-center mt-1">
+                  <div class="text-xs text-slate-400">需刷 CUBE 累積 {{ Math.ceil((getCabinEyMiles(item, cabinKey) / 1000) * 420) }} 點小樹點</div>
+                  <div class="text-emerald-300 font-black text-base">NT$ {{ getCabinEyCost(item, cabinKey).toLocaleString() }}</div>
+                </div>
+              </div>
 
-        <!-- 經濟艙 -->
-        <div v-if="(item.eco_miles || item.ey_eco_miles) && (selectedCabin === 'ALL' || selectedCabin === 'eco')" class="bg-slate-950 border border-blue-500/20 rounded-2xl p-3 space-y-3">
-          <div class="text-xs font-extrabold text-blue-400 flex items-center gap-1.5 border-b border-slate-900 pb-2">
-            <span>✈️</span> 經濟艙 (Economy) 兌換方案
-          </div>
-
-          <div v-if="item.eco_miles" class="space-y-2">
-            <div class="flex justify-between items-center text-xs text-slate-400">
-              <span>✈️ 阿拉斯加航空 (AS) 兌換</span>
-              <span class="text-slate-200 font-bold">{{ Number(item.eco_miles).toLocaleString() }} 哩 + {{ item.eco_tax_usd || 44 }} USD</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <div :class="calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy') <= calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott') ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
-                <span v-if="calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy') <= calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott')" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
-                <div class="text-slate-400 text-xs mt-1">特價買點估算</div>
-                <div class="text-amber-300 font-black text-base mt-1">NT$ {{ calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy').toLocaleString() }}</div>
-              </div>
-              <div :class="calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott') < calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy') ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
-                <span v-if="calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott') < calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy')" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
-                <div class="text-slate-400 text-xs mt-1">萬豪轉點</div>
-                <div class="text-purple-300 font-black text-base mt-1">NT$ {{ calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott').toLocaleString() }}</div>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="item.ey_eco_miles" class="space-y-1.5 pt-1">
-            <div class="flex justify-between items-center text-xs text-slate-400">
-              <span>⭐ 阿提哈德 (EY) 換 (CUBE 420點=1000哩)</span>
-              <span class="text-emerald-300 font-bold">{{ Number(item.ey_eco_miles).toLocaleString() }} 哩 + {{ item.ey_eco_tax_curr || 'TWD' }} {{ Number(item.ey_eco_tax_val || 0).toLocaleString() }}</span>
-            </div>
-            <div class="bg-slate-900/90 rounded-xl p-3 border border-emerald-500/30 flex justify-between items-center">
-              <div>
-                <div class="text-xs text-slate-400">需刷 CUBE 累積小樹點</div>
-                <div class="text-slate-200 font-bold text-sm mt-0.5">{{ Math.ceil((Number(item.ey_eco_miles) / 1000) * 420) }} 點</div>
-              </div>
-              <div class="text-right">
-                <div class="text-xs text-slate-400">總成本 (含外幣稅金換算)</div>
-                <div class="text-emerald-300 font-black text-base mt-0.5">NT$ {{ calcEyCost(item.ey_eco_miles, item.ey_eco_tax_val, item.ey_eco_tax_curr).toLocaleString() }}</div>
-              </div>
             </div>
           </div>
         </div>
@@ -399,6 +331,7 @@
 
         const selectedCountry = ref('ALL');
         const selectedAirport = ref('ALL');
+        const selectedDestAirport = ref('ALL'); // 💡 下方目的地機場篩選
         const selectedCabin = ref('ALL');
         const sortOrder = ref('asc');
 
@@ -418,7 +351,6 @@
 
         const routesData = ref([]);
 
-        // 💡 新增澳門 (MO) 與預留韓國 (KR)、越南 (VN)
         const allAirports = [
           { code: 'TPE', name: '台北桃園', country: 'TW' },
           { code: 'RMQ', name: '台中清泉崗', country: 'TW' },
@@ -603,14 +535,9 @@
           const pax = flightSearch.value.passengers;
 
           if (flightSearch.value.tripType === 'oneWay') {
-            const totalBuy = outOpt.costBuy * pax;
-            const totalMarriott = outOpt.costMarriott * pax;
             return {
               totalMiles: outOpt.miles * pax,
-              totalCostBuy: totalBuy,
-              totalCostMarriott: totalMarriott,
-              totalCost: Math.min(totalBuy, totalMarriott),
-              bestMethod: totalBuy <= totalMarriott ? 'buy' : 'marriott',
+              totalCost: outOpt.cost * pax,
               totalTaxText: outOpt.taxText,
               outLabel: outOpt.label,
               inLabel: ''
@@ -621,30 +548,84 @@
           const inOpt = allOptions.value.find(o => o.id === flightSearch.value.inboundKey);
           if (!inOpt) return null;
 
-          const totalBuy = (outOpt.costBuy + inOpt.costBuy) * pax;
-          const totalMarriott = (outOpt.costMarriott + inOpt.costMarriott) * pax;
-
           return {
             totalMiles: (outOpt.miles + inOpt.miles) * pax,
-            totalCostBuy: totalBuy,
-            totalCostMarriott: totalMarriott,
-            totalCost: Math.min(totalBuy, totalMarriott),
-            bestMethod: totalBuy <= totalMarriott ? 'buy' : 'marriott',
+            totalCost: (outOpt.cost + inOpt.cost) * pax,
             totalTaxText: `${outOpt.taxText} + ${inOpt.taxText}`,
             outLabel: outOpt.label,
             inLabel: inOpt.label
           };
         });
 
+        // 輔助函式：取得卡片內特定艙等的各項數值
+        const getCabinMiles = (item, cabin, type) => {
+          if (cabin === 'biz') return type === 'as' ? item.biz_miles : item.ey_biz_miles;
+          if (cabin === 'prem') return type === 'as' ? item.prem_miles : null;
+          if (cabin === 'eco') return type === 'as' ? item.eco_miles : item.ey_eco_miles;
+          return null;
+        };
+
+        const getCabinCost = (item, cabin, type, method) => {
+          const miles = getCabinMiles(item, cabin, type);
+          if (!miles) return Infinity;
+          const tax = cabin === 'biz' ? item.biz_tax_usd : cabin === 'prem' ? item.prem_tax_usd : item.eco_tax_usd;
+          return calcAsCost(miles, tax || 44, method);
+        };
+
+        const getCabinEyMiles = (item, cabin) => {
+          if (cabin === 'biz') return item.ey_biz_miles;
+          if (cabin === 'eco') return item.ey_eco_miles;
+          return null;
+        };
+
+        const getCabinEyCost = (item, cabin) => {
+          const miles = getCabinEyMiles(item, cabin);
+          if (!miles) return Infinity;
+          const val = cabin === 'biz' ? item.ey_biz_tax_val : item.ey_eco_tax_val;
+          const curr = cabin === 'biz' ? item.ey_biz_tax_curr : item.ey_eco_tax_curr;
+          return calcEyCost(miles, val, curr);
+        };
+
+        // 找出該艙等下所有方案的最低成本，供綠框判定
+        const getMinCabinCost = (item, cabin) => {
+          let costs = [];
+          if (getCabinMiles(item, cabin, 'as')) {
+            costs.push(getCabinCost(item, cabin, 'as', 'buy'));
+            costs.push(getCabinCost(item, cabin, 'as', 'marriott'));
+          }
+          if (getCabinEyMiles(item, cabin)) {
+            costs.push(getCabinEyCost(item, cabin));
+          }
+          return costs.length > 0 ? Math.min(...costs) : Infinity;
+        };
+
+        const isLowestCost = (item, cabin, currentCost) => {
+          const min = getMinCabinCost(item, cabin);
+          return currentCost !== Infinity && currentCost === min;
+        };
+
+        const shouldShowCabinCard = (item, cabin) => {
+          if (selectedCabin.value !== 'ALL' && selectedCabin.value !== cabin) return false;
+          if (cabin === 'biz') return !!(item.biz_miles || item.ey_biz_miles);
+          if (cabin === 'prem') return !!(item.prem_miles);
+          if (cabin === 'eco') return !!(item.eco_miles || item.ey_eco_miles);
+          return false;
+        };
+
+        // 💡 支援下方目的地機場篩選與價格排序
         const filteredRoutes = computed(() => {
           let list = routesData.value.filter(item => {
-            if (selectedAirport.value !== 'ALL') {
-              if (item.origin !== selectedAirport.value) return false;
-            } else if (selectedCountry.value !== 'ALL') {
+            // 國家過濾
+            if (selectedCountry.value !== 'ALL') {
               const matchedApt = allAirports.find(a => a.code === item.origin);
               if (!matchedApt || matchedApt.country !== selectedCountry.value) return false;
             }
+            // 出發機場過濾
+            if (selectedAirport.value !== 'ALL' && item.origin !== selectedAirport.value) return false;
+            // 目的地機場過濾
+            if (selectedDestAirport.value !== 'ALL' && item.dest !== selectedDestAirport.value) return false;
 
+            // 艙等過濾
             if (selectedCabin.value === 'biz') return !!(item.biz_miles || item.ey_biz_miles);
             if (selectedCabin.value === 'prem') return !!(item.prem_miles);
             if (selectedCabin.value === 'eco') return !!(item.eco_miles || item.ey_eco_miles);
@@ -653,18 +634,8 @@
           });
 
           list.sort((a, b) => {
-            let costA = Infinity;
-            let costB = Infinity;
-
-            if (a.biz_miles) costA = Math.min(costA, calcAsCost(a.biz_miles, a.biz_tax_usd, 'buy'));
-            if (a.ey_biz_miles) costA = Math.min(costA, calcEyCost(a.ey_biz_miles, a.ey_biz_tax_val, a.ey_biz_tax_curr));
-            if (a.eco_miles) costA = Math.min(costA, calcAsCost(a.eco_miles, a.eco_tax_usd, 'buy'));
-            if (a.ey_eco_miles) costA = Math.min(costA, calcEyCost(a.ey_eco_miles, a.ey_eco_tax_val, a.ey_eco_tax_curr));
-
-            if (b.biz_miles) costB = Math.min(costB, calcAsCost(b.biz_miles, b.biz_tax_usd, 'buy'));
-            if (b.ey_biz_miles) costB = Math.min(costB, calcEyCost(b.ey_biz_miles, b.ey_biz_tax_val, b.ey_biz_tax_curr));
-            if (b.eco_miles) costB = Math.min(costB, calcAsCost(b.eco_miles, b.eco_tax_usd, 'buy'));
-            if (b.ey_eco_miles) costB = Math.min(costB, calcEyCost(b.ey_eco_miles, b.ey_eco_tax_val, b.ey_eco_tax_curr));
+            let costA = Math.min(getMinCabinCost(a, 'biz'), getMinCabinCost(a, 'prem'), getMinCabinCost(a, 'eco'));
+            let costB = Math.min(getMinCabinCost(b, 'biz'), getMinCabinCost(b, 'prem'), getMinCabinCost(b, 'eco'));
 
             if (sortOrder.value === 'asc') {
               return costA - costB;
@@ -681,6 +652,7 @@
           showSettings,
           selectedCountry,
           selectedAirport,
+          selectedDestAirport,
           selectedCabin,
           sortOrder,
           linkedAirports,
@@ -702,7 +674,13 @@
           availableInDestAirports,
           fetchData,
           calcAsCost,
-          calcEyCost
+          calcEyCost,
+          getCabinMiles,
+          getCabinCost,
+          getCabinEyMiles,
+          getCabinEyCost,
+          isLowestCost,
+          shouldShowCabinCard
         };
       }
     }).mount('#app');
