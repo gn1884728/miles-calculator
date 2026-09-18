@@ -2,14 +2,35 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>哩程最佳航線與成本即時精算</title>
+  <!-- 讓手機瀏覽器隱藏網址列，強制以全螢幕 APP 模式運作 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#020617" />
+  
+  <!-- SEO 核心設定：精準埋入常旅客關鍵字 -->
+  <title>哩程機票與飯店積分精算神器 | 萬豪、洲際 IHG、星宇航空</title>
+  <meta name="description" content="常旅客必備工具！即時精算萬豪(Marriott)與洲際(IHG)飯店積分成本，並提供星宇航空、阿拉斯加等哩程機票兌換最佳方案，打造最完美的飛行與住宿體驗。" />
+  <meta name="keywords" content="哩程, 萬豪, 星宇, 洲際, IHG, 積分, 機票, 信用卡, 哩程兌換, 常旅客" />
+  
+  <!-- 社群分享 (Facebook/LINE) 顯示設定 -->
+  <meta property="og:title" content="哩程機票與飯店積分精算神器" />
+  <meta property="og:description" content="一鍵精算萬豪、IHG 積分與星宇哩程機票最佳兌換方案。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://points.fongarea.com/" />
+  
+  <!-- 呼叫 PWA 獨立 APP 設定檔與圖示 -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
+      padding-top: env(safe-area-inset-top); /* 避開 iPhone 瀏海 */
     }
   </style>
 </head>
@@ -174,7 +195,6 @@
 
     createApp({
       setup() {
-        // ★ 已經替換為您的專屬 API 網址 ★
         const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnS-WCQ61QK_bymC5mU5_sd6BQrG6hJ72FC4gKO4V5EJKL9tcXcwwhqpyzMKuAWgFU3tZwX4i-bfNPJSuOMBxUt9RAwLGmDBx5WgZEoTbqrSb0aElsU0LVqxzMfZAqivsOzqj9gvWgeC-mFAeDlwb2zLY5Zrdgyms8PKYJ6BDRHlgLs89KQYhrHS1GneZRB357mK5WMEXBn1znOo6sytQ1XzJBIiWL-YQw9cWWdc6xKff7Rx4uA-YbuyUdjk030A_HK275mAE9ef8CMG3JRHoldZ5Lc4qg&lib=MZ5t1y4WJ56YzB-kB-h7mgTBw1kt7JJkM";
 
         const loading = ref(true);
