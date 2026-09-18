@@ -34,11 +34,11 @@
       <div class="flex justify-between items-center">
         <div>
           <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2.5 py-0.5 rounded-full">混搭精算旗艦版</span>
+            <span class="text-xs font-bold text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2.5 py-0.5 rounded-full">全球跨區旗艦版</span>
             <span v-if="loading" class="text-xs text-amber-400 animate-pulse">連線更新中...</span>
             <span v-else class="text-[11px] text-emerald-400 font-medium">● 資料庫同步完成</span>
           </div>
-          <h1 class="text-xl font-black text-white mt-1">日韓航線哩程票最佳兌換精算</h1>
+          <h1 class="text-xl font-black text-white mt-1">常旅客哩程票最佳兌換精算</h1>
         </div>
         <button @click="showSettings = !showSettings" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1.5 rounded-xl border border-slate-700 transition">
           {{ showSettings ? '收合參數' : '自訂成本' }}
@@ -71,33 +71,42 @@
         </div>
       </div>
 
-      <!-- 💡 新增：來回自由混搭計算器 (支援單點/不同點來回) -->
+      <!-- 💡 全新：直列式智慧混搭計算器 (支援單程/來回/不同點進出/關鍵字過濾) -->
       <div class="bg-gradient-to-r from-amber-950/40 to-slate-950 border border-amber-500/30 rounded-2xl p-4 space-y-3">
         <div class="flex justify-between items-center">
           <span class="text-xs font-black text-amber-400 flex items-center gap-1.5">
-            <span>✈️</span> 來回機票自由混搭計算器 (單點/不同點)
+            <span>✈️</span> 航段自由混搭計算器 (單程 / 來回 / 不同點進出)
           </span>
-          <button @click="resetRoundTrip" class="text-[10px] text-slate-400 hover:text-white underline">重設</button>
+          <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer font-bold">
+            <input type="checkbox" v-model="rt.includeReturn" class="rounded bg-slate-900 border-slate-700 text-amber-500 focus:ring-0">
+            包含回程票
+          </label>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          <!-- 去程選擇 -->
-          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 space-y-1.5">
-            <label class="text-slate-400 font-bold block">1️⃣ 選擇去程航段與方案</label>
-            <select v-model="rt.outboundKey" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold text-xs focus:border-amber-400 focus:outline-none">
-              <option value="">-- 請選擇去程航線與方案 --</option>
-              <option v-for="opt in availableOptions" :key="opt.id" :value="opt.id">
+        <div class="space-y-3 text-xs">
+          <!-- 去程設定 -->
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400 font-bold">1️⃣ 去程航段與方案選擇</span>
+              <input type="text" v-model="rt.outSearch" placeholder="過濾關鍵字(例: 台北, 仙台, SDJ)..." class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-[11px] text-white w-44 placeholder-slate-500">
+            </div>
+            <select v-model="rt.outboundKey" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-bold text-xs focus:border-amber-400 focus:outline-none">
+              <option value="">-- 請選擇去程航線與艙等方案 --</option>
+              <option v-for="opt in filteredOutboundOptions" :key="opt.id" :value="opt.id">
                 {{ opt.label }}
               </option>
             </select>
           </div>
 
-          <!-- 回程選擇 -->
-          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 space-y-1.5">
-            <label class="text-slate-400 font-bold block">2️⃣ 選擇回程航段與方案</label>
-            <select v-model="rt.inboundKey" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold text-xs focus:border-amber-400 focus:outline-none">
-              <option value="">-- 請選擇回程航線與方案 --</option>
-              <option v-for="opt in availableOptions" :key="opt.id" :value="opt.id">
+          <!-- 回程設定 (只有勾選包含回程時顯示) -->
+          <div v-if="rt.includeReturn" class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400 font-bold">2️⃣ 回程航段與方案選擇 (支援不同點進出)</span>
+              <input type="text" v-model="rt.inSearch" placeholder="過濾關鍵字(例: 神戶, 台中, UKB)..." class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-[11px] text-white w-44 placeholder-slate-500">
+            </div>
+            <select v-model="rt.inboundKey" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-bold text-xs focus:border-amber-400 focus:outline-none">
+              <option value="">-- 請選擇回程航線與艙等方案 --</option>
+              <option v-for="opt in filteredInboundOptions" :key="opt.id" :value="opt.id">
                 {{ opt.label }}
               </option>
             </select>
@@ -107,8 +116,9 @@
         <!-- 混搭計算結果顯示 -->
         <div v-if="rtSummary" class="bg-amber-950/30 border border-amber-500/40 rounded-xl p-3 flex justify-between items-center text-xs">
           <div class="space-y-0.5">
-            <div class="text-amber-300 font-black">✨ 來回總計：{{ rtSummary.totalMiles.toLocaleString() }} 哩 + 稅金 {{ rtSummary.totalTaxText }}</div>
-            <div class="text-[10px] text-slate-400">去程：{{ rtSummary.outLabel }} | 回程：{{ rtSummary.inLabel }}</div>
+            <div class="text-amber-300 font-black">✨ 總計：{{ rtSummary.totalMiles.toLocaleString() }} 哩 + 稅金 {{ rtSummary.totalTaxText }}</div>
+            <div class="text-[10px] text-slate-400">去程：{{ rtSummary.outLabel }}</div>
+            <div v-if="rt.includeReturn" class="text-[10px] text-slate-400">回程：{{ rtSummary.inLabel }}</div>
           </div>
           <div class="text-right">
             <div class="text-[10px] text-slate-400">預估總成本</div>
@@ -147,7 +157,7 @@
       </div>
     </div>
 
-    <!-- 單航線列表展示 (已修正紅圈處排版錯置) -->
+    <!-- 單航線列表展示 -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 text-slate-500 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -175,13 +185,12 @@
           </span>
         </div>
 
-        <!-- 1. 商務艙區塊 (已修正排版：標題與明細對齊) -->
+        <!-- 1. 商務艙區塊 -->
         <div v-if="(item.biz_miles || item.ey_biz_miles) && (selectedCabin === 'ALL' || selectedCabin === 'biz')" class="bg-slate-950 border border-amber-500/20 rounded-2xl p-3 space-y-3">
           <div class="text-xs font-extrabold text-amber-400 flex items-center gap-1.5 border-b border-slate-900 pb-1.5">
             <span>👑</span> 商務艙 (Business) 兌換方案
           </div>
 
-          <!-- 阿拉斯加方案 -->
           <div v-if="item.biz_miles" class="space-y-1.5">
             <div class="flex justify-between items-center text-[11px] text-slate-400">
               <span>✈️ 阿拉斯加航空 (AS) 兌換</span>
@@ -199,7 +208,6 @@
             </div>
           </div>
 
-          <!-- 阿提哈德方案 -->
           <div v-if="item.ey_biz_miles" class="space-y-1.5 pt-1">
             <div class="flex justify-between items-center text-[11px] text-slate-400">
               <span>⭐ 阿提哈德 (EY) 換 (CUBE 420點=1000哩)</span>
@@ -218,7 +226,7 @@
           </div>
         </div>
 
-        <!-- 2. 豪華經濟艙區塊 (已修正排版：標題不再與哩程擠在一起) -->
+        <!-- 2. 豪華經濟艙區塊 -->
         <div v-if="item.prem_miles && (selectedCabin === 'ALL' || selectedCabin === 'prem')" class="bg-slate-950 border border-purple-500/20 rounded-2xl p-3 space-y-3">
           <div class="flex justify-between items-center text-xs font-extrabold text-purple-400 border-b border-slate-900 pb-1.5">
             <span class="flex items-center gap-1.5"><span>⭐</span> 豪華經濟艙 (Prem Eco)</span>
@@ -242,7 +250,6 @@
             <span>✈️</span> 經濟艙 (Economy) 兌換方案
           </div>
 
-          <!-- 阿拉斯加方案 -->
           <div v-if="item.eco_miles" class="space-y-1.5">
             <div class="flex justify-between items-center text-[11px] text-slate-400">
               <span>✈️ 阿拉斯加航空 (AS) 兌換</span>
@@ -260,7 +267,6 @@
             </div>
           </div>
 
-          <!-- 阿提哈德方案 -->
           <div v-if="item.ey_eco_miles" class="space-y-1.5 pt-1">
             <div class="flex justify-between items-center text-[11px] text-slate-400">
               <span>⭐ 阿提哈德 (EY) 換 (CUBE 420點=1000哩)</span>
@@ -306,10 +312,13 @@
 
         const routesData = ref([]);
 
-        // 來回混搭計算狀態
+        // 來回混搭狀態 (支援單程勾選、獨立關鍵字過濾)
         const rt = ref({
+          includeReturn: true,
           outboundKey: '',
-          inboundKey: ''
+          inboundKey: '',
+          outSearch: '',
+          inSearch: ''
         });
 
         const fetchData = async () => {
@@ -361,16 +370,18 @@
           return Math.round(cubePoints * rates.value.cube_rate + taxTwd);
         };
 
-        // 將所有航線拆解為可供來回選擇的具體方案清單
-        const availableOptions = computed(() => {
+        // 建立所有航線方案清單
+        const allOptions = computed(() => {
           let list = [];
           routesData.value.forEach((item, rIdx) => {
             const baseRouteName = `${item.origin_name}(${item.origin}) ➔ ${item.dest_name}(${item.dest}) [${item.airline}]`;
 
-            // 1. 商務艙方案
+            // 商務艙
             if (item.biz_miles) {
               list.push({
                 id: `${rIdx}_biz_as`,
+                origin: item.origin,
+                dest: item.dest,
                 label: `${baseRouteName} - 商務艙 (阿拉斯加)`,
                 miles: Number(item.biz_miles),
                 cost: calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy'),
@@ -380,6 +391,8 @@
             if (item.ey_biz_miles) {
               list.push({
                 id: `${rIdx}_biz_ey`,
+                origin: item.origin,
+                dest: item.dest,
                 label: `${baseRouteName} - 商務艙 (阿提哈德)`,
                 miles: Number(item.ey_biz_miles),
                 cost: calcEyCost(item.ey_biz_miles, item.ey_biz_tax_val, item.ey_biz_tax_curr),
@@ -387,10 +400,12 @@
               });
             }
 
-            // 2. 豪華經濟艙方案
+            // 豪經艙
             if (item.prem_miles) {
               list.push({
                 id: `${rIdx}_prem_as`,
+                origin: item.origin,
+                dest: item.dest,
                 label: `${baseRouteName} - 豪華經濟艙 (阿拉斯加)`,
                 miles: Number(item.prem_miles),
                 cost: calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy'),
@@ -398,10 +413,12 @@
               });
             }
 
-            // 3. 經濟艙方案
+            // 經濟艙
             if (item.eco_miles) {
               list.push({
                 id: `${rIdx}_eco_as`,
+                origin: item.origin,
+                dest: item.dest,
                 label: `${baseRouteName} - 經濟艙 (阿拉斯加)`,
                 miles: Number(item.eco_miles),
                 cost: calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy'),
@@ -411,6 +428,8 @@
             if (item.ey_eco_miles) {
               list.push({
                 id: `${rIdx}_eco_ey`,
+                origin: item.origin,
+                dest: item.dest,
                 label: `${baseRouteName} - 經濟艙 (阿提哈德)`,
                 miles: Number(item.ey_eco_miles),
                 cost: calcEyCost(item.ey_eco_miles, item.ey_eco_tax_val, item.ey_eco_tax_curr),
@@ -421,12 +440,39 @@
           return list;
         });
 
-        // 計算來回混搭總結
+        // 支援即時關鍵字過濾的去程選單
+        const filteredOutboundOptions = computed(() => {
+          const kw = rt.value.outSearch.trim().toLowerCase();
+          if (!kw) return allOptions.value;
+          return allOptions.value.filter(o => o.label.toLowerCase().includes(kw));
+        });
+
+        // 支援即時關鍵字過濾的回程選單
+        const filteredInboundOptions = computed(() => {
+          const kw = rt.value.inSearch.trim().toLowerCase();
+          if (!kw) return allOptions.value;
+          return allOptions.value.filter(o => o.label.toLowerCase().includes(kw));
+        });
+
+        // 計算混搭總結 (支援單程或來回)
         const rtSummary = computed(() => {
-          if (!rt.value.outboundKey || !rt.value.inboundKey) return null;
-          const outOpt = availableOptions.value.find(o => o.id === rt.value.outboundKey);
-          const inOpt = availableOptions.value.find(o => o.id === rt.value.inboundKey);
-          if (!outOpt || !inOpt) return null;
+          if (!rt.value.outboundKey) return null;
+          const outOpt = allOptions.value.find(o => o.id === rt.value.outboundKey);
+          if (!outOpt) return null;
+
+          if (!rt.value.includeReturn) {
+            return {
+              totalMiles: outOpt.miles,
+              totalCost: outOpt.cost,
+              totalTaxText: outOpt.taxText,
+              outLabel: outOpt.label,
+              inLabel: ''
+            };
+          }
+
+          if (!rt.value.inboundKey) return null;
+          const inOpt = allOptions.value.find(o => o.id === rt.value.inboundKey);
+          if (!inOpt) return null;
 
           return {
             totalMiles: outOpt.miles + inOpt.miles,
@@ -436,11 +482,6 @@
             inLabel: inOpt.label
           };
         });
-
-        const resetRoundTrip = () => {
-          rt.value.outboundKey = '';
-          rt.value.inboundKey = '';
-        };
 
         const filteredRoutes = computed(() => {
           return routesData.value.filter(item => {
@@ -472,9 +513,9 @@
           routesData,
           filteredRoutes,
           rt,
-          availableOptions,
+          filteredOutboundOptions,
+          filteredInboundOptions,
           rtSummary,
-          resetRoundTrip,
           fetchData,
           calcAsCost,
           calcEyCost
