@@ -83,7 +83,7 @@
         
         <div class="grid grid-cols-2 gap-2 text-sm">
           <select v-model="flightSearch.tripType" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold focus:outline-none">
-            <option value="oneWay">→ 單程</option>
+            <option value="oneWay">→ 單程 / 中停</option>
             <option value="round">⇄ 來回 / 混艙</option>
           </select>
 
@@ -101,7 +101,7 @@
         <!-- 去程設定 -->
         <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-sm">
           <div class="flex justify-between items-center text-xs font-bold text-slate-300">
-            <span>✈️ 去程航段</span>
+            <span>✈️ 去程航段 (支援 1500哩內中停)</span>
             <select v-model="flightSearch.outCabin" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-cyan-400 font-bold text-xs focus:outline-none">
               <option value="ALL">全部艙等</option>
               <option value="biz">👑 商務</option>
@@ -208,6 +208,9 @@
               <option value="ALL">全部國家</option>
               <option value="TW">台灣</option>
               <option value="JP">日本</option>
+              <option value="MO">澳門</option>
+              <option value="KR">韓國 (預留)</option>
+              <option value="VN">越南 (預留)</option>
             </select>
           </div>
 
@@ -231,7 +234,6 @@
             </select>
           </div>
 
-          <!-- 💡 價格排序選單 -->
           <div>
             <label class="text-[11px] text-slate-400 font-bold block mb-1">4️⃣ 價格排序</label>
             <select v-model="sortOrder" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs font-bold text-amber-400 focus:outline-none">
@@ -247,7 +249,7 @@
       </div>
     </div>
 
-    <!-- 下方區塊：動態航線卡片展示 (依照排序自動排列) -->
+    <!-- 下方區塊：動態航線卡片展示 -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 text-slate-500 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -398,7 +400,7 @@
         const selectedCountry = ref('ALL');
         const selectedAirport = ref('ALL');
         const selectedCabin = ref('ALL');
-        const sortOrder = ref('asc'); // 預設由低到高
+        const sortOrder = ref('asc');
 
         const savedRates = JSON.parse(localStorage.getItem('miles_rates') || '{}');
         const rates = ref({
@@ -416,6 +418,7 @@
 
         const routesData = ref([]);
 
+        // 💡 新增澳門 (MO) 與預留韓國 (KR)、越南 (VN)
         const allAirports = [
           { code: 'TPE', name: '台北桃園', country: 'TW' },
           { code: 'RMQ', name: '台中清泉崗', country: 'TW' },
@@ -428,7 +431,8 @@
           { code: 'SHI', name: '下地島/宮古', country: 'JP' },
           { code: 'NRT', name: '東京成田', country: 'JP' },
           { code: 'KIX', name: '大阪關西', country: 'JP' },
-          { code: 'UKB', name: '神戶', country: 'JP' }
+          { code: 'UKB', name: '神戶', country: 'JP' },
+          { code: 'MFM', name: '澳門', country: 'MO' }
         ];
 
         const flightSearch = ref({
@@ -632,7 +636,6 @@
           };
         });
 
-        // 💡 支援價格由低到高 / 由高到低的下方航線排序
         const filteredRoutes = computed(() => {
           let list = routesData.value.filter(item => {
             if (selectedAirport.value !== 'ALL') {
@@ -649,7 +652,6 @@
             return true;
           });
 
-          // 取得每張卡片的最低參考成本進行排序
           list.sort((a, b) => {
             let costA = Infinity;
             let costB = Infinity;
