@@ -1,101 +1,569 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <title>Miles App Icon Generator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Miles" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#020617" />
+  
+  <title>常旅客哩程票最佳兌換精算</title>
+  
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <link rel="icon" type="image/png" href="icon.png" />
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <style>
     body {
-      background: #020617;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      color: white;
-      font-family: sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
     }
-    canvas {
-      border-radius: 96px;
-      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
-      margin-bottom: 20px;
-    }
-    button {
-      background: #3b82f6;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 12px;
-      cursor: pointer;
-    }
-    button:hover { background: #2563eb; }
   </style>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-3 sm:p-6 flex flex-col items-center">
 
-  <canvas id="iconCanvas" width="512" height="512"></canvas>
-  <button onclick="downloadIcon()">下載完美比例 icon.png (512x512)</button>
+  <div id="app" class="w-full max-w-xl space-y-4">
+    
+    <!-- 頂部卡片 -->
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-xl font-black text-white">常旅客哩程票最佳兌換精算</h1>
+        </div>
+        <button @click="showSettings = !showSettings" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-1.5 rounded-xl border border-slate-700 transition">
+          {{ showSettings ? '收合參數' : '自訂成本' }}
+        </button>
+      </div>
+
+      <!-- 參數抽屜 -->
+      <div v-if="showSettings" class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5 space-y-3 text-xs">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+          <span class="text-slate-400 font-bold">點數與多國匯率參數設定</span>
+          <button @click="fetchData" class="text-[11px] text-amber-400 hover:underline">強制重新整理資料</button>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-slate-400 block mb-1">美金匯率 (USD/TWD)</label>
+            <input type="number" step="0.01" v-model.number="rates.usd_twd" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-white font-bold">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">日幣匯率 (JPY/TWD)</label>
+            <input type="number" step="0.001" v-model.number="rates.jpy_twd" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-cyan-400 font-bold">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">迪拉姆匯率 (AED/TWD)</label>
+            <input type="number" step="0.01" v-model.number="rates.aed_twd" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-amber-400 font-bold">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">國泰小樹點 (元/點)</label>
+            <input type="number" step="0.01" v-model.number="rates.cube_rate" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-emerald-400 font-bold">
+          </div>
+        </div>
+      </div>
+
+      <!-- 上方區塊：精確航線與多人預算試算 -->
+      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
+        <div class="text-xs font-black text-amber-400 flex items-center gap-1.5 pb-1 border-b border-slate-800">
+          <span>✈️</span> 【精確航線與多人預算試算】
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <select v-model="flightSearch.tripType" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-bold focus:outline-none">
+            <option value="oneWay">→ 單程</option>
+            <option value="round">⇄ 來回 / 不同點進出</option>
+          </select>
+
+          <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-bold">
+            <span>👤 兌換人數:</span>
+            <select v-model.number="flightSearch.passengers" class="bg-transparent text-amber-400 font-black focus:outline-none">
+              <option :value="1">1 人</option>
+              <option :value="2">2 人</option>
+              <option :value="3">3 人</option>
+              <option :value="4">4 人</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 去程設定 -->
+        <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-xs">
+          <div class="font-bold text-slate-300">✈️ 去程 (必須指定出發地與目的地)</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-1">出發地</label>
+              <select v-model="flightSearch.outOrigin" @change="onOutPortChange" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none">
+                <option value="">選擇出發機場</option>
+                <option v-for="apt in allAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-1">目的地</label>
+              <select v-model="flightSearch.outDest" @change="onOutPortChange" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none">
+                <option value="">選擇抵達機場</option>
+                <option v-for="apt in allAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
+              </select>
+            </div>
+          </div>
+          <select v-model="flightSearch.outboundKey" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none mt-1">
+            <option value="">-- 請選擇去程具體兌換方案 --</option>
+            <option v-for="opt in filteredOutboundOptions" :key="opt.id" :value="opt.id">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- 回程設定 -->
+        <div v-if="flightSearch.tripType === 'round'" class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-xs">
+          <div class="font-bold text-slate-300">🔄 回程 (支援不同點進出)</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-1">出發地 (回程)</label>
+              <select v-model="flightSearch.inOrigin" @change="onInPortChange" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none">
+                <option value="">選擇出發機場</option>
+                <option v-for="apt in allAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-1">目的地 (回程)</label>
+              <select v-model="flightSearch.inDest" @change="onInPortChange" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none">
+                <option value="">選擇抵達機場</option>
+                <option v-for="apt in allAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
+              </select>
+            </div>
+          </div>
+          <select v-model="flightSearch.inboundKey" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-xs focus:outline-none mt-1">
+            <option value="">-- 請選擇回程具體兌換方案 --</option>
+            <option v-for="opt in filteredInboundOptions" :key="opt.id" :value="opt.id">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- 試算結果面板 -->
+        <div v-if="flightSummary" class="bg-gradient-to-r from-amber-950/50 to-slate-900 border border-amber-500/40 rounded-xl p-3.5 flex justify-between items-center text-xs">
+          <div class="space-y-1">
+            <div class="text-amber-300 font-black">
+              ✨ 總計 ({{ flightSearch.passengers }}人) : {{ flightSummary.totalMiles.toLocaleString() }} 哩 + 稅金 {{ flightSummary.totalTaxText }}
+            </div>
+            <div class="text-[10px] text-slate-400">去程：{{ flightSummary.outLabel }}</div>
+            <div v-if="flightSearch.tripType === 'round'" class="text-[10px] text-slate-400">回程：{{ flightSummary.inLabel }}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] text-slate-400">預估總成本</div>
+            <div class="text-amber-400 font-black text-lg">NT$ {{ flightSummary.totalCost.toLocaleString() }}</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 下方區塊：兩層聯動式導覽 -->
+      <div class="space-y-3 pt-3 border-t border-slate-800">
+        <div class="text-xs font-black text-cyan-400 flex items-center gap-1.5">
+          <span>🔍</span> 【航點大探索：先選國家，再選出發機場】
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <div>
+            <label class="text-[10px] text-slate-400 font-bold block mb-1">1️⃣ 出發國家</label>
+            <select v-model="selectedCountry" @change="onCountryChange" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none">
+              <option value="ALL">全部國家</option>
+              <option value="TW">台灣 (Taiwan)</option>
+              <option value="JP">日本 (Japan)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[10px] text-slate-400 font-bold block mb-1">2️⃣ 出發機場</label>
+            <select v-model="selectedAirport" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none">
+              <option value="ALL">全部機場</option>
+              <option v-for="apt in linkedAirports" :key="apt.code" :value="apt.code">
+                {{ apt.name }} ({{ apt.code }})
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[10px] text-slate-400 font-bold block mb-1">3️⃣ 艙等篩選</label>
+            <select v-model="selectedCabin" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-bold text-white focus:outline-none">
+              <option value="ALL">全部艙等</option>
+              <option value="biz">商務艙</option>
+              <option value="prem">豪經艙</option>
+              <option value="eco">經濟艙</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="text-[11px] text-slate-400 flex justify-between items-center px-1">
+          <span>已為您列出該出發地可飛往的航點目的地（共 {{ filteredRoutes.length }} 個航線）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 下方區塊：動態航線卡片展示 -->
+    <div class="space-y-3">
+      <div v-if="loading" class="text-center py-12 text-slate-500 text-sm">
+        正在自 Google Sheet 載入最新數據...
+      </div>
+      
+      <div v-else-if="filteredRoutes.length === 0" class="text-center py-12 text-slate-500 text-sm">
+        查無符合條件之航點，請調整出發地或艙等
+      </div>
+
+      <div v-else v-for="(item, idx) in filteredRoutes" :key="idx" class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl space-y-4">
+        
+        <div class="flex justify-between items-start border-b border-slate-800 pb-3">
+          <div>
+            <div class="text-lg font-black text-white">
+              {{ item.origin_name }} ({{ item.origin }}) ➔ {{ item.dest_name }} ({{ item.dest }})
+            </div>
+            <div class="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
+              <span class="font-bold text-slate-300">{{ item.airline }}</span>
+              <span v-if="item.note" class="bg-slate-800 text-amber-300 px-1.5 py-0.2 rounded text-[10px]">{{ item.note }}</span>
+            </div>
+          </div>
+          <span class="text-xs font-bold text-cyan-400 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-xl">
+            航點比價
+          </span>
+        </div>
+
+        <!-- 商務艙 -->
+        <div v-if="(item.biz_miles || item.ey_biz_miles) && (selectedCabin === 'ALL' || selectedCabin === 'biz')" class="bg-slate-950 border border-amber-500/20 rounded-2xl p-3 space-y-3">
+          <div class="text-xs font-extrabold text-amber-400 flex items-center gap-1.5 border-b border-slate-900 pb-1.5">
+            <span>👑</span> 商務艙 (Business) 兌換方案
+          </div>
+
+          <div v-if="item.biz_miles" class="space-y-1.5">
+            <div class="flex justify-between items-center text-[11px] text-slate-400">
+              <span>✈️ 阿拉斯加航空 (AS) 兌換</span>
+              <span class="text-slate-300 font-bold">{{ Number(item.biz_miles).toLocaleString() }} 哩 + {{ item.biz_tax_usd || 44 }} USD</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
+                <div class="text-slate-400 text-[10px]">特價買點估算</div>
+                <div class="text-amber-300 font-black text-sm">NT$ {{ calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy').toLocaleString() }}</div>
+              </div>
+              <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
+                <div class="text-slate-400 text-[10px]">萬豪轉點</div>
+                <div class="text-purple-300 font-black text-sm">NT$ {{ calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott').toLocaleString() }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="item.ey_biz_miles" class="space-y-1.5 pt-1">
+            <div class="flex justify-between items-center text-[11px] text-slate-400">
+              <span>⭐ 阿提哈德 (EY) 換 (CUBE 420點=1000哩)</span>
+              <span class="text-emerald-300 font-bold">{{ Number(item.ey_biz_miles).toLocaleString() }} 哩 + {{ item.ey_biz_tax_curr || 'TWD' }} {{ Number(item.ey_biz_tax_val || 0).toLocaleString() }}</span>
+            </div>
+            <div class="bg-slate-900/90 rounded-xl p-2.5 border border-emerald-500/30 flex justify-between items-center">
+              <div>
+                <div class="text-[10px] text-slate-400">需刷 CUBE 累積小樹點</div>
+                <div class="text-slate-200 font-bold text-xs">{{ Math.ceil((Number(item.ey_biz_miles) / 1000) * 420) }} 點</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[10px] text-slate-400">總成本 (含外幣稅金換算)</div>
+                <div class="text-emerald-300 font-black text-sm">NT$ {{ calcEyCost(item.ey_biz_miles, item.ey_biz_tax_val, item.ey_biz_tax_curr).toLocaleString() }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 豪華經濟艙 -->
+        <div v-if="item.prem_miles && (selectedCabin === 'ALL' || selectedCabin === 'prem')" class="bg-slate-950 border border-purple-500/20 rounded-2xl p-3 space-y-3">
+          <div class="flex justify-between items-center text-xs font-extrabold text-purple-400 border-b border-slate-900 pb-1.5">
+            <span class="flex items-center gap-1.5"><span>⭐</span> 豪華經濟艙 (Prem Eco)</span>
+            <span class="text-slate-300 font-bold">{{ Number(item.prem_miles).toLocaleString() }} 哩 + {{ item.prem_tax_usd || 44 }} USD</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
+              <div class="text-slate-400 text-[10px]">特價買點估算</div>
+              <div class="text-amber-300 font-black text-sm">NT$ {{ calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy').toLocaleString() }}</div>
+            </div>
+            <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
+              <div class="text-slate-400 text-[10px]">萬豪轉點</div>
+              <div class="text-purple-300 font-black text-sm">NT$ {{ calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott').toLocaleString() }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 經濟艙 -->
+        <div v-if="(item.eco_miles || item.ey_eco_miles) && (selectedCabin === 'ALL' || selectedCabin === 'eco')" class="bg-slate-950 border border-blue-500/20 rounded-2xl p-3 space-y-3">
+          <div class="text-xs font-extrabold text-blue-400 flex items-center gap-1.5 border-b border-slate-900 pb-1.5">
+            <span>✈️</span> 經濟艙 (Economy) 兌換方案
+          </div>
+
+          <div v-if="item.eco_miles" class="space-y-1.5">
+            <div class="flex justify-between items-center text-[11px] text-slate-400">
+              <span>✈️ 阿拉斯加航空 (AS) 兌換</span>
+              <span class="text-slate-300 font-bold">{{ Number(item.eco_miles).toLocaleString() }} 哩 + {{ item.eco_tax_usd || 44 }} USD</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
+                <div class="text-slate-400 text-[10px]">特價買點估算</div>
+                <div class="text-amber-300 font-black text-sm">NT$ {{ calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy').toLocaleString() }}</div>
+              </div>
+              <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
+                <div class="text-slate-400 text-[10px]">萬豪轉點</div>
+                <div class="text-purple-300 font-black text-sm">NT$ {{ calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott').toLocaleString() }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="item.ey_eco_miles" class="space-y-1.5 pt-1">
+            <div class="flex justify-between items-center text-[11px] text-slate-400">
+              <span>⭐ 阿提哈德 (EY) 換 (CUBE 420點=1000哩)</span>
+              <span class="text-emerald-300 font-bold">{{ Number(item.ey_eco_miles).toLocaleString() }} 哩 + {{ item.ey_eco_tax_curr || 'TWD' }} {{ Number(item.ey_eco_tax_val || 0).toLocaleString() }}</span>
+            </div>
+            <div class="bg-slate-900/90 rounded-xl p-2.5 border border-emerald-500/30 flex justify-between items-center">
+              <div>
+                <div class="text-[10px] text-slate-400">需刷 CUBE 累積小樹點</div>
+                <div class="text-slate-200 font-bold text-xs">{{ Math.ceil((Number(item.ey_eco_miles) / 1000) * 420) }} 點</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[10px] text-slate-400">總成本 (含外幣稅金換算)</div>
+                <div class="text-emerald-300 font-black text-sm">NT$ {{ calcEyCost(item.ey_eco_miles, item.ey_eco_tax_val, item.ey_eco_tax_curr).toLocaleString() }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
 
   <script>
-    const canvas = document.getElementById('iconCanvas');
-    const ctx = canvas.getContext('2d');
+    const { createApp, ref, computed, onMounted } = Vue;
 
-    // 1. 質感深藍漸層背景
-    const grad = ctx.createLinearGradient(0, 0, 512, 512);
-    grad.addColorStop(0, '#1e3a8a');
-    grad.addColorStop(1, '#0f172a');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 512, 512);
+    createApp({
+      setup() {
+        const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnS-WCQ61QK_bymC5mU5_sd6BQrG6hJ72FC4gKO4V5EJKL9tcXcwwhqpyzMKuAWgFU3tZwX4i-bfNPJSuOMBxUt9RAwLGmDBx5WgZEoTbqrSb0aElsU0LVqxzMfZAqivsOzqj9gvWgeC-mFAeDlwb2zLY5Zrdgyms8PKYJ6BDRHlgLs89KQYhrHS1GneZRB357mK5WMEXBn1znOo6sytQ1XzJBIiWL-YQw9cWWdc6xKff7Rx4uA-YbuyUdjk030A_HK275mAE9ef8CMG3JRHoldZ5Lc4qg&lib=MZ5t1y4WJ56YzB-kB-h7mgTBw1kt7JJkM";
 
-    // 2. 繪製流線立體客機 (調整角度讓機頭仰角更自然流暢)
-    ctx.save();
-    ctx.translate(245, 215);
-    ctx.rotate(-Math.PI / 6); // 降低仰角至約 30 度，平穩大氣
+        const loading = ref(true);
+        const showSettings = ref(false);
 
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    // 機身尖端與流線造型
-    ctx.moveTo(0, -100);
-    ctx.bezierCurveTo(10, -60, 14, 0, 16, 45);
-    // 右機翼
-    ctx.lineTo(80, 85);
-    ctx.lineTo(60, 100);
-    ctx.lineTo(14, 70);
-    // 機身尾部
-    ctx.lineTo(0, 90);
-    // 左機翼
-    ctx.lineTo(-14, 70);
-    ctx.lineTo(-60, 100);
-    ctx.lineTo(-80, 85);
-    ctx.lineTo(-16, 45);
-    ctx.bezierCurveTo(-14, 0, -10, -60, 0, -100);
-    ctx.closePath();
-    ctx.fill();
+        const selectedCountry = ref('ALL');
+        const selectedAirport = ref('ALL');
+        const selectedCabin = ref('ALL');
 
-    // 立體機腹光影線
-    ctx.fillStyle = '#60a5fa';
-    ctx.beginPath();
-    ctx.moveTo(0, -50);
-    ctx.lineTo(0, 50);
-    ctx.lineTo(4, 30);
-    ctx.closePath();
-    ctx.fill();
+        const rates = ref({
+          usd_twd: 31.8,
+          jpy_twd: 0.21,
+          aed_twd: 8.7,
+          cube_rate: 0.42
+        });
 
-    ctx.restore();
+        const routesData = ref([]);
 
-    // 3. 繪製 "Miles" 現代風白色粗體字
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 72px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Miles', 256, 420);
+        const allAirports = [
+          { code: 'TPE', name: '台北桃園', country: 'TW' },
+          { code: 'RMQ', name: '台中清泉崗', country: 'TW' },
+          { code: 'KHH', name: '高雄小港', country: 'TW' },
+          { code: 'SDJ', name: '仙台', country: 'JP' },
+          { code: 'FUK', name: '福岡', country: 'JP' },
+          { code: 'NGO', name: '名古屋', country: 'JP' },
+          { code: 'KMJ', name: '熊本', country: 'JP' },
+          { code: 'OKA', name: '沖繩', country: 'JP' },
+          { code: 'SHI', name: '下地島/宮古', country: 'JP' },
+          { code: 'NRT', name: '東京成田', country: 'JP' },
+          { code: 'KIX', name: '大阪關西', country: 'JP' },
+          { code: 'UKB', name: '神戶', country: 'JP' }
+        ];
 
-    function downloadIcon() {
-      const link = document.createElement('a');
-      link.download = 'icon.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }
+        const flightSearch = ref({
+          tripType: 'oneWay',
+          passengers: 1,
+          outOrigin: '',
+          outDest: '',
+          inOrigin: '',
+          inDest: '',
+          outboundKey: '',
+          inboundKey: ''
+        });
+
+        const onOutPortChange = () => {
+          flightSearch.value.outboundKey = '';
+        };
+
+        const onInPortChange = () => {
+          flightSearch.value.inboundKey = '';
+        };
+
+        const fetchData = async () => {
+          loading.value = true;
+          try {
+            const res = await fetch(API_URL + "&t=" + new Date().getTime());
+            const data = await res.json();
+            if (data.rates) rates.value = Object.assign(rates.value, data.rates);
+            if (data.routes) routesData.value = data.routes;
+          } catch (err) {
+            console.error("API 連線失敗：", err);
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        onMounted(() => {
+          fetchData();
+        });
+
+        const onCountryChange = () => {
+          selectedAirport.value = 'ALL';
+        };
+
+        const linkedAirports = computed(() => {
+          if (selectedCountry.value === 'ALL') {
+            return allAirports;
+          }
+          return allAirports.filter(apt => apt.country === selectedCountry.value);
+        });
+
+        const calcAsCost = (miles, taxUsd, type) => {
+          if (!miles) return 0;
+          const taxTwd = Number(taxUsd || 44) * rates.value.usd_twd;
+          if (type === 'buy') {
+            return Math.round(Number(miles) * 0.60 + taxTwd);
+          } else if (type === 'marriott') {
+            return Math.round(Number(miles) * 3 * rates.value.marriott_rate + taxTwd);
+          }
+          return 0;
+        };
+
+        const calcEyCost = (miles, taxVal, curr) => {
+          if (!miles) return 0;
+          let taxTwd = 0;
+          const val = Number(taxVal || 0);
+          const c = String(curr || 'TWD').toUpperCase();
+
+          if (c === 'JPY') {
+            taxTwd = val * rates.value.jpy_twd;
+          } else if (c === 'AED') {
+            taxTwd = val * rates.value.aed_twd;
+          } else if (c === 'USD') {
+            taxTwd = val * rates.value.usd_twd;
+          } else {
+            taxTwd = val;
+          }
+
+          const cubePoints = Math.ceil((Number(miles) / 1000) * 420);
+          return Math.round(cubePoints * rates.value.cube_rate + taxTwd);
+        };
+
+        const allOptions = computed(() => {
+          let list = [];
+          routesData.value.forEach((item, rIdx) => {
+            const baseRouteName = `${item.origin_name}(${item.origin}) ➔ ${item.dest_name}(${item.dest}) [${item.airline}]`;
+
+            if (item.biz_miles) {
+              list.push({ id: `${rIdx}_biz_as`, origin: item.origin, dest: item.dest, label: `${baseRouteName} - 商務艙 (阿拉斯加)`, miles: Number(item.biz_miles), cost: calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy'), taxText: `${item.biz_tax_usd || 44} USD` });
+            }
+            if (item.ey_biz_miles) {
+              list.push({ id: `${rIdx}_biz_ey`, origin: item.origin, dest: item.dest, label: `${baseRouteName} - 商務艙 (阿提哈德)`, miles: Number(item.ey_biz_miles), cost: calcEyCost(item.ey_biz_miles, item.ey_biz_tax_val, item.ey_biz_tax_curr), taxText: `${item.ey_biz_tax_curr || 'TWD'} ${item.ey_biz_tax_val || 0}` });
+            }
+            if (item.prem_miles) {
+              list.push({ id: `${rIdx}_prem_as`, origin: item.origin, dest: item.dest, label: `${baseRouteName} - 豪華經濟艙 (阿拉斯加)`, miles: Number(item.prem_miles), cost: calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy'), taxText: `${item.prem_tax_usd || 44} USD` });
+            }
+            if (item.eco_miles) {
+              list.push({ id: `${rIdx}_eco_as`, origin: item.origin, dest: item.dest, label: `${baseRouteName} - 經濟艙 (阿拉斯加)`, miles: Number(item.eco_miles), cost: calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy'), taxText: `${item.eco_tax_usd || 44} USD` });
+            }
+            if (item.ey_eco_miles) {
+              list.push({ id: `${rIdx}_eco_ey`, origin: item.origin, dest: item.dest, label: `${baseRouteName} - 經濟艙 (阿提哈德)`, miles: Number(item.ey_eco_miles), cost: calcEyCost(item.ey_eco_miles, item.ey_eco_tax_val, item.ey_eco_tax_curr), taxText: `${item.ey_eco_tax_curr || 'TWD'} ${item.ey_eco_tax_val || 0}` });
+            }
+          });
+          return list;
+        });
+
+        const filteredOutboundOptions = computed(() => {
+          return allOptions.value.filter(o => {
+            const matchO = !flightSearch.value.outOrigin || o.origin === flightSearch.value.outOrigin;
+            const matchD = !flightSearch.value.outDest || o.dest === flightSearch.value.outDest;
+            return matchO && matchD;
+          });
+        });
+
+        const filteredInboundOptions = computed(() => {
+          return allOptions.value.filter(o => {
+            const matchO = !flightSearch.value.inOrigin || o.origin === flightSearch.value.inOrigin;
+            const matchD = !flightSearch.value.inDest || o.dest === flightSearch.value.inDest;
+            return matchO && matchD;
+          });
+        });
+
+        const flightSummary = computed(() => {
+          if (!flightSearch.value.outboundKey) return null;
+          const outOpt = allOptions.value.find(o => o.id === flightSearch.value.outboundKey);
+          if (!outOpt) return null;
+
+          const pax = flightSearch.value.passengers;
+
+          if (flightSearch.value.tripType === 'oneWay') {
+            return {
+              totalMiles: outOpt.miles * pax,
+              totalCost: outOpt.cost * pax,
+              totalTaxText: outOpt.taxText,
+              outLabel: outOpt.label,
+              inLabel: ''
+            };
+          }
+
+          if (!flightSearch.value.inboundKey) return null;
+          const inOpt = allOptions.value.find(o => o.id === flightSearch.value.inboundKey);
+          if (!inOpt) return null;
+
+          return {
+            totalMiles: (outOpt.miles + inOpt.miles) * pax,
+            totalCost: (outOpt.cost + inOpt.cost) * pax,
+            totalTaxText: `${outOpt.taxText} + ${inOpt.taxText}`,
+            outLabel: outOpt.label,
+            inLabel: inOpt.label
+          };
+        });
+
+        const filteredRoutes = computed(() => {
+          return routesData.value.filter(item => {
+            if (selectedAirport.value !== 'ALL') {
+              if (item.origin !== selectedAirport.value) return false;
+            } else if (selectedCountry.value !== 'ALL') {
+              const matchedApt = allAirports.find(a => a.code === item.origin);
+              if (!matchedApt || matchedApt.country !== selectedCountry.value) return false;
+            }
+
+            if (selectedCabin.value === 'biz') return !!(item.biz_miles || item.ey_biz_miles);
+            if (selectedCabin.value === 'prem') return !!(item.prem_miles);
+            if (selectedCabin.value === 'eco') return !!(item.eco_miles || item.ey_eco_miles);
+
+            return true;
+          });
+        });
+
+        return {
+          loading,
+          showSettings,
+          selectedCountry,
+          selectedAirport,
+          selectedCabin,
+          linkedAirports,
+          onCountryChange,
+          rates,
+          routesData,
+          filteredRoutes,
+          allAirports,
+          flightSearch,
+          filteredOutboundOptions,
+          filteredInboundOptions,
+          flightSummary,
+          onOutPortChange,
+          onInPortChange,
+          fetchData,
+          calcAsCost,
+          calcEyCost
+        };
+      }
+    }).mount('#app');
   </script>
 </body>
 </html>
