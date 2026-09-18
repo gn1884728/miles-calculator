@@ -194,7 +194,7 @@
 
       </div>
 
-      <!-- 下方區塊：航點大探索 (含國家、出發機場、目的地機場、艙等、價格排序) -->
+      <!-- 下方區塊：航點大探索 -->
       <div class="space-y-3 pt-3 border-t border-slate-800">
         <div class="text-xs font-black text-cyan-400 flex items-center justify-between">
           <span>🔍 【航點大探索】</span>
@@ -283,7 +283,7 @@
           </span>
         </div>
 
-        <!-- 艙等總覽與跨方案全域最低價判定 (綠框永遠給最便宜的方案) -->
+        <!-- 艙等總覽與全域最低價判定 -->
         <div v-for="cabinKey in ['biz', 'prem', 'eco']" :key="cabinKey">
           <div v-if="shouldShowCabinCard(item, cabinKey)" class="bg-slate-950 border border-slate-800 rounded-2xl p-3 space-y-3 mt-2">
             <div class="text-xs font-extrabold text-amber-400 flex items-center gap-1.5 border-b border-slate-900 pb-2">
@@ -328,16 +328,16 @@
 
   </div>
 
-  <!-- 🚀 神級中停密技彈窗 (炫技專區) -->
+  <!-- 🚀 神級中停密技彈窗 (修正關閉按鈕) -->
   <div v-if="showTricksModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl w-full max-w-md p-5 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="text-cyan-400 font-black text-base">🚀 阿拉斯加 1500哩內中停密技專區</h3>
+        <!-- 💡 修正：加上 @click 讓右上角打叉可以正常關閉 -->
         <button @click="showTricksModal = false" class="text-slate-400 hover:text-white font-bold text-lg">✕</button>
       </div>
       <div class="space-y-2.5 max-h-[60vh] overflow-y-auto pr-1">
         
-        <!-- 密技 1 -->
         <div @click="applyTrick('FUK', 'MFM')" class="bg-slate-950 hover:bg-cyan-950/40 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-3 cursor-pointer transition space-y-1">
           <div class="flex justify-between items-center text-xs font-bold text-white">
             <span>福岡 ➔ 台北(中停14天) ➔ 澳門</span>
@@ -348,6 +348,7 @@
 
       </div>
       <div class="text-center pt-2">
+        <!-- 💡 修正：加上 @click 讓底部關閉按鈕可以正常關閉 -->
         <button @click="showTricksModal = false" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs px-4 py-2 rounded-xl">
           關閉視窗
         </button>
@@ -364,7 +365,7 @@
 
         const loading = ref(true);
         const showSettings = ref(false);
-        const showTricksModal = ref(false); // 彈窗開關
+        const showTricksModal = ref(false);
 
         const selectedCountry = ref('ALL');
         const selectedAirport = ref('ALL');
@@ -417,7 +418,6 @@
           inboundKey: ''
         });
 
-        // 💡 點擊密技後直接一鍵代入外層搜尋
         const applyTrick = (origin, dest) => {
           flightSearch.value.outOrigin = origin;
           flightSearch.value.outDest = dest;
@@ -524,8 +524,6 @@
 
         const allOptions = computed(() => {
           let list = [];
-          
-          // 💡 手動擴充前端硬編碼的神級中停航線 (FUK ➔ MFM 透過台北中停)
           const secretTricks = [
             { origin: 'FUK', dest: 'MFM', origin_name: '福岡', dest_name: '澳門', airline: 'AS (中停密技)', eco_miles: 7500, eco_tax_usd: 87, note: '✨ 1500哩內免費中停' }
           ];
