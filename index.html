@@ -102,7 +102,6 @@
         <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-sm">
           <div class="flex justify-between items-center text-xs font-bold text-slate-300">
             <span>✈️ 去程航段</span>
-            <!-- 💡 去程獨立艙等篩選 -->
             <select v-model="flightSearch.outCabin" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-cyan-400 font-bold text-xs focus:outline-none">
               <option value="ALL">全部艙等</option>
               <option value="biz">👑 商務</option>
@@ -134,11 +133,10 @@
           </select>
         </div>
 
-        <!-- 回程設定 (支援獨立回程艙等，完美混艙) -->
+        <!-- 回程設定 -->
         <div v-if="flightSearch.tripType === 'round'" class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-sm">
           <div class="flex justify-between items-center text-xs font-bold text-slate-300">
             <span>🔄 回程航段 (支援混艙)</span>
-            <!-- 💡 回程獨立艙等篩選 -->
             <select v-model="flightSearch.inCabin" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-cyan-400 font-bold text-xs focus:outline-none">
               <option value="ALL">全部艙等</option>
               <option value="biz">👑 商務</option>
@@ -197,25 +195,25 @@
 
       </div>
 
-      <!-- 下方區塊：兩層聯動式導覽 -->
+      <!-- 下方區塊：兩層聯動式導覽 + 價格排序 -->
       <div class="space-y-3 pt-3 border-t border-slate-800">
-        <div class="text-xs font-black text-cyan-400 flex items-center gap-1.5">
-          <span>🔍</span> 【航點大探索：先選國家，再選出發機場】
+        <div class="text-xs font-black text-cyan-400 flex items-center justify-between">
+          <span>🔍 【航點大探索】</span>
         </div>
 
-        <div class="grid grid-cols-3 gap-2 text-sm">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
           <div>
-            <label class="text-[11px] text-slate-400 font-bold block mb-1">1️⃣ 出發國家</label>
-            <select v-model="selectedCountry" @change="onCountryChange" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none">
+            <label class="text-[11px] text-slate-400 font-bold block mb-1">1️⃣ 國家</label>
+            <select v-model="selectedCountry" @change="onCountryChange" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none">
               <option value="ALL">全部國家</option>
-              <option value="TW">台灣 (Taiwan)</option>
-              <option value="JP">日本 (Japan)</option>
+              <option value="TW">台灣</option>
+              <option value="JP">日本</option>
             </select>
           </div>
 
           <div>
             <label class="text-[11px] text-slate-400 font-bold block mb-1">2️⃣ 出發機場</label>
-            <select v-model="selectedAirport" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none">
+            <select v-model="selectedAirport" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none">
               <option value="ALL">全部機場</option>
               <option v-for="apt in linkedAirports" :key="apt.code" :value="apt.code">
                 {{ apt.name }} ({{ apt.code }})
@@ -224,23 +222,32 @@
           </div>
 
           <div>
-            <label class="text-[11px] text-slate-400 font-bold block mb-1">3️⃣ 艙等篩選</label>
-            <select v-model="selectedCabin" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-bold text-white focus:outline-none">
+            <label class="text-[11px] text-slate-400 font-bold block mb-1">3️⃣ 艙等</label>
+            <select v-model="selectedCabin" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs font-bold text-white focus:outline-none">
               <option value="ALL">全部艙等</option>
               <option value="biz">商務艙</option>
               <option value="prem">豪經艙</option>
               <option value="eco">經濟艙</option>
             </select>
           </div>
+
+          <!-- 💡 價格排序選單 -->
+          <div>
+            <label class="text-[11px] text-slate-400 font-bold block mb-1">4️⃣ 價格排序</label>
+            <select v-model="sortOrder" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs font-bold text-amber-400 focus:outline-none">
+              <option value="asc">📉 價格：由低到高</option>
+              <option value="desc">📈 價格：由高到低</option>
+            </select>
+          </div>
         </div>
 
         <div class="text-xs text-slate-400 flex justify-between items-center px-1">
-          <span>已為您列出該出發地可飛往的航點目的地（共 {{ filteredRoutes.length }} 個航線）</span>
+          <span>已列出符合條件之航線（共 {{ filteredRoutes.length }} 個航線）</span>
         </div>
       </div>
     </div>
 
-    <!-- 下方區塊：動態航線卡片展示 -->
+    <!-- 下方區塊：動態航線卡片展示 (依照排序自動排列) -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 text-slate-500 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -391,6 +398,7 @@
         const selectedCountry = ref('ALL');
         const selectedAirport = ref('ALL');
         const selectedCabin = ref('ALL');
+        const sortOrder = ref('asc'); // 預設由低到高
 
         const savedRates = JSON.parse(localStorage.getItem('miles_rates') || '{}');
         const rates = ref({
@@ -426,8 +434,8 @@
         const flightSearch = ref({
           tripType: 'oneWay',
           passengers: 1,
-          outCabin: 'ALL',  // 去程獨立艙等
-          inCabin: 'ALL',   // 回程獨立艙等
+          outCabin: 'ALL',
+          inCabin: 'ALL',
           outOrigin: '',
           outDest: '',
           inOrigin: '',
@@ -565,7 +573,6 @@
           return list;
         });
 
-        // 💡 獨立過濾去程方案 (吃 outCabin)
         const filteredOutboundOptions = computed(() => {
           return allOptions.value.filter(o => {
             const matchO = !flightSearch.value.outOrigin || o.origin === flightSearch.value.outOrigin;
@@ -575,7 +582,6 @@
           });
         });
 
-        // 💡 獨立過濾回程方案 (吃 inCabin，支援完美混艙)
         const filteredInboundOptions = computed(() => {
           return allOptions.value.filter(o => {
             const matchO = !flightSearch.value.inOrigin || o.origin === flightSearch.value.inOrigin;
@@ -626,8 +632,9 @@
           };
         });
 
+        // 💡 支援價格由低到高 / 由高到低的下方航線排序
         const filteredRoutes = computed(() => {
-          return routesData.value.filter(item => {
+          let list = routesData.value.filter(item => {
             if (selectedAirport.value !== 'ALL') {
               if (item.origin !== selectedAirport.value) return false;
             } else if (selectedCountry.value !== 'ALL') {
@@ -641,6 +648,30 @@
 
             return true;
           });
+
+          // 取得每張卡片的最低參考成本進行排序
+          list.sort((a, b) => {
+            let costA = Infinity;
+            let costB = Infinity;
+
+            if (a.biz_miles) costA = Math.min(costA, calcAsCost(a.biz_miles, a.biz_tax_usd, 'buy'));
+            if (a.ey_biz_miles) costA = Math.min(costA, calcEyCost(a.ey_biz_miles, a.ey_biz_tax_val, a.ey_biz_tax_curr));
+            if (a.eco_miles) costA = Math.min(costA, calcAsCost(a.eco_miles, a.eco_tax_usd, 'buy'));
+            if (a.ey_eco_miles) costA = Math.min(costA, calcEyCost(a.ey_eco_miles, a.ey_eco_tax_val, a.ey_eco_tax_curr));
+
+            if (b.biz_miles) costB = Math.min(costB, calcAsCost(b.biz_miles, b.biz_tax_usd, 'buy'));
+            if (b.ey_biz_miles) costB = Math.min(costB, calcEyCost(b.ey_biz_miles, b.ey_biz_tax_val, b.ey_biz_tax_curr));
+            if (b.eco_miles) costB = Math.min(costB, calcAsCost(b.eco_miles, b.eco_tax_usd, 'buy'));
+            if (b.ey_eco_miles) costB = Math.min(costB, calcEyCost(b.ey_eco_miles, b.ey_eco_tax_val, b.ey_eco_tax_curr));
+
+            if (sortOrder.value === 'asc') {
+              return costA - costB;
+            } else {
+              return costB - costA;
+            }
+          });
+
+          return list;
         });
 
         return {
@@ -649,6 +680,7 @@
           selectedCountry,
           selectedAirport,
           selectedCabin,
+          sortOrder,
           linkedAirports,
           onCountryChange,
           rates,
