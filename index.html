@@ -2,7 +2,6 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <!-- 允許手機雙指縮放，方便閱讀 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -101,7 +100,7 @@
 
         <!-- 去程設定 -->
         <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-sm">
-          <div class="font-bold text-slate-300 text-xs">✈️ 去程 (已自動屏除同國機場)</div>
+          <div class="font-bold text-slate-300 text-xs">✈️ 去程</div>
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">出發地</label>
@@ -291,7 +290,7 @@
 
         <!-- 豪華經濟艙 -->
         <div v-if="item.prem_miles && (selectedCabin === 'ALL' || selectedCabin === 'prem')" class="bg-slate-950 border border-purple-500/20 rounded-2xl p-3 space-y-3">
-          <div class="flex justify-between items-center text-xs font-extrabold text-purple-400 border-b border-slate-900 pb-2">
+          <div class="text-xs font-extrabold text-purple-400 border-b border-slate-900 pb-2">
             <span class="flex items-center gap-1.5"><span>⭐</span> 豪華經濟艙 (Prem Eco)</span>
             <span class="text-slate-200 font-bold">{{ Number(item.prem_miles).toLocaleString() }} 哩 + {{ item.prem_tax_usd || 44 }} USD</span>
           </div>
@@ -431,7 +430,7 @@
           flightSearch.value.inboundKey = '';
         };
 
-        // 💡 嚴格過濾：依據出發機場的國家，徹底排除同國家的機場
+        // 💡 修正：嚴格依據出發機場國家，從清單中過濾掉同國家的機場
         const availableOutDestAirports = computed(() => {
           if (!flightSearch.value.outOrigin) return allAirports;
           const originApt = allAirports.find(a => a.code === flightSearch.value.outOrigin);
