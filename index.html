@@ -77,30 +77,41 @@
 
       <!-- 上方區塊：精確航線與多人預算試算 -->
       <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
-        <div class="text-xs font-black text-amber-400 flex items-center gap-1.5 pb-1 border-b border-slate-800">
-          <span>✈️</span> 【精確航線與多人預算試算】
+        <div class="text-xs font-black text-amber-400 flex items-center justify-between pb-1 border-b border-slate-800">
+          <span>✈️ 【精確航線與多人預算試算】</span>
+          <span class="text-[11px] text-slate-400">已自動排除同國機場</span>
         </div>
         
-        <div class="flex flex-wrap items-center gap-2 text-sm">
-          <select v-model="flightSearch.tripType" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold focus:outline-none">
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <select v-model="flightSearch.tripType" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-white font-bold focus:outline-none">
             <option value="oneWay">→ 單程</option>
-            <option value="round">⇄ 來回 / 不同點進出</option>
+            <option value="round">⇄ 來回</option>
           </select>
 
-          <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
-            <span>👤 兌換人數:</span>
+          <div class="flex items-center justify-center gap-1 bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white font-bold">
+            <span>👤</span>
             <select v-model.number="flightSearch.passengers" class="bg-transparent text-amber-400 font-black focus:outline-none">
-              <option :value="1">1 人</option>
-              <option :value="2">2 人</option>
-              <option :value="3">3 人</option>
-              <option :value="4">4 人</option>
+              <option :value="1">1人</option>
+              <option :value="2">2人</option>
+              <option :value="3">3人</option>
+              <option :value="4">4人</option>
             </select>
           </div>
+
+          <!-- 💡 上方艙等快速篩選器 -->
+          <select v-model="flightSearch.cabinFilter" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-cyan-400 font-bold focus:outline-none">
+            <option value="ALL">艙等：全部</option>
+            <option value="biz">👑 商務艙</option>
+            <option value="prem">⭐ 豪經艙</option>
+            <option value="eco">✈️ 經濟艙</option>
+          </select>
         </div>
 
         <!-- 去程設定 -->
         <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-sm">
-          <div class="font-bold text-slate-300 text-xs">✈️ 去程</div>
+          <div class="font-bold text-slate-300 text-xs flex justify-between">
+            <span>✈️ 去程航段</span>
+          </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">出發地</label>
@@ -120,14 +131,14 @@
           <select v-model="flightSearch.outboundKey" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white font-bold text-sm focus:outline-none mt-1">
             <option value="">-- 請選擇去程具體兌換方案 --</option>
             <option v-for="opt in filteredOutboundOptions" :key="opt.id" :value="opt.id">
-              {{ opt.label }} (買點: ${{ opt.costBuy }} | 轉點: ${{ opt.costMarriott }})
+              {{ opt.shortLabel }} (買點: ${{ opt.costBuy }} | 轉點: ${{ opt.costMarriott }})
             </option>
           </select>
         </div>
 
         <!-- 回程設定 -->
         <div v-if="flightSearch.tripType === 'round'" class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-sm">
-          <div class="font-bold text-slate-300 text-xs">🔄 回程 (支援不同點進出)</div>
+          <div class="font-bold text-slate-300 text-xs">🔄 回程航段 (不同點進出)</div>
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">出發地 (回程)</label>
@@ -147,12 +158,12 @@
           <select v-model="flightSearch.inboundKey" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white font-bold text-sm focus:outline-none mt-1">
             <option value="">-- 請選擇回程具體兌換方案 --</option>
             <option v-for="opt in filteredInboundOptions" :key="opt.id" :value="opt.id">
-              {{ opt.label }} (買點: ${{ opt.costBuy }} | 轉點: ${{ opt.costMarriott }})
+              {{ opt.shortLabel }} (買點: ${{ opt.costBuy }} | 轉點: ${{ opt.costMarriott }})
             </option>
           </select>
         </div>
 
-        <!-- 試算結果面板 -->
+        <!-- 試算結果面板 (極致醒目的最佳省錢標籤) -->
         <div v-if="flightSummary" class="bg-gradient-to-r from-amber-950/50 to-slate-900 border border-amber-500/40 rounded-xl p-3.5 space-y-2 text-sm">
           <div class="flex justify-between items-center border-b border-amber-500/20 pb-2">
             <span class="text-amber-300 font-black text-xs sm:text-sm">
@@ -160,14 +171,20 @@
             </span>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <div :class="flightSummary.bestMethod === 'buy' ? 'border-2 border-emerald-400 bg-emerald-950/40' : 'border border-slate-800 bg-slate-900'" class="rounded-xl p-3 relative">
-              <span v-if="flightSummary.bestMethod === 'buy'" class="absolute -top-2 right-2 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full">最佳省錢</span>
-              <div class="text-slate-400 text-xs">方案 A：特價買點總成本</div>
+            <!-- 方案 A 買點 -->
+            <div :class="flightSummary.bestMethod === 'buy' ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-lg shadow-emerald-900/50' : 'border border-slate-800 bg-slate-900'" class="rounded-xl p-3 relative flex flex-col justify-between">
+              <div v-if="flightSummary.bestMethod === 'buy'" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-full shadow">
+                👑 最佳省錢首選
+              </div>
+              <div class="text-slate-400 text-xs mt-1">特價買點總成本</div>
               <div class="text-amber-300 font-black text-base mt-1">NT$ {{ flightSummary.totalCostBuy.toLocaleString() }}</div>
             </div>
-            <div :class="flightSummary.bestMethod === 'marriott' ? 'border-2 border-emerald-400 bg-emerald-950/40' : 'border border-slate-800 bg-slate-900'" class="rounded-xl p-3 relative">
-              <span v-if="flightSummary.bestMethod === 'marriott'" class="absolute -top-2 right-2 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full">最佳省錢</span>
-              <div class="text-slate-400 text-xs">方案 B：萬豪轉點總成本</div>
+            <!-- 方案 B 萬豪轉點 -->
+            <div :class="flightSummary.bestMethod === 'marriott' ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-lg shadow-emerald-900/50' : 'border border-slate-800 bg-slate-900'" class="rounded-xl p-3 relative flex flex-col justify-between">
+              <div v-if="flightSummary.bestMethod === 'marriott'" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-full shadow">
+                👑 最佳省錢首選
+              </div>
+              <div class="text-slate-400 text-xs mt-1">萬豪轉點總成本</div>
               <div class="text-purple-300 font-black text-base mt-1">NT$ {{ flightSummary.totalCostMarriott.toLocaleString() }}</div>
             </div>
           </div>
@@ -218,7 +235,7 @@
       </div>
     </div>
 
-    <!-- 下方區塊：動態航線卡片展示 -->
+    <!-- 下方區塊：動態航線卡片展示 (最佳省錢方案明顯高亮) -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 text-slate-500 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -257,15 +274,15 @@
               <span class="text-slate-200 font-bold">{{ Number(item.biz_miles).toLocaleString() }} 哩 + {{ item.biz_tax_usd || 44 }} USD</span>
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <div :class="calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy') <= calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott') ? 'border-2 border-emerald-400 bg-emerald-950/30' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-2.5 relative">
-                <span v-if="calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy') <= calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott')" class="absolute -top-2 right-2 bg-emerald-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded-full">最佳省錢</span>
-                <div class="text-slate-400 text-xs">特價買點估算</div>
-                <div class="text-amber-300 font-black text-base mt-0.5">NT$ {{ calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy').toLocaleString() }}</div>
+              <div :class="calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy') <= calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott') ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
+                <span v-if="calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy') <= calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott')" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
+                <div class="text-slate-400 text-xs mt-1">特價買點估算</div>
+                <div class="text-amber-300 font-black text-base mt-1">NT$ {{ calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy').toLocaleString() }}</div>
               </div>
-              <div :class="calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott') < calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy') ? 'border-2 border-emerald-400 bg-emerald-950/30' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-2.5 relative">
-                <span v-if="calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott') < calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy')" class="absolute -top-2 right-2 bg-emerald-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded-full">最佳省錢</span>
-                <div class="text-slate-400 text-xs">萬豪轉點</div>
-                <div class="text-purple-300 font-black text-base mt-0.5">NT$ {{ calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott').toLocaleString() }}</div>
+              <div :class="calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott') < calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy') ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
+                <span v-if="calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott') < calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy')" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
+                <div class="text-slate-400 text-xs mt-1">萬豪轉點</div>
+                <div class="text-purple-300 font-black text-base mt-1">NT$ {{ calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott').toLocaleString() }}</div>
               </div>
             </div>
           </div>
@@ -295,15 +312,15 @@
             <span class="text-slate-200 font-bold">{{ Number(item.prem_miles).toLocaleString() }} 哩 + {{ item.prem_tax_usd || 44 }} USD</span>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <div :class="calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy') <= calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott') ? 'border-2 border-emerald-400 bg-emerald-950/30' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-2.5 relative">
-              <span v-if="calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy') <= calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott')" class="absolute -top-2 right-2 bg-emerald-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded-full">最佳省錢</span>
-              <div class="text-slate-400 text-xs">特價買點估算</div>
-              <div class="text-amber-300 font-black text-base mt-0.5">NT$ {{ calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy').toLocaleString() }}</div>
+            <div :class="calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy') <= calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott') ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
+              <span v-if="calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy') <= calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott')" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
+              <div class="text-slate-400 text-xs mt-1">特價買點估算</div>
+              <div class="text-amber-300 font-black text-base mt-1">NT$ {{ calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy').toLocaleString() }}</div>
             </div>
-            <div :class="calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott') < calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy') ? 'border-2 border-emerald-400 bg-emerald-950/30' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-2.5 relative">
-              <span v-if="calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott') < calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy')" class="absolute -top-2 right-2 bg-emerald-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded-full">最佳省錢</span>
-              <div class="text-slate-400 text-xs">萬豪轉點</div>
-              <div class="text-purple-300 font-black text-base mt-0.5">NT$ {{ calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott').toLocaleString() }}</div>
+            <div :class="calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott') < calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy') ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
+              <span v-if="calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott') < calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy')" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
+              <div class="text-slate-400 text-xs mt-1">萬豪轉點</div>
+              <div class="text-purple-300 font-black text-base mt-1">NT$ {{ calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott').toLocaleString() }}</div>
             </div>
           </div>
         </div>
@@ -320,15 +337,15 @@
               <span class="text-slate-200 font-bold">{{ Number(item.eco_miles).toLocaleString() }} 哩 + {{ item.eco_tax_usd || 44 }} USD</span>
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <div :class="calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy') <= calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott') ? 'border-2 border-emerald-400 bg-emerald-950/30' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-2.5 relative">
-                <span v-if="calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy') <= calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott')" class="absolute -top-2 right-2 bg-emerald-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded-full">最佳省錢</span>
-                <div class="text-slate-400 text-xs">特價買點估算</div>
-                <div class="text-amber-300 font-black text-base mt-0.5">NT$ {{ calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy').toLocaleString() }}</div>
+              <div :class="calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy') <= calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott') ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
+                <span v-if="calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy') <= calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott')" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
+                <div class="text-slate-400 text-xs mt-1">特價買點估算</div>
+                <div class="text-amber-300 font-black text-base mt-1">NT$ {{ calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy').toLocaleString() }}</div>
               </div>
-              <div :class="calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott') < calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy') ? 'border-2 border-emerald-400 bg-emerald-950/30' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-2.5 relative">
-                <span v-if="calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott') < calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy')" class="absolute -top-2 right-2 bg-emerald-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded-full">最佳省錢</span>
-                <div class="text-slate-400 text-xs">萬豪轉點</div>
-                <div class="text-purple-300 font-black text-base mt-0.5">NT$ {{ calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott').toLocaleString() }}</div>
+              <div :class="calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott') < calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy') ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
+                <span v-if="calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott') < calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy')" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
+                <div class="text-slate-400 text-xs mt-1">萬豪轉點</div>
+                <div class="text-purple-300 font-black text-base mt-1">NT$ {{ calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott').toLocaleString() }}</div>
               </div>
             </div>
           </div>
@@ -404,6 +421,7 @@
         const flightSearch = ref({
           tripType: 'oneWay',
           passengers: 1,
+          cabinFilter: 'ALL',
           outOrigin: '',
           outDest: '',
           inOrigin: '',
@@ -430,7 +448,6 @@
           flightSearch.value.inboundKey = '';
         };
 
-        // 💡 修正：嚴格依據出發機場國家，從清單中過濾掉同國家的機場
         const availableOutDestAirports = computed(() => {
           if (!flightSearch.value.outOrigin) return allAirports;
           const originApt = allAirports.find(a => a.code === flightSearch.value.outOrigin);
@@ -515,28 +532,33 @@
           routesData.value.forEach((item, rIdx) => {
             const baseRouteName = `${item.origin_name}(${item.origin}) ➔ ${item.dest_name}(${item.dest}) [${item.airline}]`;
 
+            // 商務艙 (阿拉斯加)
             if (item.biz_miles) {
               const bCost = calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy');
               const mCost = calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'marriott');
-              list.push({ id: `${rIdx}_biz_as`, origin: item.origin, dest: item.dest, label: `${baseRouteName} - 商務艙 (阿拉斯加)`, miles: Number(item.biz_miles), costBuy: bCost, costMarriott: mCost, cost: Math.min(bCost, mCost), taxText: `${item.biz_tax_usd || 44} USD` });
+              list.push({ id: `${rIdx}_biz_as`, cabin: 'biz', origin: item.origin, dest: item.dest, shortLabel: `${item.origin}➔${item.dest} 商務 [AS]`, label: `${baseRouteName} - 商務艙 (阿拉斯加)`, miles: Number(item.biz_miles), costBuy: bCost, costMarriott: mCost, cost: Math.min(bCost, mCost), taxText: `${item.biz_tax_usd || 44} USD` });
             }
+            // 商務艙 (阿提哈德)
             if (item.ey_biz_miles) {
               const eCost = calcEyCost(item.ey_biz_miles, item.ey_biz_tax_val, item.ey_biz_tax_curr);
-              list.push({ id: `${rIdx}_biz_ey`, origin: item.origin, dest: item.dest, label: `${baseRouteName} - 商務艙 (阿提哈德)`, miles: Number(item.ey_biz_miles), costBuy: eCost, costMarriott: eCost, cost: eCost, taxText: `${item.ey_biz_tax_curr || 'TWD'} ${item.ey_biz_tax_val || 0}` });
+              list.push({ id: `${rIdx}_biz_ey`, cabin: 'biz', origin: item.origin, dest: item.dest, shortLabel: `${item.origin}➔${item.dest} 商務 [EY]`, label: `${baseRouteName} - 商務艙 (阿提哈德)`, miles: Number(item.ey_biz_miles), costBuy: eCost, costMarriott: eCost, cost: eCost, taxText: `${item.ey_biz_tax_curr || 'TWD'} ${item.ey_biz_tax_val || 0}` });
             }
+            // 豪華經濟艙
             if (item.prem_miles) {
               const bCost = calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy');
               const mCost = calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'marriott');
-              list.push({ id: `${rIdx}_prem_as`, origin: item.origin, dest: item.dest, label: `${baseRouteName} - 豪華經濟艙 (阿拉斯加)`, miles: Number(item.prem_miles), costBuy: bCost, costMarriott: mCost, cost: Math.min(bCost, mCost), taxText: `${item.prem_tax_usd || 44} USD` });
+              list.push({ id: `${rIdx}_prem_as`, cabin: 'prem', origin: item.origin, dest: item.dest, shortLabel: `${item.origin}➔${item.dest} 豪經 [AS]`, label: `${baseRouteName} - 豪華經濟艙 (阿拉斯加)`, miles: Number(item.prem_miles), costBuy: bCost, costMarriott: mCost, cost: Math.min(bCost, mCost), taxText: `${item.prem_tax_usd || 44} USD` });
             }
+            // 經濟艙 (阿拉斯加)
             if (item.eco_miles) {
               const bCost = calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy');
               const mCost = calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'marriott');
-              list.push({ id: `${rIdx}_eco_as`, origin: item.origin, dest: item.dest, label: `${baseRouteName} - 經濟艙 (阿拉斯加)`, miles: Number(item.eco_miles), costBuy: bCost, costMarriott: mCost, cost: Math.min(bCost, mCost), taxText: `${item.eco_tax_usd || 44} USD` });
+              list.push({ id: `${rIdx}_eco_as`, cabin: 'eco', origin: item.origin, dest: item.dest, shortLabel: `${item.origin}➔${item.dest} 經濟 [AS]`, label: `${baseRouteName} - 經濟艙 (阿拉斯加)`, miles: Number(item.eco_miles), costBuy: bCost, costMarriott: mCost, cost: Math.min(bCost, mCost), taxText: `${item.eco_tax_usd || 44} USD` });
             }
+            // 經濟艙 (阿提哈德)
             if (item.ey_eco_miles) {
               const eCost = calcEyCost(item.ey_eco_miles, item.ey_eco_tax_val, item.ey_eco_tax_curr);
-              list.push({ id: `${rIdx}_eco_ey`, origin: item.origin, dest: item.dest, label: `${baseRouteName} - 經濟艙 (阿提哈德)`, miles: Number(item.ey_eco_miles), costBuy: eCost, costMarriott: eCost, cost: eCost, taxText: `${item.ey_eco_tax_curr || 'TWD'} ${item.ey_eco_tax_val || 0}` });
+              list.push({ id: `${rIdx}_eco_ey`, cabin: 'eco', origin: item.origin, dest: item.dest, shortLabel: `${item.origin}➔${item.dest} 經濟 [EY]`, label: `${baseRouteName} - 經濟艙 (阿提哈德)`, miles: Number(item.ey_eco_miles), costBuy: eCost, costMarriott: eCost, cost: eCost, taxText: `${item.ey_eco_tax_curr || 'TWD'} ${item.ey_eco_tax_val || 0}` });
             }
           });
           return list;
@@ -546,7 +568,8 @@
           return allOptions.value.filter(o => {
             const matchO = !flightSearch.value.outOrigin || o.origin === flightSearch.value.outOrigin;
             const matchD = !flightSearch.value.outDest || o.dest === flightSearch.value.outDest;
-            return matchO && matchD;
+            const matchC = flightSearch.value.cabinFilter === 'ALL' || o.cabin === flightSearch.value.cabinFilter;
+            return matchO && matchD && matchC;
           });
         });
 
@@ -554,7 +577,8 @@
           return allOptions.value.filter(o => {
             const matchO = !flightSearch.value.inOrigin || o.origin === flightSearch.value.inOrigin;
             const matchD = !flightSearch.value.inDest || o.dest === flightSearch.value.inDest;
-            return matchO && matchD;
+            const matchC = flightSearch.value.cabinFilter === 'ALL' || o.cabin === flightSearch.value.cabinFilter;
+            return matchO && matchD && matchC;
           });
         });
 
