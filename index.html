@@ -41,32 +41,36 @@
         </button>
       </div>
 
-      <!-- 參數抽屜 (包含可手動修改的萬豪點數收購成本) -->
+      <!-- 參數抽屜 (支援自動同步儲存與阿拉斯加浮動買點欄位) -->
       <div v-if="showSettings" class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5 space-y-3 text-xs">
         <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
-          <span class="text-slate-400 font-bold">點數與多國匯率參數設定</span>
+          <span class="text-slate-400 font-bold">點數與多國匯率參數設定 (自動同步儲存)</span>
           <button @click="fetchData" class="text-[11px] text-amber-400 hover:underline">強制重新整理資料</button>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="text-slate-400 block mb-1">美金匯率 (USD/TWD)</label>
-            <input type="number" step="0.01" v-model.number="rates.usd_twd" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-white font-bold">
+            <input type="number" step="0.01" v-model.number="rates.usd_twd" @input="saveRates" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-white font-bold">
           </div>
           <div>
             <label class="text-slate-400 block mb-1">日幣匯率 (JPY/TWD)</label>
-            <input type="number" step="0.001" v-model.number="rates.jpy_twd" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-cyan-400 font-bold">
+            <input type="number" step="0.001" v-model.number="rates.jpy_twd" @input="saveRates" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-cyan-400 font-bold">
           </div>
           <div>
             <label class="text-slate-400 block mb-1">迪拉姆匯率 (AED/TWD)</label>
-            <input type="number" step="0.01" v-model.number="rates.aed_twd" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-amber-400 font-bold">
+            <input type="number" step="0.01" v-model.number="rates.aed_twd" @input="saveRates" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-amber-400 font-bold">
           </div>
           <div>
             <label class="text-slate-400 block mb-1">國泰小樹點 (元/點)</label>
-            <input type="number" step="0.01" v-model.number="rates.cube_rate" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-emerald-400 font-bold">
+            <input type="number" step="0.01" v-model.number="rates.cube_rate" @input="saveRates" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-emerald-400 font-bold">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">阿拉斯加買點 (元/哩)</label>
+            <input type="number" step="0.01" v-model.number="rates.as_buy_val" @input="saveRates" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-amber-300 font-bold">
           </div>
           <div>
             <label class="text-slate-400 block mb-1">萬豪點數成本 (元/點)</label>
-            <input type="number" step="0.01" v-model.number="rates.marriott_val" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-purple-400 font-bold">
+            <input type="number" step="0.01" v-model.number="rates.marriott_val" @input="saveRates" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-purple-400 font-bold">
           </div>
         </div>
       </div>
@@ -248,7 +252,7 @@
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs">
               <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
-                <div class="text-slate-400 text-[10px]">特價買點估算 (0.6元/哩)</div>
+                <div class="text-slate-400 text-[10px]">特價買點估算 (浮動)</div>
                 <div class="text-amber-300 font-black text-sm">NT$ {{ calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy').toLocaleString() }}</div>
               </div>
               <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
@@ -284,7 +288,7 @@
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs">
             <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
-              <div class="text-slate-400 text-[10px]">特價買點估算 (0.6元/哩)</div>
+              <div class="text-slate-400 text-[10px]">特價買點估算 (浮動)</div>
               <div class="text-amber-300 font-black text-sm">NT$ {{ calcAsCost(item.prem_miles, item.prem_tax_usd || 44, 'buy').toLocaleString() }}</div>
             </div>
             <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
@@ -307,7 +311,7 @@
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs">
               <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
-                <div class="text-slate-400 text-[10px]">特價買點估算 (0.6元/哩)</div>
+                <div class="text-slate-400 text-[10px]">特價買點估算 (浮動)</div>
                 <div class="text-amber-300 font-black text-sm">NT$ {{ calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy').toLocaleString() }}</div>
               </div>
               <div class="bg-slate-900/90 rounded-xl p-2 border border-slate-800">
@@ -354,13 +358,21 @@
         const selectedAirport = ref('ALL');
         const selectedCabin = ref('ALL');
 
+        // 預設參數 (若 localStorage 有紀錄則優先讀取)
+        const savedRates = JSON.parse(localStorage.getItem('miles_rates') || '{}');
         const rates = ref({
-          usd_twd: 31.8,
-          jpy_twd: 0.21,
-          aed_twd: 8.7,
-          cube_rate: 0.42,
-          marriott_val: 0.25
+          usd_twd: savedRates.usd_twd !== undefined ? savedRates.usd_twd : 31.8,
+          jpy_twd: savedRates.jpy_twd !== undefined ? savedRates.jpy_twd : 0.21,
+          aed_twd: savedRates.aed_twd !== undefined ? savedRates.aed_twd : 8.7,
+          cube_rate: savedRates.cube_rate !== undefined ? savedRates.cube_rate : 0.42,
+          as_buy_val: savedRates.as_buy_val !== undefined ? savedRates.as_buy_val : 0.60,
+          marriott_val: savedRates.marriott_val !== undefined ? savedRates.marriott_val : 0.25
         });
+
+        // 自動同步儲存參數至瀏覽器
+        const saveRates = () => {
+          localStorage.setItem('miles_rates', JSON.stringify(rates.value));
+        };
 
         const routesData = ref([]);
 
@@ -403,7 +415,9 @@
           try {
             const res = await fetch(API_URL + "&t=" + new Date().getTime());
             const data = await res.json();
-            if (data.rates) rates.value = Object.assign(rates.value, data.rates);
+            if (data.rates && !localStorage.getItem('miles_rates')) {
+              rates.value = Object.assign(rates.value, data.rates);
+            }
             if (data.routes) routesData.value = data.routes;
           } catch (err) {
             console.error("API 連線失敗：", err);
@@ -427,13 +441,14 @@
           return allAirports.filter(apt => apt.country === selectedCountry.value);
         });
 
+        // 支援浮動阿拉斯加買點與手動萬豪成本的精算邏輯
         const calcAsCost = (miles, taxUsd, type) => {
           if (!miles) return 0;
           const taxTwd = Number(taxUsd || 44) * rates.value.usd_twd;
           const m = Number(miles);
 
           if (type === 'buy') {
-            return Math.round(m * 0.60 + taxTwd);
+            return Math.round(m * rates.value.as_buy_val + taxTwd);
           } else if (type === 'marriott') {
             const requiredMarriottPoints = m * 2.4;
             return Math.round(requiredMarriottPoints * rates.value.marriott_val + taxTwd);
@@ -557,6 +572,7 @@
           linkedAirports,
           onCountryChange,
           rates,
+          saveRates,
           routesData,
           filteredRoutes,
           allAirports,
