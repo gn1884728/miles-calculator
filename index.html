@@ -75,17 +75,6 @@
         </div>
       </div>
 
-      <!-- 🚀 炫技專區：神級隱藏中停密技按鈕 -->
-      <div class="bg-gradient-to-r from-cyan-950/60 to-purple-950/60 border border-cyan-500/30 rounded-2xl p-3.5 flex justify-between items-center shadow-md">
-        <div>
-          <div class="text-cyan-300 font-black text-xs">🚀 探索阿拉斯加 1500哩內免費中停密技</div>
-          <div class="text-[10px] text-slate-400 mt-0.5">點擊解鎖千奇百怪極限飛法，一鍵帶入比價</div>
-        </div>
-        <button @click="showTricksModal = true" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs px-3.5 py-2 rounded-xl shadow transition">
-          查看密技
-        </button>
-      </div>
-
       <!-- 上方區塊：精確航線與多人預算試算 -->
       <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-amber-400 flex items-center justify-between pb-1 border-b border-slate-800">
@@ -328,32 +317,6 @@
 
   </div>
 
-  <!-- 🚀 神級中停密技彈窗 (修正：加入 @click.self 點擊背景即可關閉) -->
-  <div v-if="showTricksModal" @click.self="showTricksModal = false" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl w-full max-w-md p-5 space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="text-cyan-400 font-black text-base">🚀 阿拉斯加 1500哩內中停密技專區</h3>
-        <button @click="showTricksModal = false" class="text-slate-400 hover:text-white font-bold text-lg p-1">✕</button>
-      </div>
-      <div class="space-y-2.5 max-h-[60vh] overflow-y-auto pr-1">
-        
-        <div @click="applyTrick('FUK', 'MFM')" class="bg-slate-950 hover:bg-cyan-950/40 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-3 cursor-pointer transition space-y-1">
-          <div class="flex justify-between items-center text-xs font-bold text-white">
-            <span>福岡 ➔ 台北(中停14天) ➔ 澳門</span>
-            <span class="text-amber-400">7.5k 哩 + $87 USD</span>
-          </div>
-          <div class="text-[11px] text-slate-400">善用 1500哩內免費中停，一張票玩兩地！</div>
-        </div>
-
-      </div>
-      <div class="text-center pt-2">
-        <button @click="showTricksModal = false" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs px-4 py-2 rounded-xl">
-          關閉視窗
-        </button>
-      </div>
-    </div>
-  </div>
-
   <script>
     const { createApp, ref, computed, onMounted } = Vue;
 
@@ -363,7 +326,6 @@
 
         const loading = ref(true);
         const showSettings = ref(false);
-        const showTricksModal = ref(false);
 
         const selectedCountry = ref('ALL');
         const selectedAirport = ref('ALL');
@@ -415,13 +377,6 @@
           outboundKey: '',
           inboundKey: ''
         });
-
-        const applyTrick = (origin, dest) => {
-          flightSearch.value.outOrigin = origin;
-          flightSearch.value.outDest = dest;
-          flightSearch.value.tripType = 'oneWay';
-          showTricksModal.value = false;
-        };
 
         const onOutOriginChange = () => {
           flightSearch.value.outDest = '';
@@ -697,7 +652,6 @@
         return {
           loading,
           showSettings,
-          showTricksModal,
           selectedCountry,
           selectedAirport,
           selectedDestAirport,
@@ -728,8 +682,7 @@
           getCabinEyMiles,
           getCabinEyCost,
           isLowestCost,
-          shouldShowCabinCard,
-          applyTrick
+          shouldShowCabinCard
         };
       }
     }).mount('#app');
