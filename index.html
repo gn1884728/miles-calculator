@@ -75,6 +75,17 @@
         </div>
       </div>
 
+      <!-- 🚀 炫技專區：神級隱藏中停密技按鈕 -->
+      <div class="bg-gradient-to-r from-cyan-950/60 to-purple-950/60 border border-cyan-500/30 rounded-2xl p-3.5 flex justify-between items-center shadow-md">
+        <div>
+          <div class="text-cyan-300 font-black text-xs">🚀 探索阿拉斯加 1500哩內免費中停密技</div>
+          <div class="text-[10px] text-slate-400 mt-0.5">點擊解鎖千奇百怪極限飛法，一鍵帶入比價</div>
+        </div>
+        <button @click="showTricksModal = true" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs px-3.5 py-2 rounded-xl shadow transition">
+          查看密技
+        </button>
+      </div>
+
       <!-- 上方區塊：精確航線與多人預算試算 -->
       <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-amber-400 flex items-center justify-between pb-1 border-b border-slate-800">
@@ -183,7 +194,7 @@
 
       </div>
 
-      <!-- 下方區塊：航點大探索 (新增目的地機場篩選) -->
+      <!-- 下方區塊：航點大探索 (含國家、出發機場、目的地機場、艙等、價格排序) -->
       <div class="space-y-3 pt-3 border-t border-slate-800">
         <div class="text-xs font-black text-cyan-400 flex items-center justify-between">
           <span>🔍 【航點大探索】</span>
@@ -210,7 +221,6 @@
             </select>
           </div>
 
-          <!-- 💡 新增：下方目的地機場篩選 -->
           <div>
             <label class="text-[11px] text-slate-400 font-bold block mb-1">3️⃣ 目的地機場</label>
             <select v-model="selectedDestAirport" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none">
@@ -246,7 +256,7 @@
       </div>
     </div>
 
-    <!-- 下方區塊：動態航線卡片展示 (跨方案全域最低價自動掛上綠框與最佳省錢首選) -->
+    <!-- 下方區塊：動態航線卡片展示 -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 text-slate-500 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -273,14 +283,13 @@
           </span>
         </div>
 
-        <!-- 艙等總覽與全域最低價判定 -->
+        <!-- 艙等總覽與跨方案全域最低價判定 (綠框永遠給最便宜的方案) -->
         <div v-for="cabinKey in ['biz', 'prem', 'eco']" :key="cabinKey">
           <div v-if="shouldShowCabinCard(item, cabinKey)" class="bg-slate-950 border border-slate-800 rounded-2xl p-3 space-y-3 mt-2">
             <div class="text-xs font-extrabold text-amber-400 flex items-center gap-1.5 border-b border-slate-900 pb-2">
               <span>{{ cabinKey === 'biz' ? '👑 商務艙 (Business)' : cabinKey === 'prem' ? '⭐ 豪華經濟艙 (Prem Eco)' : '✈️ 經濟艙 (Economy)' }}</span>
             </div>
 
-            <!-- 取得該艙等下所有方案的成本，找出全場最低價 -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               
               <!-- 1. 阿拉斯加買點 -->
@@ -297,7 +306,7 @@
                 <div class="text-purple-300 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'marriott').toLocaleString() }}</div>
               </div>
 
-              <!-- 3. 阿提哈德 EY 換票 (如果您截圖中的沖繩 EY 方案) -->
+              <!-- 3. 阿提哈德 EY 換票 -->
               <div v-if="getCabinEyMiles(item, cabinKey)" :class="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey)) ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between sm:col-span-2">
                 <span v-if="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 最佳省錢首選</span>
                 <div class="flex justify-between items-center text-xs text-slate-400 mt-1">
@@ -319,6 +328,33 @@
 
   </div>
 
+  <!-- 🚀 神級中停密技彈窗 (炫技專區) -->
+  <div v-if="showTricksModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="text-cyan-400 font-black text-base">🚀 阿拉斯加 1500哩內中停密技專區</h3>
+        <button @click="showTricksModal = false" class="text-slate-400 hover:text-white font-bold text-lg">✕</button>
+      </div>
+      <div class="space-y-2.5 max-h-[60vh] overflow-y-auto pr-1">
+        
+        <!-- 密技 1 -->
+        <div @click="applyTrick('FUK', 'MFM')" class="bg-slate-950 hover:bg-cyan-950/40 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-3 cursor-pointer transition space-y-1">
+          <div class="flex justify-between items-center text-xs font-bold text-white">
+            <span>福岡 ➔ 台北(中停14天) ➔ 澳門</span>
+            <span class="text-amber-400">7.5k 哩 + $87 USD</span>
+          </div>
+          <div class="text-[11px] text-slate-400">善用 1500哩內免費中停，一張票玩兩地！</div>
+        </div>
+
+      </div>
+      <div class="text-center pt-2">
+        <button @click="showTricksModal = false" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs px-4 py-2 rounded-xl">
+          關閉視窗
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const { createApp, ref, computed, onMounted } = Vue;
 
@@ -328,10 +364,11 @@
 
         const loading = ref(true);
         const showSettings = ref(false);
+        const showTricksModal = ref(false); // 彈窗開關
 
         const selectedCountry = ref('ALL');
         const selectedAirport = ref('ALL');
-        const selectedDestAirport = ref('ALL'); // 💡 下方目的地機場篩選
+        const selectedDestAirport = ref('ALL');
         const selectedCabin = ref('ALL');
         const sortOrder = ref('asc');
 
@@ -379,6 +416,14 @@
           outboundKey: '',
           inboundKey: ''
         });
+
+        // 💡 點擊密技後直接一鍵代入外層搜尋
+        const applyTrick = (origin, dest) => {
+          flightSearch.value.outOrigin = origin;
+          flightSearch.value.outDest = dest;
+          flightSearch.value.tripType = 'oneWay';
+          showTricksModal.value = false;
+        };
 
         const onOutOriginChange = () => {
           flightSearch.value.outDest = '';
@@ -479,7 +524,15 @@
 
         const allOptions = computed(() => {
           let list = [];
-          routesData.value.forEach((item, rIdx) => {
+          
+          // 💡 手動擴充前端硬編碼的神級中停航線 (FUK ➔ MFM 透過台北中停)
+          const secretTricks = [
+            { origin: 'FUK', dest: 'MFM', origin_name: '福岡', dest_name: '澳門', airline: 'AS (中停密技)', eco_miles: 7500, eco_tax_usd: 87, note: '✨ 1500哩內免費中停' }
+          ];
+
+          const combinedRoutes = [...routesData.value, ...secretTricks];
+
+          combinedRoutes.forEach((item, rIdx) => {
             const baseRouteName = `${item.origin_name}(${item.origin}) ➔ ${item.dest_name}(${item.dest}) [${item.airline}]`;
 
             if (item.biz_miles) {
@@ -557,7 +610,6 @@
           };
         });
 
-        // 輔助函式：取得卡片內特定艙等的各項數值
         const getCabinMiles = (item, cabin, type) => {
           if (cabin === 'biz') return type === 'as' ? item.biz_miles : item.ey_biz_miles;
           if (cabin === 'prem') return type === 'as' ? item.prem_miles : null;
@@ -586,7 +638,6 @@
           return calcEyCost(miles, val, curr);
         };
 
-        // 找出該艙等下所有方案的最低成本，供綠框判定
         const getMinCabinCost = (item, cabin) => {
           let costs = [];
           if (getCabinMiles(item, cabin, 'as')) {
@@ -612,20 +663,20 @@
           return false;
         };
 
-        // 💡 支援下方目的地機場篩選與價格排序
         const filteredRoutes = computed(() => {
-          let list = routesData.value.filter(item => {
-            // 國家過濾
+          const secretTricks = [
+            { origin: 'FUK', dest: 'MFM', origin_name: '福岡', dest_name: '澳門', airline: 'AS (中停密技)', eco_miles: 7500, eco_tax_usd: 87, note: '✨ 1500哩內免費中停' }
+          ];
+          const combinedRoutes = [...routesData.value, ...secretTricks];
+
+          let list = combinedRoutes.filter(item => {
             if (selectedCountry.value !== 'ALL') {
               const matchedApt = allAirports.find(a => a.code === item.origin);
               if (!matchedApt || matchedApt.country !== selectedCountry.value) return false;
             }
-            // 出發機場過濾
             if (selectedAirport.value !== 'ALL' && item.origin !== selectedAirport.value) return false;
-            // 目的地機場過濾
             if (selectedDestAirport.value !== 'ALL' && item.dest !== selectedDestAirport.value) return false;
 
-            // 艙等過濾
             if (selectedCabin.value === 'biz') return !!(item.biz_miles || item.ey_biz_miles);
             if (selectedCabin.value === 'prem') return !!(item.prem_miles);
             if (selectedCabin.value === 'eco') return !!(item.eco_miles || item.ey_eco_miles);
@@ -650,6 +701,7 @@
         return {
           loading,
           showSettings,
+          showTricksModal,
           selectedCountry,
           selectedAirport,
           selectedDestAirport,
@@ -680,7 +732,8 @@
           getCabinEyMiles,
           getCabinEyCost,
           isLowestCost,
-          shouldShowCabinCard
+          shouldShowCabinCard,
+          applyTrick
         };
       }
     }).mount('#app');
