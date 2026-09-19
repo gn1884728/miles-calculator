@@ -25,21 +25,17 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_center_title_logo" />
+  <link rel="manifest" href="manifest.json?v=20260919_ux_accordion" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <style>
-    /* 強制鎖死頁面根目錄與滾動底色，徹底根治手機版四周與底部白邊 */
     html, body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      height: 100%;
+      margin: 0; padding: 0; min-height: 100vh; height: 100%;
       background-color: var(--page-bg, #020617);
       color: var(--page-text, #f1f5f9);
     }
@@ -54,20 +50,18 @@
 
   <div id="app" class="w-full max-w-xl space-y-4">
     
-    <!-- 頂部導覽 (標題置中放大 + 航空公司標準飛機 Logo 視覺) -->
+    <!-- 頂部導覽列 -->
     <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 transition-colors duration-300">
       
-      <!-- 主標題：手機與電腦置中放大 -->
+      <!-- 主標題置中放大 -->
       <div class="text-center space-y-1">
         <h1 class="text-2xl sm:text-3xl font-black tracking-tight leading-tight" :class="currentTheme.titleClass">
           常旅客哩程票<span class="text-cyan-400">兌換</span>
         </h1>
       </div>
 
-      <!-- 航空公司選單 (附帶各家標準飛機代表 Logo 視覺) 與主題/設定按鈕列 -->
+      <!-- 航空公司選單與功能按鈕列 -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-        
-        <!-- 航空公司選擇區塊 (帶飛機標誌) -->
         <div class="flex items-center gap-2.5 w-full sm:w-auto flex-1 bg-slate-950/50 border border-slate-800/80 rounded-2xl px-3.5 py-2.5 shadow-inner">
           <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center shrink-0 shadow-md">
             <span class="text-base">✈️</span>
@@ -76,13 +70,12 @@
             <div class="text-[9px] text-cyan-400 font-bold uppercase tracking-widest">當前執飛航司</div>
             <select v-model="selectedAirline" class="w-full bg-transparent text-xs sm:text-sm font-black focus:outline-none cursor-pointer pt-0.5" :class="currentTheme.titleClass">
               <option value="starlux" class="bg-slate-900 text-white">✨ 星宇航空 (Starlux · A350 旗艦)</option>
-              <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">🌸 中華航空 (China Airlines · 777) - Coming Soon</option>
-              <option value="eva_air" disabled class="bg-slate-900 text-slate-500">🟢 長榮航空 (EVA Air · 787) - Coming Soon</option>
+              <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">🌸 中華航空 (China Airlines) - Coming Soon</option>
+              <option value="eva_air" disabled class="bg-slate-900 text-slate-500">🟢 長榮航空 (EVA Air) - Coming Soon</option>
             </select>
           </div>
         </div>
 
-        <!-- 功能按鈕區 (主題切換 + 設定) -->
         <div class="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
           <button @click="cycleTheme" class="text-xs font-bold px-3 py-2.5 rounded-xl border transition flex-1 sm:flex-initial text-center" :class="currentTheme.btnClass" title="切換背景主題">
             🎨 {{ currentTheme.name }}
@@ -180,7 +173,6 @@
             </a>
           </div>
 
-          <!-- 官方傳送門按鈕區 -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t" :class="currentTheme.borderClass">
             <a href="https://www.alaskaair.com/?srsltid=AU7gw4Xkj8ji9eazPRma-2qNi71uZLvztj3DiMRYA02PrcmwWRgkO9Vq" target="_blank" @click="trackGA('click_as_reg')" :class="currentTheme.linkBtn" class="text-center font-bold p-2 rounded-lg transition">
               1️⃣ 註冊阿拉斯加航空 ↗
@@ -379,7 +371,7 @@
 
     </div>
 
-    <!-- 下方區塊：動態決策比價卡 -->
+    <!-- 下方區塊：動態決策比價卡 (已導入結果頁總成本置頂 + 過程點擊展開明細 UX) -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 opacity-50 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -408,43 +400,104 @@
 
         <!-- 艙等總覽與唯一最低價判定 -->
         <div v-for="cabinKey in ['biz', 'prem', 'eco']" :key="cabinKey">
-          <div v-if="shouldShowCabinCard(item, cabinKey)" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-3 space-y-3 mt-2">
+          <div v-if="shouldShowCabinCard(item, cabinKey)" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-3.5 space-y-3 mt-2">
             <div class="text-xs font-extrabold text-amber-500 flex items-center gap-1.5 border-b pb-2" :class="currentTheme.borderClass">
               <span>{{ cabinKey === 'biz' ? '👑 商務艙 (Business)' : cabinKey === 'prem' ? '⭐ 豪華經濟艙 (Prem Eco)' : '✈️ 經濟艙 (Economy)' }}</span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               
-              <!-- 1. 阿拉斯加買點 -->
-              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3 relative flex flex-col justify-between space-y-2">
+              <!-- 1. 阿拉斯加買點方案 -->
+              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3">
                 <span v-if="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy'))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
                 <div>
-                  <div class="opacity-70 text-xs mt-1">AS 特價買點 ({{ getCabinMiles(item, cabinKey, 'as').toLocaleString() }} 哩)</div>
-                  <div class="text-[11px] opacity-70 mt-0.5">含稅金附加費: 約 NT$ {{ Math.round(getCabinTaxUsd(item, cabinKey) * rates.usd_twd).toLocaleString() }}</div>
-                  <div class="text-amber-500 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'buy').toLocaleString() }}</div>
+                  <div class="text-xs opacity-70 font-bold">AS 直接買哩程</div>
+                  <div class="text-2xl font-black text-cyan-400 mt-1">
+                    NT$ {{ getCabinCost(item, cabinKey, 'as', 'buy').toLocaleString() }}
+                  </div>
+                  <div class="text-[10px] opacity-50 mt-0.5">預估總成本（含哩程與稅金）</div>
+                </div>
+
+                <!-- 🔍 點開看計算明細 (Accordion 折疊設計) -->
+                <details class="group text-xs border-t pt-2" :class="currentTheme.borderClass">
+                  <summary class="cursor-pointer font-bold opacity-80 hover:text-cyan-400 transition flex justify-between items-center select-none">
+                    <span>🔍 點此展開計算明細</span>
+                    <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                  </summary>
+                  <div class="mt-2 space-y-1 text-[11px] opacity-80 bg-slate-950/30 p-2.5 rounded-lg border border-slate-800/50">
+                    <div class="flex justify-between"><span>所需哩程：</span><span class="font-bold">{{ getCabinMiles(item, cabinKey, 'as').toLocaleString() }} 哩</span></div>
+                    <div class="flex justify-between"><span>哩程取得成本：</span><span class="font-bold">NT$ {{ Math.round(getCabinMiles(item, cabinKey, 'as') * rates.as_buy_val).toLocaleString() }}</span></div>
+                    <div class="flex justify-between"><span>稅金與附加費：</span><span class="font-bold">NT$ {{ Math.round(getCabinTaxUsd(item, cabinKey) * rates.usd_twd).toLocaleString() }}</span></div>
+                  </div>
+                </details>
+
+                <!-- 💵 現金票價比較 (Coming Soon 預留) -->
+                <div class="border-t pt-2 text-[11px] opacity-50 flex justify-between items-center" :class="currentTheme.borderClass">
+                  <span>💵 現金票價對比：</span>
+                  <span class="italic font-bold">Coming Soon</span>
                 </div>
               </div>
 
-              <!-- 2. 阿拉斯加萬豪轉點 -->
-              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3 relative flex flex-col justify-between space-y-2">
+              <!-- 2. 阿拉斯加萬豪轉點方案 -->
+              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3">
                 <span v-if="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott'))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
                 <div>
-                  <div class="opacity-70 text-xs mt-1">AS 萬豪轉點 ({{ getCabinMiles(item, cabinKey, 'as').toLocaleString() }} 哩)</div>
-                  <div class="text-[11px] opacity-70 mt-0.5">需萬豪點數: {{ (getCabinMiles(item, cabinKey, 'as') * 2.4).toLocaleString() }} 點</div>
-                  <div class="text-purple-500 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'marriott').toLocaleString() }}</div>
+                  <div class="text-xs opacity-70 font-bold">AS × 萬豪旅享家轉點</div>
+                  <div class="text-2xl font-black text-purple-400 mt-1">
+                    NT$ {{ getCabinCost(item, cabinKey, 'as', 'marriott').toLocaleString() }}
+                  </div>
+                  <div class="text-[10px] opacity-50 mt-0.5">預估總成本（含點數與稅金）</div>
+                </div>
+
+                <details class="group text-xs border-t pt-2" :class="currentTheme.borderClass">
+                  <summary class="cursor-pointer font-bold opacity-80 hover:text-purple-400 transition flex justify-between items-center select-none">
+                    <span>🔍 點此展開計算明細</span>
+                    <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                  </summary>
+                  <div class="mt-2 space-y-1 text-[11px] opacity-80 bg-slate-950/30 p-2.5 rounded-lg border border-slate-800/50">
+                    <div class="flex justify-between"><span>所需哩程：</span><span class="font-bold">{{ getCabinMiles(item, cabinKey, 'as').toLocaleString() }} 哩</span></div>
+                    <div class="flex justify-between"><span>萬豪點數成本：</span><span class="font-bold">{{ (getCabinMiles(item, cabinKey, 'as') * 2.4).toLocaleString() }} 點 (NT$ {{ Math.round(getCabinMiles(item, cabinKey, 'as') * 2.4 * rates.marriott_val).toLocaleString() }})</span></div>
+                    <div class="flex justify-between"><span>稅金與附加費：</span><span class="font-bold">NT$ {{ Math.round(getCabinTaxUsd(item, cabinKey) * rates.usd_twd).toLocaleString() }}</span></div>
+                  </div>
+                </details>
+
+                <div class="border-t pt-2 text-[11px] opacity-50 flex justify-between items-center" :class="currentTheme.borderClass">
+                  <span>💵 現金票價對比：</span>
+                  <span class="italic font-bold">Coming Soon</span>
                 </div>
               </div>
 
-              <!-- 3. 阿提哈德 EY 換票 -->
-              <div v-if="getCabinEyMiles(item, cabinKey)" :class="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey)) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3 relative flex flex-col justify-between sm:col-span-2 space-y-2">
+              <!-- 3. 阿提哈德 EY 換票方案 -->
+              <div v-if="getCabinEyMiles(item, cabinKey)" :class="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey)) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between sm:col-span-2 space-y-3">
                 <span v-if="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
-                <div class="flex justify-between items-center text-xs opacity-70 mt-1">
-                  <span>⭐ 阿提哈德 (EY) 換票 (CUBE 420點=1000哩)</span>
-                  <span class="text-emerald-500 font-bold">{{ getCabinEyMiles(item, cabinKey).toLocaleString() }} 哩</span>
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="text-xs opacity-70 font-bold">CUBE 點數 ➔ 阿提哈德 (EY) 換票</div>
+                    <div class="text-2xl font-black text-emerald-400 mt-1">
+                      NT$ {{ getCabinEyCost(item, cabinKey).toLocaleString() }}
+                    </div>
+                    <div class="text-[10px] opacity-50 mt-0.5">預估總成本（含小樹點與稅金）</div>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded font-bold">{{ getCabinEyMiles(item, cabinKey).toLocaleString() }} 哩</span>
+                  </div>
                 </div>
-                <div class="flex justify-between items-center mt-1">
-                  <div class="text-xs opacity-70">需刷 CUBE 累積 {{ Math.ceil((getCabinEyMiles(item, cabinKey) / 1000) * 420) }} 點小樹點</div>
-                  <div class="text-emerald-500 font-black text-base">NT$ {{ getCabinEyCost(item, cabinKey).toLocaleString() }}</div>
+
+                <details class="group text-xs border-t pt-2" :class="currentTheme.borderClass">
+                  <summary class="cursor-pointer font-bold opacity-80 hover:text-emerald-400 transition flex justify-between items-center select-none">
+                    <span>🔍 點此展開計算明細</span>
+                    <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                  </summary>
+                  <div class="mt-2 space-y-1 text-[11px] opacity-80 bg-slate-950/30 p-2.5 rounded-lg border border-slate-800/50">
+                    <div class="flex justify-between"><span>所需哩程：</span><span class="font-bold">{{ getCabinEyMiles(item, cabinKey).toLocaleString() }} 哩</span></div>
+                    <div class="flex justify-between"><span>國泰小樹點消耗：</span><span class="font-bold">{{ Math.ceil((getCabinEyMiles(item, cabinKey) / 1000) * 420) }} 點 (420點=1000哩)</span></div>
+                    <div class="flex justify-between"><span>稅金與附加費：</span><span class="font-bold">依航線即時計算</span></div>
+                  </div>
+                </details>
+
+                <div class="border-t pt-2 text-[11px] opacity-50 flex justify-between items-center" :class="currentTheme.borderClass">
+                  <span>💵 現金票價對比：</span>
+                  <span class="italic font-bold">Coming Soon</span>
                 </div>
               </div>
 
