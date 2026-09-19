@@ -18,14 +18,14 @@
     gtag('config', 'G-7KV8ELE3K4');
   </script>
   
-  <title>常旅客哩程票最佳兌換精算 | FongArea Points</title>
+  <title>常旅客哩程票兌換 | FongArea Points</title>
   <meta name="description" content="輸入出發地與目的地，一鍵比較阿拉斯加買點、萬豪轉點、阿提哈德兌換等哩程方案的實際台幣成本，解鎖 1500哩內免費中停極限密技。" />
-  <meta property="og:title" content="常旅客哩程票最佳兌換精算 | FongArea Points" />
+  <meta property="og:title" content="常旅客哩程票兌換 | FongArea Points" />
   <meta property="og:description" content="商務艙、經濟艙哩程票怎麼換最便宜？新手實戰教學與多航點即時比價工具。" />
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_auto_sync" />
+  <link rel="manifest" href="manifest.json?v=20260919_app_theme" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -40,22 +40,30 @@
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-3 sm:p-6 flex flex-col items-center text-sm">
+<body :class="currentTheme.bgClass" class="text-slate-100 min-h-screen p-3 sm:p-6 flex flex-col items-center text-sm transition-colors duration-300">
 
   <div class="sr-only">
-    <h1>常旅客哩程票最佳兌換精算工具</h1>
+    <h1>常旅客哩程票兌換工具</h1>
     <p>支援阿拉斯加航空 (AS) 1500哩內免費中停、阿提哈德航空 (EY) 哩程兌換、國泰 CUBE 卡小樹點、萬豪旅享家轉點成本即時比價。涵蓋台北、東京、大阪、福岡、沖繩、熊本、宮古島、澳門、香港、釜山、河內等熱門跨國航線。</p>
   </div>
 
   <div id="app" class="w-full max-w-xl space-y-4">
     
-    <!-- 頂部導覽 -->
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4">
+    <!-- 頂部導覽 (主視覺放大標題 + 支援主題切換與成本設定) -->
+    <div :class="currentTheme.cardBg" class="border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 transition-colors duration-300">
       <div class="flex justify-between items-center gap-2">
-        <h1 class="text-base sm:text-lg font-black text-white tracking-tight leading-snug">常旅客哩程票最佳兌換精算</h1>
-        <button @click="showSettings = !showSettings" class="shrink-0 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-2 rounded-xl border border-slate-700 transition">
-          ⚙️ 成本設定
-        </button>
+        <!-- 🚀 縮短並放大的主視覺大標題 -->
+        <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight">
+          常旅客哩程票<span class="text-cyan-400">兌換</span>
+        </h1>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button @click="cycleTheme" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-2.5 py-2 rounded-xl border border-slate-700 transition" title="切換背景主題">
+            🎨 {{ currentTheme.name }}
+          </button>
+          <button @click="showSettings = !showSettings" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-2 rounded-xl border border-slate-700 transition">
+            ⚙️ 設定
+          </button>
+        </div>
       </div>
 
       <!-- 設定抽屜 -->
@@ -354,7 +362,7 @@
         查無符合條件之跨國航點，請調整出發地或艙等
       </div>
 
-      <div v-else v-for="(item, idx) in filteredRoutes" :key="idx" class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl space-y-4">
+      <div v-else v-for="(item, idx) in filteredRoutes" :key="idx" :class="currentTheme.cardBg" class="border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl space-y-4 transition-colors duration-300">
         
         <div class="flex justify-between items-start border-b border-slate-800 pb-3">
           <div>
@@ -434,6 +442,24 @@
         const showTricksBox = ref(false);
         const showGuidePanel = ref(false);
         const activeTab = ref('calc');
+
+        // 🎨 主題設定 (支援 3 種極美暗色 App 風格循環切換)
+        const themes = [
+          { name: '極黑', bgClass: 'bg-slate-950', cardBg: 'bg-slate-900' },
+          { name: '深藍', bgClass: 'bg-slate-900', cardBg: 'bg-slate-800/90' },
+          { name: '暗灰', bgClass: 'bg-zinc-950', cardBg: 'bg-zinc-900' }
+        ];
+        const savedThemeIdx = Number(localStorage.getItem('miles_theme_idx') || 0);
+        const currentThemeIdx = ref(savedThemeIdx < themes.length ? savedThemeIdx : 0);
+        const currentTheme = computed(() => themes[currentThemeIdx.value]);
+
+        const cycleTheme = () => {
+          currentThemeIdx.value = (currentThemeIdx.value + 1) % themes.length;
+          localStorage.setItem('miles_theme_idx', currentThemeIdx.value);
+          if (typeof gtag === 'function') {
+            gtag('event', 'change_theme', { 'theme_name': currentTheme.value.name });
+          }
+        };
 
         const selectedCountry = ref('ALL');
         const selectedAirport = ref('ALL');
@@ -525,7 +551,7 @@
           return allAirports.filter(a => validOrigins.has(a.code));
         });
 
-        // 🚀 模式 A 去程目的地：排除出發地自己以及同國家機場 (拿掉多餘括號文字)
+        // 模式 A 去程目的地：排除出發地自己與同國
         const availableOutDestAirports = computed(() => {
           if (!flightSearch.value.outOrigin) return allAirports;
           const originApt = allAirports.find(a => a.code === flightSearch.value.outOrigin);
@@ -542,7 +568,7 @@
           });
         });
 
-        // 🚀 模式 A 回程目的地：排除回程出發地自己以及同國家機場
+        // 模式 A 回程目的地：排除回程出發地自己與同國
         const availableInDestAirports = computed(() => {
           if (!flightSearch.value.inOrigin) return allAirports;
           const originApt = allAirports.find(a => a.code === flightSearch.value.inOrigin);
@@ -559,7 +585,7 @@
           });
         });
 
-        // 🚀 模式 B 專用：探索目的地防呆（自動排除出發機場本身以及同國家的機場）
+        // 模式 B 專用：探索目的地防呆（自動排除出發機場本身以及同國家的機場）
         const availableExploreDestAirports = computed(() => {
           if (selectedAirport.value === 'ALL') return allAirports;
           const originApt = allAirports.find(a => a.code === selectedAirport.value);
@@ -570,18 +596,17 @@
           });
         });
 
-        // 🚀 智慧聯動：當切換艙等時，若原本選的方案不符合新艙等，自動幫用戶在背景配對同航線的新方案
+        // 智慧聯動：切換艙等時，自動在背景對應同航線的新方案
         const handleCabinChange = (type) => {
           if (type === 'out') {
             const currentOpt = allOptions.value.find(o => o.id === flightSearch.value.outboundKey);
             if (currentOpt) {
-              // 尋找符合新艙等、且同起訖點的第一個方案
               const match = filteredOutboundOptions.value.find(
                 o => o.origin === currentOpt.origin && o.dest === currentOpt.dest
               );
-              flightSearch.value.outboundKey = match ? match.id : '';
+              flightSearch.value.outboundKey = match ? match.id : (filteredOutboundOptions.value[0]?.id || '');
             } else {
-              flightSearch.value.outboundKey = '';
+              flightSearch.value.outboundKey = filteredOutboundOptions.value[0]?.id || '';
             }
           } else {
             const currentOpt = allOptions.value.find(o => o.id === flightSearch.value.inboundKey);
@@ -589,9 +614,9 @@
               const match = filteredInboundOptions.value.find(
                 o => o.origin === currentOpt.origin && o.dest === currentOpt.dest
               );
-              flightSearch.value.inboundKey = match ? match.id : '';
+              flightSearch.value.inboundKey = match ? match.id : (filteredInboundOptions.value[0]?.id || '');
             } else {
-              flightSearch.value.inboundKey = '';
+              flightSearch.value.inboundKey = filteredInboundOptions.value[0]?.id || '';
             }
           }
         };
@@ -632,7 +657,7 @@
           }
         };
 
-        // 🚀 點擊中停密技時，自動連動去程出發地與目的地，並智慧預選最佳方案
+        // 點擊中停密技時，自動連動起訖點，並智慧預選最佳方案
         const applyTrick = (origin, dest) => {
           showTricksBox.value = false;
           flightSearch.value.tripType = 'oneWay';
@@ -882,6 +907,9 @@
           showTricksBox,
           showGuidePanel,
           activeTab,
+          themes,
+          currentTheme,
+          cycleTheme,
           selectedCountry,
           selectedAirport,
           selectedDestAirport,
