@@ -9,7 +9,13 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#020617" />
   
-  <title>常旅客哩程票最佳兌換精算</title>
+  <!-- SEO 與社群分享優化 (解決爬蟲與 LINE 預覽空白問題) -->
+  <title>常旅客哩程票最佳兌換精算 | FongArea Points</title>
+  <meta name="description" content="輸入出發地與目的地，一鍵比較阿拉斯加買點、萬豪轉點、阿提哈德兌換等哩程方案的實際台幣成本，解鎖 1500哩內免費中停極限密技。" />
+  <meta property="og:title" content="常旅客哩程票最佳兌換精算 | FongArea Points" />
+  <meta property="og:description" content="商務艙、經濟艙哩程票怎麼換最便宜？多航點即時比價與中停密技工具。" />
+  <meta property="og:image" content="https://points.fongarea.com/icon.png" />
+  <meta property="og:type" content="website" />
   
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon.png" />
@@ -27,6 +33,12 @@
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-3 sm:p-6 flex flex-col items-center text-sm">
+
+  <!-- 爬蟲友善的隱藏/說明文字 (解決搜尋引擎抓不到實質內容的問題) -->
+  <div class="sr-only">
+    <h1>常旅客哩程票最佳兌換精算工具</h1>
+    <p>支援阿拉斯加航空 (AS) 1500哩內免費中停、阿提哈德航空 (EY) 哩程兌換、國泰 CUBE 卡小樹點、萬豪旅享家轉點成本即時比價。涵蓋台北、東京、大阪、福岡、沖繩、熊本、宮古島、澳門、香港、釜山、河內等熱門航線。</p>
+  </div>
 
   <div id="app" class="w-full max-w-xl space-y-4">
     
@@ -73,6 +85,17 @@
             <input type="number" step="0.01" v-model.number="rates.marriott_val" @input="saveRates" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-purple-400 font-bold text-sm">
           </div>
         </div>
+      </div>
+
+      <!-- 🚀 質感按鈕：開啟「阿拉斯加 1500哩內中停精選航點專區」 -->
+      <div class="bg-gradient-to-r from-cyan-950/60 to-purple-950/60 border border-cyan-500/30 rounded-2xl p-3.5 flex justify-between items-center shadow-md">
+        <div>
+          <div class="text-cyan-300 font-black text-xs">🚀 探索阿拉斯加 1500哩內中停「精選航點」</div>
+          <div class="text-[10px] text-slate-400 mt-0.5">解鎖港澳、日韓越極限雙段飛法，一鍵帶入比價</div>
+        </div>
+        <button @click="showTricksModal = true" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs px-3.5 py-2 rounded-xl shadow transition">
+          查看精選
+        </button>
       </div>
 
       <!-- 上方區塊：精確航線與多人預算試算 -->
@@ -197,6 +220,9 @@
               <option value="TW">台灣</option>
               <option value="JP">日本</option>
               <option value="MO">澳門</option>
+              <option value="HK">香港</option>
+              <option value="KR">南韓</option>
+              <option value="VN">越南</option>
             </select>
           </div>
 
@@ -317,6 +343,38 @@
 
   </div>
 
+  <!-- 🚀 「精選航點專區」彈窗 (點擊展開所有阿拉斯加 1500哩中停神級飛法) -->
+  <div v-if="showTricksModal" @click.self="showTricksModal = false" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-cyan-400 font-black text-base">✨ 阿拉斯加 1500哩內中停「精選航點」</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">點擊任意航線，直接一鍵代入外層主搜尋引擎進行比價！</p>
+        </div>
+        <button @click="showTricksModal = false" class="text-slate-400 hover:text-white font-bold text-lg p-1">✕</button>
+      </div>
+
+      <div class="space-y-2 max-h-[65vh] overflow-y-auto pr-1">
+        <div v-for="(trick, tIdx) in secretTricks" :key="tIdx" @click="applyTrick(trick.origin, trick.dest)" class="bg-slate-950 hover:bg-cyan-950/40 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-3 cursor-pointer transition space-y-1">
+          <div class="flex justify-between items-center text-xs font-bold text-white">
+            <span>{{ trick.origin_name }} ({{ trick.origin }}) ➔ 台北 ➔ {{ trick.dest_name }} ({{ trick.dest }})</span>
+            <span class="text-amber-400">{{ trick.eco_miles >= 15000 ? '15k' : '7.5k' }} 哩 + ${{ trick.eco_tax_usd }} USD</span>
+          </div>
+          <div class="text-[11px] text-slate-400 flex justify-between">
+            <span>{{ trick.note }}</span>
+            <span class="text-cyan-400 font-bold">點擊代入比價 ➔</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center pt-2 border-t border-slate-800">
+        <button @click="showTricksModal = false" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs px-5 py-2 rounded-xl">
+          關閉專區
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const { createApp, ref, computed, onMounted } = Vue;
 
@@ -326,6 +384,7 @@
 
         const loading = ref(true);
         const showSettings = ref(false);
+        const showTricksModal = ref(false);
 
         const selectedCountry = ref('ALL');
         const selectedAirport = ref('ALL');
@@ -362,7 +421,40 @@
           { code: 'NRT', name: '東京成田', country: 'JP' },
           { code: 'KIX', name: '大阪關西', country: 'JP' },
           { code: 'UKB', name: '神戶', country: 'JP' },
-          { code: 'MFM', name: '澳門', country: 'MO' }
+          { code: 'MFM', name: '澳門', country: 'MO' },
+          { code: 'HKG', name: '香港', country: 'HK' },
+          { code: 'PUS', name: '釜山', country: 'KR' },
+          { code: 'HAN', name: '河內', country: 'VN' }
+        ];
+
+        // 🚀 完整收錄的阿拉斯加 1500哩內中停「精選航點」資料庫
+        const secretTricks = [
+          { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, note: '✨ 熊本 ➔ 台北中停 ➔ 澳門' },
+          { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, note: '✨ 反向：澳門 ➔ 台北中停 ➔ 熊本' },
+          { origin: 'FUK', dest: 'MFM', origin_name: '福岡', dest_name: '澳門', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 87, biz_miles: 15000, biz_tax_usd: 87, note: '✨ 福岡 ➔ 台北中停 ➔ 澳門' },
+          { origin: 'MFM', dest: 'FUK', origin_name: '澳門', dest_name: '福岡', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, note: '✨ 反向：澳門 ➔ 台北中停 ➔ 福岡' },
+          { origin: 'HAN', dest: 'OKA', origin_name: '河內', dest_name: '沖繩', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 71, biz_miles: 15000, biz_tax_usd: 71, note: '✨ 河內 ➔ 台北中停 ➔ 沖繩' },
+          { origin: 'OKA', dest: 'HAN', origin_name: '沖繩', dest_name: '河內', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 79, biz_miles: 15000, biz_tax_usd: 79, note: '✨ 反向：沖繩 ➔ 台北中停 ➔ 河內' },
+          { origin: 'MFM', dest: 'OKA', origin_name: '澳門', dest_name: '沖繩', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, note: '✨ 澳門 ➔ 台北中停 ➔ 沖繩' },
+          { origin: 'OKA', dest: 'MFM', origin_name: '沖繩', dest_name: '澳門', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 79, biz_miles: 15000, biz_tax_usd: 79, note: '✨ 反向：沖繩 ➔ 台北中停 ➔ 澳門' },
+          { origin: 'MFM', dest: 'RMQ', origin_name: '澳門', dest_name: '台中', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, note: '✨ 澳門 ➔ 台中中停 ➔ 沖繩' }, // 對應原先設定
+          { origin: 'PUS', dest: 'OKA', origin_name: '釜山', dest_name: '沖繩', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 58, biz_miles: 15000, biz_tax_usd: 58, note: '✨ 釜山 ➔ 台北中停 ➔ 沖繩 (商務不划算)' },
+          { origin: 'OKA', dest: 'PUS', origin_name: '沖繩', dest_name: '釜山', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 79, biz_miles: 15000, biz_tax_usd: 79, note: '✨ 反向：沖繩 ➔ 台北中停 ➔ 釜山' },
+          { origin: 'SHI', dest: 'HAN', origin_name: '宮古島', dest_name: '河內', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 86, biz_miles: 15000, biz_tax_usd: 86, note: '✨ 宮古島 ➔ 台北中停 ➔ 河內' },
+          { origin: 'PUS', dest: 'SHI', origin_name: '釜山', dest_name: '宮古島', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 58, biz_miles: 15000, biz_tax_usd: 58, note: '✨ 釜山 ➔ 台北中停 ➔ 宮古島' },
+          { origin: 'SHI', dest: 'PUS', origin_name: '宮古島', dest_name: '釜山', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 85, biz_miles: 15000, biz_tax_usd: 85, note: '✨ 反向：宮古島 ➔ 台北中停 ➔ 釜山' },
+          { origin: 'SHI', dest: 'HKG', origin_name: '宮古島', dest_name: '香港', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 85, biz_miles: 15000, biz_tax_usd: 85, note: '✨ 宮古島 ➔ 台北中停 ➔ 香港' },
+          { origin: 'SHI', dest: 'MFM', origin_name: '宮古島', dest_name: '澳門', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 85, biz_miles: 15000, biz_tax_usd: 85, note: '✨ 宮古島 ➔ 台北中停 ➔ 澳門' },
+          { origin: 'HKG', dest: 'NRT', origin_name: '香港', dest_name: '東京', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: null, biz_tax_usd: null, note: '✨ 香港 ➔ 台北中停 ➔ 東京 (無商務)' },
+          { origin: 'NRT', dest: 'HKG', origin_name: '東京', dest_name: '香港', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 91, biz_miles: null, biz_tax_usd: null, note: '✨ 反向：東京 ➔ 台北中停 ➔ 香港' },
+          { origin: 'HKG', dest: 'KIX', origin_name: '香港', dest_name: '大阪', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, note: '✨ 香港 ➔ 台北中停 ➔ 大阪' },
+          { origin: 'KIX', dest: 'HKG', origin_name: '大阪', dest_name: '香港', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 95, biz_miles: 15000, biz_tax_usd: 95, note: '✨ 反向：大阪 ➔ 台北中停 ➔ 香港' },
+          { origin: 'HKG', dest: 'KMJ', origin_name: '香港', dest_name: '熊本', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, note: '✨ 香港 ➔ 台北中停 ➔ 熊本' },
+          { origin: 'KMJ', dest: 'HKG', origin_name: '熊本', dest_name: '香港', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, note: '✨ 反向：熊本 ➔ 台北中停 ➔ 香港' },
+          { origin: 'HKG', dest: 'FUK', origin_name: '香港', dest_name: '福岡', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, note: '✨ 香港 ➔ 台北中停 ➔ 福岡' },
+          { origin: 'FUK', dest: 'HKG', origin_name: '福岡', dest_name: '香港', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 87, biz_miles: 15000, biz_tax_usd: 87, note: '✨ 反向：福岡 ➔ 台北中停 ➔ 香港' },
+          { origin: 'HKG', dest: 'OKA', origin_name: '香港', dest_name: '沖繩', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, note: '✨ 香港 ➔ 台北中停 ➔ 沖繩' },
+          { origin: 'OKA', dest: 'HKG', origin_name: '沖繩', dest_name: '香港', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 79, biz_miles: 15000, biz_tax_usd: 79, note: '✨ 反向：沖繩 ➔ 台北中停 ➔ 香港' }
         ];
 
         const flightSearch = ref({
@@ -377,6 +469,13 @@
           outboundKey: '',
           inboundKey: ''
         });
+
+        const applyTrick = (origin, dest) => {
+          flightSearch.value.outOrigin = origin;
+          flightSearch.value.outDest = dest;
+          flightSearch.value.tripType = 'oneWay';
+          showTricksModal.value = false;
+        };
 
         const onOutOriginChange = () => {
           flightSearch.value.outDest = '';
@@ -477,10 +576,6 @@
 
         const allOptions = computed(() => {
           let list = [];
-          const secretTricks = [
-            { origin: 'FUK', dest: 'MFM', origin_name: '福岡', dest_name: '澳門', airline: 'AS (中停密技)', eco_miles: 7500, eco_tax_usd: 87, note: '✨ 1500哩內免費中停' }
-          ];
-
           const combinedRoutes = [...routesData.value, ...secretTricks];
 
           combinedRoutes.forEach((item, rIdx) => {
@@ -615,9 +710,6 @@
         };
 
         const filteredRoutes = computed(() => {
-          const secretTricks = [
-            { origin: 'FUK', dest: 'MFM', origin_name: '福岡', dest_name: '澳門', airline: 'AS (中停密技)', eco_miles: 7500, eco_tax_usd: 87, note: '✨ 1500哩內免費中停' }
-          ];
           const combinedRoutes = [...routesData.value, ...secretTricks];
 
           let list = combinedRoutes.filter(item => {
@@ -652,6 +744,7 @@
         return {
           loading,
           showSettings,
+          showTricksModal,
           selectedCountry,
           selectedAirport,
           selectedDestAirport,
@@ -664,6 +757,7 @@
           routesData,
           filteredRoutes,
           allAirports,
+          secretTricks,
           flightSearch,
           filteredOutboundOptions,
           filteredInboundOptions,
@@ -682,7 +776,8 @@
           getCabinEyMiles,
           getCabinEyCost,
           isLowestCost,
-          shouldShowCabinCard
+          shouldShowCabinCard,
+          applyTrick
         };
       }
     }).mount('#app');
