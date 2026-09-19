@@ -26,7 +26,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_final" />
+  <link rel="manifest" href="manifest.json?v=20260919_guide_panel" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -117,7 +117,56 @@
         </div>
       </div>
 
-      <!-- 模式 A 畫面 (精確跨國試算) -->
+      <!-- 🚀 常駐折疊式「新手實戰攻略指南」面板 (無彈窗、不卡死) -->
+      <div class="bg-gradient-to-r from-amber-950/40 to-cyan-950/40 border border-amber-500/30 rounded-2xl p-4 space-y-3">
+        <div class="flex justify-between items-center cursor-pointer" @click="showGuidePanel = !showGuidePanel">
+          <div>
+            <div class="text-amber-300 font-black text-xs sm:text-sm">📖 哩程新手實戰攻略指南（點此展開教學）</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">如何從零開始完成星宇／國泰機票兌換？內含官方與返利傳送門</div>
+          </div>
+          <button class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-3 py-1.5 rounded-xl transition">
+            {{ showGuidePanel ? '收合 ▲' : '展開 ▼' }}
+          </button>
+        </div>
+
+        <div v-if="showGuidePanel" class="space-y-3 pt-3 border-t border-amber-500/20 text-xs text-slate-300">
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+            <div class="font-bold text-amber-400">1️⃣ 掌握買哩程時機（90%~100% 特賣）</div>
+            <p>AS 哩程特價時常有不同獎勵（普遍介於 90%~100%）。請務必看到 90% 以上再下手，此時買下來的成本約合每哩 0.6 元台幣最大化效益！</p>
+          </div>
+
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+            <div class="font-bold text-cyan-400">2️⃣ 善用 TopCashback 拿返利與獎勵</div>
+            <p>購買里程屬於海外交易。強烈建議透過返利網進行跳轉購買，不僅能賺取現金回饋，新戶還能享有高額開戶獎勵！刷對信用卡能疊加優惠。</p>
+            <a href="https://www.topcashback.com/ref/gn1884728" target="_blank" @click="trackGA('click_tcb')" class="block text-center bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black py-2 rounded-lg transition mt-2">
+              🚀 前往 TopCashback 註冊領取 40 美金獎勵 ↗
+            </a>
+          </div>
+
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+            <div class="font-bold text-purple-400">3️⃣ 善用 1500 哩內定價邏輯與航距查詢</div>
+            <p>AS 哩程以距離定價。單趟 1500 哩內（如台日線）經濟艙僅需 7.5K 哩起。若想精算航距，可查詢航距工具。</p>
+            <a href="http://www.gcmap.com/mapui?P=tpe-szx" target="_blank" @click="trackGA('click_gcmap')" class="inline-block mt-1 text-cyan-400 underline font-bold">
+              🗺️ 點擊查詢 Great Circle Mapper 航距 ↗
+            </a>
+          </div>
+
+          <!-- 官方實用傳送門按鈕區 -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-800">
+            <a href="https://www.alaskaair.com/?srsltid=AU7gw4Xkj8ji9eazPRma-2qNi71uZLvztj3DiMRYA02PrcmwWRgkO9Vq" target="_blank" @click="trackGA('click_as_reg')" class="text-center bg-slate-900 hover:bg-slate-800 text-white font-bold p-2 rounded-lg border border-slate-700 transition">
+              1️⃣ 註冊阿拉斯加航空 ↗
+            </a>
+            <a href="https://storefront.points.com/mileage-plan/sso/buy" target="_blank" @click="trackGA('click_as_buy')" class="text-center bg-slate-900 hover:bg-slate-800 text-amber-300 font-bold p-2 rounded-lg border border-slate-700 transition">
+              2️⃣ 購買阿拉斯加哩程 ↗
+            </a>
+            <a href="https://www.alaskaair.com/planbook/shoppingstart?A=1&D=kix&DD=2024%E5%B9%B4-11%E6%9C%88-19%E6%97%A5&DT=Anytime&FRM=avail&O=tpe&OD=2024%E5%B9%B4-11%E6%9C%88-15%E6%97%A5&OT=Anytime&RT=true&RequestType=Calendar&SITE_PREF=full&ShoppingMethod=onlineaward&UPG=none&beta=true&int=flightresultsmicrosite%3Aviewby-calendar" target="_blank" @click="trackGA('click_as_search')" class="text-center bg-slate-900 hover:bg-slate-800 text-cyan-300 font-bold p-2 rounded-lg border border-slate-700 transition">
+              3️⃣ 前往官網兌換機票 ↗
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模式 A 畫面 -->
       <div v-if="activeTab === 'calc'" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-amber-400 flex items-center justify-between pb-1 border-b border-slate-800">
           <span>✈️ 【跨國精確航線與預算試算】</span>
@@ -151,7 +200,7 @@
           </div>
         </div>
 
-        <!-- 去程設定 (強制跨國防呆) -->
+        <!-- 去程設定 (防呆：排除同國家) -->
         <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-sm">
           <div class="flex justify-between items-center text-xs font-bold text-slate-300">
             <span>✈️ 去程航段 (僅限跨國航線)</span>
@@ -235,7 +284,7 @@
         </div>
       </div>
 
-      <!-- 模式 B 畫面 (航點探索) -->
+      <!-- 模式 B 畫面 -->
       <div v-if="activeTab === 'explore'" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-400 flex items-center justify-between">
           <span>🌏 【跨國哩程去哪裡最划算？航點探索】</span>
@@ -301,7 +350,7 @@
 
     </div>
 
-    <!-- 下方區塊：動態決策比價卡 (內建新手教學按鈕，點擊開啟站內指南 Modal 並帶有 TCB 40美金返利連結) -->
+    <!-- 下方區塊：動態決策比價卡 -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 text-slate-500 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -345,10 +394,6 @@
                   <div class="text-[11px] text-slate-400 mt-0.5">含稅金附加費：約 NT$ {{ Math.round(getCabinTaxUsd(item, cabinKey) * rates.usd_twd).toLocaleString() }}</div>
                   <div class="text-amber-300 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'buy').toLocaleString() }}</div>
                 </div>
-                <!-- 💡 點擊開啟站內新手攻略 Modal -->
-                <button @click="openGuideModal('AS_Buy', item)" class="w-full text-center bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-[11px] py-1.5 rounded-lg border border-slate-700 transition">
-                  💡 新手必看：AS 買哩程實戰攻略 ↗
-                </button>
               </div>
 
               <!-- 2. 阿拉斯加萬豪轉點 -->
@@ -359,9 +404,6 @@
                   <div class="text-[11px] text-slate-400 mt-0.5">需萬豪點數：{{ (getCabinMiles(item, cabinKey, 'as') * 2.4).toLocaleString() }} 點</div>
                   <div class="text-purple-300 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'marriott').toLocaleString() }}</div>
                 </div>
-                <button @click="openGuideModal('Marriott', item)" class="w-full text-center bg-slate-800 hover:bg-slate-700 text-purple-300 font-bold text-[11px] py-1.5 rounded-lg border border-slate-700 transition">
-                  💡 新手必看：萬豪點數轉 AS 攻略 ↗
-                </button>
               </div>
 
               <!-- 3. 阿提哈德 EY 換票 -->
@@ -375,9 +417,6 @@
                   <div class="text-xs text-slate-400">需刷 CUBE 累積 {{ Math.ceil((getCabinEyMiles(item, cabinKey) / 1000) * 420) }} 點小樹點</div>
                   <div class="text-emerald-300 font-black text-base">NT$ {{ getCabinEyCost(item, cabinKey).toLocaleString() }}</div>
                 </div>
-                <button @click="openGuideModal('Cube_EY', item)" class="w-full text-center bg-slate-800 hover:bg-slate-700 text-emerald-300 font-bold text-[11px] py-1.5 rounded-lg border border-slate-700 transition">
-                  💡 新手必看：國泰 CUBE 換阿提哈德攻略 ↗
-                </button>
               </div>
 
             </div>
@@ -387,45 +426,6 @@
       </div>
     </div>
 
-  </div>
-
-  <!-- 🚀 站內新手教學指南彈窗 (整合 TopCashback 40美金返利連結) -->
-  <div v-if="showGuideModal" @click.self="showGuideModal = false" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl w-full max-w-lg p-5 space-y-4 shadow-2xl text-sm">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <div>
-          <h3 class="text-cyan-400 font-black text-base">📖 哩程新手實戰攻略指南</h3>
-          <p class="text-[11px] text-slate-400 mt-0.5">吳哥親選心法：教你如何從零開始完成這張機票</p>
-        </div>
-        <button @click="showGuideModal = false" class="text-slate-400 hover:text-white font-bold text-lg p-1">✕</button>
-      </div>
-
-      <div class="space-y-3 text-xs text-slate-300 max-h-[60vh] overflow-y-auto pr-1">
-        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
-          <div class="font-bold text-amber-400">1️⃣ 掌握買哩程時機（60% 特賣）</div>
-          <p>AS 哩程特價時常有不同獎勵（普遍介於 40%~60%）。請務必看到 60% 再下手，此時買下來的成本約合每哩 0.6 元台幣最大化效益！</p>
-        </div>
-
-        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
-          <div class="font-bold text-cyan-400">2️⃣ 善用 TopCashback 拿返利與獎勵</div>
-          <p>購買里程屬於海外交易。強烈建議透過返利網進行跳轉購買，不僅能賺取現金回饋，新戶還能享有高額開戶獎勵！</p>
-          <a href="https://www.topcashback.com/ref/gn1884728" target="_blank" @click="trackTCBClick" class="block text-center bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black py-2 rounded-lg transition mt-2">
-            🚀 前往 TopCashback 註冊領取 40 美金獎勵 ↗
-          </a>
-        </div>
-
-        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
-          <div class="font-bold text-purple-400">3️⃣ 善用 1500 哩內定價邏輯與航距查詢</div>
-          <p>AS 哩程以距離定價。單趟 1500 哩內（如台日線）經濟艙僅需 7.5K 哩起。若想精算航距，可使用 Great Circle Mapper (gcmap.com) 查詢。</p>
-        </div>
-      </div>
-
-      <div class="text-center pt-2 border-t border-slate-800">
-        <button @click="showGuideModal = false" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs px-5 py-2 rounded-xl">
-          我知道了，關閉視窗
-        </button>
-      </div>
-    </div>
   </div>
 
   <script>
@@ -438,7 +438,7 @@
         const loading = ref(true);
         const showSettings = ref(false);
         const showTricksBox = ref(false);
-        const showGuideModal = ref(false);
+        const showGuidePanel = ref(false); // 控制新手教學面板開關
         const activeTab = ref('calc');
 
         const selectedCountry = ref('ALL');
@@ -526,7 +526,7 @@
 
         const combinedAllRoutes = computed(() => [...routesData.value, ...secretTricks]);
 
-        // 🚀 跨國航線防呆：自動排除同國家機場（禁止國內線搜尋）
+        // 🚀 跨國航線防呆：排除同國家機場（禁止國內線搜尋）
         const availableOutOriginAirports = computed(() => {
           const validOrigins = new Set(combinedAllRoutes.value.map(r => r.origin));
           return allAirports.filter(a => validOrigins.has(a.code));
@@ -542,7 +542,6 @@
           );
           return allAirports.filter(a => {
             if (!validDests.has(a.code)) return false;
-            // 排除同國家
             if (originApt && a.country === originApt.country) return false;
             return true;
           });
@@ -593,16 +592,9 @@
           };
         });
 
-        const openGuideModal = (type, item) => {
-          showGuideModal.value = true;
+        const trackGA = (actionName) => {
           if (typeof gtag === 'function') {
-            gtag('event', 'open_guide_modal', { 'guide_type': type });
-          }
-        };
-
-        const trackTCBClick = () => {
-          if (typeof gtag === 'function') {
-            gtag('event', 'click_tcb_ref', { 'link': 'https://www.topcashback.com/ref/gn1884728' });
+            gtag('event', actionName, { 'event_category': 'guide_panel' });
           }
         };
 
@@ -846,7 +838,7 @@
           loading,
           showSettings,
           showTricksBox,
-          showGuideModal,
+          showGuidePanel,
           activeTab,
           selectedCountry,
           selectedAirport,
@@ -883,8 +875,7 @@
           isLowestCost,
           shouldShowCabinCard,
           applyTrick,
-          openGuideModal,
-          trackTCBClick
+          trackGA
         };
       }
     }).mount('#app');
