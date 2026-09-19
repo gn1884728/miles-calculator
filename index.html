@@ -18,7 +18,6 @@
     gtag('config', 'G-7KV8ELE3K4');
   </script>
   
-  <!-- SEO 與社群分享優化 -->
   <title>常旅客哩程票最佳兌換精算 | FongArea Points</title>
   <meta name="description" content="輸入出發地與目的地，一鍵比較阿拉斯加買點、萬豪轉點、阿提哈德兌換等哩程方案的實際台幣成本，解鎖 1500哩內免費中停極限密技。" />
   <meta property="og:title" content="常旅客哩程票最佳兌換精算 | FongArea Points" />
@@ -26,7 +25,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_guide_panel" />
+  <link rel="manifest" href="manifest.json?v=20260919_clean_ui" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -50,17 +49,12 @@
 
   <div id="app" class="w-full max-w-xl space-y-4">
     
-    <!-- 頂部導覽與狀態 -->
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4">
-      <div class="flex justify-between items-center">
-        <div>
-          <h1 class="text-xl font-black text-white">常旅客哩程票最佳兌換精算</h1>
-          <div class="text-[11px] text-emerald-400 mt-1 flex items-center gap-2">
-            <span>🟢 跨國航線與點數資料庫已背景同步</span>
-          </div>
-        </div>
-        <button @click="showSettings = !showSettings" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-2 rounded-xl border border-slate-700 transition">
-          ⚙️ 我的成本設定
+    <!-- 頂部導覽 (已修正標題換行，並拿掉突兀的綠色同步字元) -->
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center gap-2">
+        <h1 class="text-base sm:text-lg font-black text-white tracking-tight leading-snug">常旅客哩程票最佳兌換精算</h1>
+        <button @click="showSettings = !showSettings" class="shrink-0 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-2 rounded-xl border border-slate-700 transition">
+          ⚙️ 成本設定
         </button>
       </div>
 
@@ -68,7 +62,7 @@
       <div v-if="showSettings" class="bg-slate-950/90 border border-slate-800 rounded-2xl p-4 space-y-3 text-sm">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
           <span class="text-amber-400 font-bold">⚙️ 點數與多國匯率參數</span>
-          <span class="text-[10px] text-slate-400">💡 數值會自動儲存於你的瀏覽器</span>
+          <span class="text-[10px] text-slate-400">💡 自動儲存於瀏覽器</span>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
@@ -98,31 +92,31 @@
         </div>
       </div>
 
-      <!-- 首頁二分流引導 -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div @click="activeTab = 'calc'" :class="activeTab === 'calc' ? 'border-cyan-500 bg-cyan-950/30' : 'border-slate-800 bg-slate-950'" class="border rounded-2xl p-3.5 cursor-pointer transition space-y-1">
-          <div class="text-xs font-black text-cyan-300 flex items-center justify-between">
-            <span>✈️ A｜我已經知道要去哪裡</span>
-            <span v-if="activeTab === 'calc'" class="text-[10px] bg-cyan-500 text-slate-950 px-2 py-0.5 rounded-full font-bold">使用中</span>
+      <!-- 首頁二分流引導 (維持手機好點的上下堆疊精簡版) -->
+      <div class="grid grid-cols-1 gap-2.5">
+        <div @click="activeTab = 'calc'" :class="activeTab === 'calc' ? 'border-cyan-500 bg-cyan-950/30' : 'border-slate-800 bg-slate-950'" class="border rounded-2xl p-3 cursor-pointer transition flex justify-between items-center">
+          <div>
+            <div class="text-xs font-black text-cyan-300">✈️ A｜我已經知道要去哪裡</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">精確輸入跨國起訖點與人數進行試算</div>
           </div>
-          <div class="text-[11px] text-slate-400">精確輸入跨國起訖點與人數進行試算</div>
+          <span v-if="activeTab === 'calc'" class="text-[10px] bg-cyan-500 text-slate-950 px-2.5 py-1 rounded-full font-black">使用中</span>
         </div>
 
-        <div @click="activeTab = 'explore'" :class="activeTab === 'explore' ? 'border-purple-500 bg-purple-950/30' : 'border-slate-800 bg-slate-950'" class="border rounded-2xl p-3.5 cursor-pointer transition space-y-1">
-          <div class="text-xs font-black text-purple-300 flex items-center justify-between">
-            <span>🌏 B｜我還不知道去哪裡</span>
-            <span v-if="activeTab === 'explore'" class="text-[10px] bg-purple-500 text-slate-950 px-2 py-0.5 rounded-full font-bold">探索中</span>
+        <div @click="activeTab = 'explore'" :class="activeTab === 'explore' ? 'border-purple-500 bg-purple-950/30' : 'border-slate-800 bg-slate-950'" class="border rounded-2xl p-3 cursor-pointer transition flex justify-between items-center">
+          <div>
+            <div class="text-xs font-black text-purple-300">🌏 B｜我還不知道去哪裡</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">尋找高CP值航點，解鎖中停密技</div>
           </div>
-          <div class="text-[11px] text-slate-400">尋找高CP值航點，解鎖阿拉斯加中停密技</div>
+          <span v-if="activeTab === 'explore'" class="text-[10px] bg-purple-500 text-slate-950 px-2.5 py-1 rounded-full font-black">探索中</span>
         </div>
       </div>
 
-      <!-- 🚀 常駐折疊式「新手實戰攻略指南」面板 (無彈窗、不卡死) -->
+      <!-- 常駐折疊式新手實戰攻略指南面板 -->
       <div class="bg-gradient-to-r from-amber-950/40 to-cyan-950/40 border border-amber-500/30 rounded-2xl p-4 space-y-3">
         <div class="flex justify-between items-center cursor-pointer" @click="showGuidePanel = !showGuidePanel">
           <div>
-            <div class="text-amber-300 font-black text-xs sm:text-sm">📖 哩程新手實戰攻略指南（點此展開教學）</div>
-            <div class="text-[11px] text-slate-400 mt-0.5">如何從零開始完成星宇／國泰機票兌換？內含官方與返利傳送門</div>
+            <div class="text-amber-300 font-black text-xs">📖 哩程新手實戰攻略指南</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">零基礎完成星宇／國泰機票兌換與返利教學</div>
           </div>
           <button class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-3 py-1.5 rounded-xl transition">
             {{ showGuidePanel ? '收合 ▲' : '展開 ▼' }}
@@ -137,7 +131,7 @@
 
           <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
             <div class="font-bold text-cyan-400">2️⃣ 善用 TopCashback 拿返利與獎勵</div>
-            <p>購買里程屬於海外交易。強烈建議透過返利網進行跳轉購買，不僅能賺取現金回饋，新戶還能享有高額開戶獎勵！刷對信用卡能疊加優惠。</p>
+            <p>購買里程屬於海外交易。強烈建議透過返利網進行跳轉購買，不僅能賺取現金回饋，新戶還能享有高額開戶獎勵！</p>
             <a href="https://www.topcashback.com/ref/gn1884728" target="_blank" @click="trackGA('click_tcb')" class="block text-center bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black py-2 rounded-lg transition mt-2">
               🚀 前往 TopCashback 註冊領取 40 美金獎勵 ↗
             </a>
@@ -145,13 +139,13 @@
 
           <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
             <div class="font-bold text-purple-400">3️⃣ 善用 1500 哩內定價邏輯與航距查詢</div>
-            <p>AS 哩程以距離定價。單趟 1500 哩內（如台日線）經濟艙僅需 7.5K 哩起。若想精算航距，可查詢航距工具。</p>
+            <p>AS 哩程以距離定價。單趟 1500 哩內（如台日線）經濟艙僅需 7.5K 哩起。</p>
             <a href="http://www.gcmap.com/mapui?P=tpe-szx" target="_blank" @click="trackGA('click_gcmap')" class="inline-block mt-1 text-cyan-400 underline font-bold">
               🗺️ 點擊查詢 Great Circle Mapper 航距 ↗
             </a>
           </div>
 
-          <!-- 官方實用傳送門按鈕區 -->
+          <!-- 官方傳送門按鈕區 -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-800">
             <a href="https://www.alaskaair.com/?srsltid=AU7gw4Xkj8ji9eazPRma-2qNi71uZLvztj3DiMRYA02PrcmwWRgkO9Vq" target="_blank" @click="trackGA('click_as_reg')" class="text-center bg-slate-900 hover:bg-slate-800 text-white font-bold p-2 rounded-lg border border-slate-700 transition">
               1️⃣ 註冊阿拉斯加航空 ↗
@@ -170,7 +164,7 @@
       <div v-if="activeTab === 'calc'" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-amber-400 flex items-center justify-between pb-1 border-b border-slate-800">
           <span>✈️ 【跨國精確航線與預算試算】</span>
-          <button @click="showTricksBox = !showTricksBox" class="text-[11px] text-cyan-400 underline">✨ {{ showTricksBox ? '收合精選中停密技' : '展開阿拉斯加中停密技' }}</button>
+          <button @click="showTricksBox = !showTricksBox" class="text-[11px] text-cyan-400 underline">✨ {{ showTricksBox ? '收合中停密技' : '展開中停密技' }}</button>
         </div>
 
         <div v-if="showTricksBox" class="bg-cyan-950/20 border border-cyan-500/30 rounded-xl p-3 space-y-2">
@@ -203,7 +197,7 @@
         <!-- 去程設定 (防呆：排除同國家) -->
         <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-sm">
           <div class="flex justify-between items-center text-xs font-bold text-slate-300">
-            <span>✈️ 去程航段 (僅限跨國航線)</span>
+            <span>✈️ 去程航段 (僅限跨國)</span>
             <select v-model="flightSearch.outCabin" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-cyan-400 font-bold text-xs focus:outline-none">
               <option value="ALL">全部艙等</option>
               <option value="biz">👑 商務</option>
@@ -220,7 +214,7 @@
               </select>
             </div>
             <div>
-              <label class="text-[11px] text-slate-400 block mb-1">目的地 (已過濾同國國內線)</label>
+              <label class="text-[11px] text-slate-400 block mb-1">目的地 (已過濾同國)</label>
               <select v-model="flightSearch.outDest" @change="onOutPortChange" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white font-bold text-sm focus:outline-none">
                 <option value="">選擇跨國抵達機場</option>
                 <option v-for="apt in availableOutDestAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
@@ -438,7 +432,7 @@
         const loading = ref(true);
         const showSettings = ref(false);
         const showTricksBox = ref(false);
-        const showGuidePanel = ref(false); // 控制新手教學面板開關
+        const showGuidePanel = ref(false);
         const activeTab = ref('calc');
 
         const selectedCountry = ref('ALL');
@@ -526,7 +520,6 @@
 
         const combinedAllRoutes = computed(() => [...routesData.value, ...secretTricks]);
 
-        // 🚀 跨國航線防呆：排除同國家機場（禁止國內線搜尋）
         const availableOutOriginAirports = computed(() => {
           const validOrigins = new Set(combinedAllRoutes.value.map(r => r.origin));
           return allAirports.filter(a => validOrigins.has(a.code));
