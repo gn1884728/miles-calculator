@@ -9,15 +9,24 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#020617" />
   
+  <!-- Google tag (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag.js?id=G-7KV8ELE3K4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7KV8ELE3K4');
+  </script>
+  
   <!-- SEO 與社群分享優化 -->
   <title>常旅客哩程票最佳兌換精算 | FongArea Points</title>
   <meta name="description" content="輸入出發地與目的地，一鍵比較阿拉斯加買點、萬豪轉點、阿提哈德兌換等哩程方案的實際台幣成本，解鎖 1500哩內免費中停極限密技。" />
   <meta property="og:title" content="常旅客哩程票最佳兌換精算 | FongArea Points" />
-  <meta property="og:description" content="商務艙、經濟艙哩程票怎麼換最便宜？多航點即時比價與中停密技工具。" />
+  <meta property="og:description" content="商務艙、經濟艙哩程票怎麼換最便宜？新手實戰教學與多航點即時比價工具。" />
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_clean" />
+  <link rel="manifest" href="manifest.json?v=20260919_ga4" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -34,7 +43,6 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-3 sm:p-6 flex flex-col items-center text-sm">
 
-  <!-- 爬蟲友善說明文字 -->
   <div class="sr-only">
     <h1>常旅客哩程票最佳兌換精算工具</h1>
     <p>支援阿拉斯加航空 (AS) 1500哩內免費中停、阿提哈德航空 (EY) 哩程兌換、國泰 CUBE 卡小樹點、萬豪旅享家轉點成本即時比價。涵蓋台北、東京、大阪、福岡、沖繩、熊本、宮古島、澳門、香港、釜山、河內等熱門航線。</p>
@@ -42,13 +50,13 @@
 
   <div id="app" class="w-full max-w-xl space-y-4">
     
-    <!-- 頂部導覽與極簡狀態顯示 (已移除突兀的重新整理按鈕) -->
+    <!-- 頂部導覽與極簡狀態 -->
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4">
       <div class="flex justify-between items-center">
         <div>
           <h1 class="text-xl font-black text-white">常旅客哩程票最佳兌換精算</h1>
           <div class="text-[11px] text-emerald-400 mt-1 flex items-center gap-2">
-            <span>🟢 航線與點數資料庫已同步</span>
+            <span>🟢 航線與點數資料庫已背景同步</span>
           </div>
         </div>
         <button @click="showSettings = !showSettings" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-2 rounded-xl border border-slate-700 transition">
@@ -109,14 +117,13 @@
         </div>
       </div>
 
-      <!-- 模式 A 畫面：精確航線與多人預算試算 -->
+      <!-- 模式 A 畫面 -->
       <div v-if="activeTab === 'calc'" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-amber-400 flex items-center justify-between pb-1 border-b border-slate-800">
           <span>✈️ 【精確航線與多人預算試算】</span>
           <button @click="showTricksBox = !showTricksBox" class="text-[11px] text-cyan-400 underline">✨ {{ showTricksBox ? '收合精選中停密技' : '展開阿拉斯加中停密技' }}</button>
         </div>
 
-        <!-- 內嵌式精選中停密技區塊 -->
         <div v-if="showTricksBox" class="bg-cyan-950/20 border border-cyan-500/30 rounded-xl p-3 space-y-2">
           <div class="text-[11px] text-cyan-300 font-bold">🚀 阿拉斯加 1500哩內中停「精選航點」（點擊直接代入）</div>
           <div class="max-h-40 overflow-y-auto space-y-1.5 pr-1">
@@ -228,7 +235,7 @@
         </div>
       </div>
 
-      <!-- 模式 B 畫面：航點大探索 -->
+      <!-- 模式 B 畫面 -->
       <div v-if="activeTab === 'explore'" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-400 flex items-center justify-between">
           <span>🌏 【哩程去哪裡最划算？航點探索】</span>
@@ -294,7 +301,7 @@
 
     </div>
 
-    <!-- 下方區塊：動態決策卡片展示 -->
+    <!-- 下方區塊：動態決策比價卡 -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 text-slate-500 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -331,23 +338,33 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               
               <!-- 1. 阿拉斯加買點 -->
-              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy')) ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
+              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy')) ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between space-y-2">
                 <span v-if="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy'))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
-                <div class="text-slate-400 text-xs mt-1">AS 特價買點 ({{ getCabinMiles(item, cabinKey, 'as').toLocaleString() }} 哩)</div>
-                <div class="text-[11px] text-slate-400 mt-0.5">含稅金附加費：約 NT$ {{ Math.round(getCabinTaxUsd(item, cabinKey) * rates.usd_twd).toLocaleString() }}</div>
-                <div class="text-amber-300 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'buy').toLocaleString() }}</div>
+                <div>
+                  <div class="text-slate-400 text-xs mt-1">AS 特價買點 ({{ getCabinMiles(item, cabinKey, 'as').toLocaleString() }} 哩)</div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">含稅金附加費：約 NT$ {{ Math.round(getCabinTaxUsd(item, cabinKey) * rates.usd_twd).toLocaleString() }}</div>
+                  <div class="text-amber-300 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'buy').toLocaleString() }}</div>
+                </div>
+                <a href="https://example.com/blog-as-buy-miles" target="_blank" @click="trackGuideClick('AS_Buy_Miles', item.origin, item.dest)" class="block text-center bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-[11px] py-1.5 rounded-lg border border-slate-700 transition">
+                  💡 第一次買 AS 哩程怎麼操作？【看手把手教學 ↗】
+                </a>
               </div>
 
               <!-- 2. 阿拉斯加萬豪轉點 -->
-              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott')) ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between">
+              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott')) ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between space-y-2">
                 <span v-if="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott'))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
-                <div class="text-slate-400 text-xs mt-1">AS 萬豪轉點 ({{ getCabinMiles(item, cabinKey, 'as').toLocaleString() }} 哩)</div>
-                <div class="text-[11px] text-slate-400 mt-0.5">需萬豪點數：{{ (getCabinMiles(item, cabinKey, 'as') * 2.4).toLocaleString() }} 點</div>
-                <div class="text-purple-300 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'marriott').toLocaleString() }}</div>
+                <div>
+                  <div class="text-slate-400 text-xs mt-1">AS 萬豪轉點 ({{ getCabinMiles(item, cabinKey, 'as').toLocaleString() }} 哩)</div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">需萬豪點數：{{ (getCabinMiles(item, cabinKey, 'as') * 2.4).toLocaleString() }} 點</div>
+                  <div class="text-purple-300 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'marriott').toLocaleString() }}</div>
+                </div>
+                <a href="https://example.com/blog-marriott-transfer" target="_blank" @click="trackGuideClick('Marriott_Transfer', item.origin, item.dest)" class="block text-center bg-slate-800 hover:bg-slate-700 text-purple-300 font-bold text-[11px] py-1.5 rounded-lg border border-slate-700 transition">
+                  💡 萬豪點數怎麼轉進阿拉斯加？【看圖解教學 ↗】
+                </a>
               </div>
 
               <!-- 3. 阿提哈德 EY 換票 -->
-              <div v-if="getCabinEyMiles(item, cabinKey)" :class="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey)) ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between sm:col-span-2">
+              <div v-if="getCabinEyMiles(item, cabinKey)" :class="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey)) ? 'border-2 border-emerald-400 bg-emerald-950/40 shadow-md shadow-emerald-900/40' : 'border border-slate-800 bg-slate-900/90'" class="rounded-xl p-3 relative flex flex-col justify-between sm:col-span-2 space-y-2">
                 <span v-if="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
                 <div class="flex justify-between items-center text-xs text-slate-400 mt-1">
                   <span>⭐ 阿提哈德 (EY) 換票 (CUBE 420點=1000哩)</span>
@@ -357,6 +374,9 @@
                   <div class="text-xs text-slate-400">需刷 CUBE 累積 {{ Math.ceil((getCabinEyMiles(item, cabinKey) / 1000) * 420) }} 點小樹點</div>
                   <div class="text-emerald-300 font-black text-base">NT$ {{ getCabinEyCost(item, cabinKey).toLocaleString() }}</div>
                 </div>
+                <a href="https://example.com/blog-cube-ey" target="_blank" @click="trackGuideClick('Cube_EY', item.origin, item.dest)" class="block text-center bg-slate-800 hover:bg-slate-700 text-emerald-300 font-bold text-[11px] py-1.5 rounded-lg border border-slate-700 transition">
+                  💡 國泰 CUBE 卡怎麼換阿提哈德？【看新手攻略 ↗】
+                </a>
               </div>
 
             </div>
@@ -421,7 +441,6 @@
           { code: 'HAN', name: '河內', country: 'VN' }
         ];
 
-        // 精選航點白名單資料庫
         const secretTricks = [
           { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, note: '✨ 熊本 ➔ 台北中停 ➔ 澳門' },
           { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, note: '✨ 反向：澳門 ➔ 台北中停 ➔ 熊本' },
@@ -521,6 +540,15 @@
           };
         });
 
+        const trackGuideClick = (guideType, origin, dest) => {
+          if (typeof gtag === 'function') {
+            gtag('event', 'click_guide', {
+              'guide_type': guideType,
+              'route': `${origin}_to_${dest}`
+            });
+          }
+        };
+
         const applyTrick = (origin, dest) => {
           showTricksBox.value = false;
           flightSearch.value.tripType = 'oneWay';
@@ -551,7 +579,6 @@
           flightSearch.value.inboundKey = '';
         };
 
-        // 🚀 網頁一打開自動在背景拉取 Google Sheet 最新資料
         const fetchData = async () => {
           loading.value = true;
           try {
@@ -562,7 +589,7 @@
             }
             if (data.routes) routesData.value = data.routes;
           } catch (err) {
-            console.error("背景自動同步資料失敗：", err);
+            console.error("背景同步失敗：", err);
           } finally {
             loading.value = false;
           }
@@ -797,7 +824,8 @@
           getCabinEyCost,
           isLowestCost,
           shouldShowCabinCard,
-          applyTrick
+          applyTrick,
+          trackGuideClick
         };
       }
     }).mount('#app');
