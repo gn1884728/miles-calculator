@@ -17,7 +17,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_v2" />
+  <link rel="manifest" href="manifest.json?v=20260919_clean" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -42,14 +42,13 @@
 
   <div id="app" class="w-full max-w-xl space-y-4">
     
-    <!-- 頂部導覽與資料更新狀態 -->
+    <!-- 頂部導覽與極簡狀態顯示 (已移除突兀的重新整理按鈕) -->
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4">
       <div class="flex justify-between items-center">
         <div>
           <h1 class="text-xl font-black text-white">常旅客哩程票最佳兌換精算</h1>
           <div class="text-[11px] text-emerald-400 mt-1 flex items-center gap-2">
-            <span>🟢 資料更新：2026/09/19 20:45</span>
-            <button @click="fetchData" class="text-slate-400 hover:text-white underline">↻ 重新整理</button>
+            <span>🟢 航線與點數資料庫已同步</span>
           </div>
         </div>
         <button @click="showSettings = !showSettings" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-2 rounded-xl border border-slate-700 transition">
@@ -57,7 +56,7 @@
         </button>
       </div>
 
-      <!-- 設定抽屜 (收納進階玩家參數，帶有瀏覽器自動儲存提示) -->
+      <!-- 設定抽屜 -->
       <div v-if="showSettings" class="bg-slate-950/90 border border-slate-800 rounded-2xl p-4 space-y-3 text-sm">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
           <span class="text-amber-400 font-bold">⚙️ 點數與多國匯率參數</span>
@@ -91,9 +90,8 @@
         </div>
       </div>
 
-      <!-- 🚀 新增首頁二分流引導：解決「進來不知道按哪裡」的痛點 -->
+      <!-- 首頁二分流引導 -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <!-- 模式 A：已知去哪 -->
         <div @click="activeTab = 'calc'" :class="activeTab === 'calc' ? 'border-cyan-500 bg-cyan-950/30' : 'border-slate-800 bg-slate-950'" class="border rounded-2xl p-3.5 cursor-pointer transition space-y-1">
           <div class="text-xs font-black text-cyan-300 flex items-center justify-between">
             <span>✈️ A｜我已經知道要去哪裡</span>
@@ -102,7 +100,6 @@
           <div class="text-[11px] text-slate-400">精確輸入起訖點與人數進行試算</div>
         </div>
 
-        <!-- 模式 B：探索靈感 -->
         <div @click="activeTab = 'explore'" :class="activeTab === 'explore' ? 'border-purple-500 bg-purple-950/30' : 'border-slate-800 bg-slate-950'" class="border rounded-2xl p-3.5 cursor-pointer transition space-y-1">
           <div class="text-xs font-black text-purple-300 flex items-center justify-between">
             <span>🌏 B｜我還不知道去哪裡</span>
@@ -112,14 +109,14 @@
         </div>
       </div>
 
-      <!-- 🚀 模式 A 畫面：精確航線與多人預算試算 -->
+      <!-- 模式 A 畫面：精確航線與多人預算試算 -->
       <div v-if="activeTab === 'calc'" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-amber-400 flex items-center justify-between pb-1 border-b border-slate-800">
           <span>✈️ 【精確航線與多人預算試算】</span>
           <button @click="showTricksBox = !showTricksBox" class="text-[11px] text-cyan-400 underline">✨ {{ showTricksBox ? '收合精選中停密技' : '展開阿拉斯加中停密技' }}</button>
         </div>
 
-        <!-- 內嵌式精選中停密技區塊 (防呆且絕對不卡死) -->
+        <!-- 內嵌式精選中停密技區塊 -->
         <div v-if="showTricksBox" class="bg-cyan-950/20 border border-cyan-500/30 rounded-xl p-3 space-y-2">
           <div class="text-[11px] text-cyan-300 font-bold">🚀 阿拉斯加 1500哩內中停「精選航點」（點擊直接代入）</div>
           <div class="max-h-40 overflow-y-auto space-y-1.5 pr-1">
@@ -147,7 +144,7 @@
           </div>
         </div>
 
-        <!-- 去程設定 (採用智慧白名單連動過濾，避免選到開不出來的航線) -->
+        <!-- 去程設定 -->
         <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-sm">
           <div class="flex justify-between items-center text-xs font-bold text-slate-300">
             <span>✈️ 去程航段</span>
@@ -217,7 +214,7 @@
           </select>
         </div>
 
-        <!-- 試算結果面板 (成本拆層呈現) -->
+        <!-- 試算結果面板 -->
         <div v-if="flightSummary" class="bg-gradient-to-r from-amber-950/50 to-slate-900 border border-amber-500/40 rounded-xl p-3.5 space-y-2 text-sm">
           <div class="flex justify-between items-center border-b border-amber-500/20 pb-2">
             <span class="text-amber-300 font-black text-xs sm:text-sm">
@@ -231,7 +228,7 @@
         </div>
       </div>
 
-      <!-- 🚀 模式 B 畫面：航點大探索 (靈感探索模式) -->
+      <!-- 模式 B 畫面：航點大探索 -->
       <div v-if="activeTab === 'explore'" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-400 flex items-center justify-between">
           <span>🌏 【哩程去哪裡最划算？航點探索】</span>
@@ -297,7 +294,7 @@
 
     </div>
 
-    <!-- 下方區塊：動態決策卡片展示 (改進：唯一最低價才掛皇冠，成本明確拆層) -->
+    <!-- 下方區塊：動態決策卡片展示 -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 text-slate-500 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -381,7 +378,7 @@
         const loading = ref(true);
         const showSettings = ref(false);
         const showTricksBox = ref(false);
-        const activeTab = ref('calc'); // 'calc' 或 'explore'
+        const activeTab = ref('calc');
 
         const selectedCountry = ref('ALL');
         const selectedAirport = ref('ALL');
@@ -424,7 +421,7 @@
           { code: 'HAN', name: '河內', country: 'VN' }
         ];
 
-        // 🚀 完整精選航點白名單資料庫
+        // 精選航點白名單資料庫
         const secretTricks = [
           { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, note: '✨ 熊本 ➔ 台北中停 ➔ 澳門' },
           { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, note: '✨ 反向：澳門 ➔ 台北中停 ➔ 熊本' },
@@ -467,7 +464,6 @@
           inboundKey: ''
         });
 
-        // 🚀 智慧白名單過濾：自動根據現有合法資料庫聯集，嚴格過濾無效起訖點
         const combinedAllRoutes = computed(() => [...routesData.value, ...secretTricks]);
 
         const availableOutOriginAirports = computed(() => {
@@ -555,6 +551,7 @@
           flightSearch.value.inboundKey = '';
         };
 
+        // 🚀 網頁一打開自動在背景拉取 Google Sheet 最新資料
         const fetchData = async () => {
           loading.value = true;
           try {
@@ -565,7 +562,7 @@
             }
             if (data.routes) routesData.value = data.routes;
           } catch (err) {
-            console.error("API 連線失敗：", err);
+            console.error("背景自動同步資料失敗：", err);
           } finally {
             loading.value = false;
           }
@@ -620,7 +617,6 @@
           return Math.round(cubePoints * rates.value.cube_rate + taxTwd);
         };
 
-        // 採用穩定字串 Key 生成方案 ID
         const allOptions = computed(() => {
           let list = [];
           combinedAllRoutes.value.forEach((item) => {
@@ -719,7 +715,6 @@
           return costs.length > 0 ? Math.min(...costs) : Infinity;
         };
 
-        // 🚀 嚴格判定：只有真正全場最低的那一個方案才掛上皇冠
         const isLowestCost = (item, cabin, currentCost) => {
           const min = getMinCabinCost(item, cabin);
           return currentCost !== Infinity && currentCost === min;
