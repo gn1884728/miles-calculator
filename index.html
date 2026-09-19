@@ -26,7 +26,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_ga4" />
+  <link rel="manifest" href="manifest.json?v=20260919_final" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -45,18 +45,18 @@
 
   <div class="sr-only">
     <h1>常旅客哩程票最佳兌換精算工具</h1>
-    <p>支援阿拉斯加航空 (AS) 1500哩內免費中停、阿提哈德航空 (EY) 哩程兌換、國泰 CUBE 卡小樹點、萬豪旅享家轉點成本即時比價。涵蓋台北、東京、大阪、福岡、沖繩、熊本、宮古島、澳門、香港、釜山、河內等熱門航線。</p>
+    <p>支援阿拉斯加航空 (AS) 1500哩內免費中停、阿提哈德航空 (EY) 哩程兌換、國泰 CUBE 卡小樹點、萬豪旅享家轉點成本即時比價。涵蓋台北、東京、大阪、福岡、沖繩、熊本、宮古島、澳門、香港、釜山、河內等熱門跨國航線。</p>
   </div>
 
   <div id="app" class="w-full max-w-xl space-y-4">
     
-    <!-- 頂部導覽與極簡狀態 -->
+    <!-- 頂部導覽與狀態 -->
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4">
       <div class="flex justify-between items-center">
         <div>
           <h1 class="text-xl font-black text-white">常旅客哩程票最佳兌換精算</h1>
           <div class="text-[11px] text-emerald-400 mt-1 flex items-center gap-2">
-            <span>🟢 航線與點數資料庫已背景同步</span>
+            <span>🟢 跨國航線與點數資料庫已背景同步</span>
           </div>
         </div>
         <button @click="showSettings = !showSettings" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-2 rounded-xl border border-slate-700 transition">
@@ -105,7 +105,7 @@
             <span>✈️ A｜我已經知道要去哪裡</span>
             <span v-if="activeTab === 'calc'" class="text-[10px] bg-cyan-500 text-slate-950 px-2 py-0.5 rounded-full font-bold">使用中</span>
           </div>
-          <div class="text-[11px] text-slate-400">精確輸入起訖點與人數進行試算</div>
+          <div class="text-[11px] text-slate-400">精確輸入跨國起訖點與人數進行試算</div>
         </div>
 
         <div @click="activeTab = 'explore'" :class="activeTab === 'explore' ? 'border-purple-500 bg-purple-950/30' : 'border-slate-800 bg-slate-950'" class="border rounded-2xl p-3.5 cursor-pointer transition space-y-1">
@@ -117,10 +117,10 @@
         </div>
       </div>
 
-      <!-- 模式 A 畫面 -->
+      <!-- 模式 A 畫面 (精確跨國試算) -->
       <div v-if="activeTab === 'calc'" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-amber-400 flex items-center justify-between pb-1 border-b border-slate-800">
-          <span>✈️ 【精確航線與多人預算試算】</span>
+          <span>✈️ 【跨國精確航線與預算試算】</span>
           <button @click="showTricksBox = !showTricksBox" class="text-[11px] text-cyan-400 underline">✨ {{ showTricksBox ? '收合精選中停密技' : '展開阿拉斯加中停密技' }}</button>
         </div>
 
@@ -151,10 +151,10 @@
           </div>
         </div>
 
-        <!-- 去程設定 -->
+        <!-- 去程設定 (強制跨國防呆) -->
         <div class="bg-slate-900 border border-slate-700/60 rounded-xl p-3 space-y-2 text-sm">
           <div class="flex justify-between items-center text-xs font-bold text-slate-300">
-            <span>✈️ 去程航段</span>
+            <span>✈️ 去程航段 (僅限跨國航線)</span>
             <select v-model="flightSearch.outCabin" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-cyan-400 font-bold text-xs focus:outline-none">
               <option value="ALL">全部艙等</option>
               <option value="biz">👑 商務</option>
@@ -171,9 +171,9 @@
               </select>
             </div>
             <div>
-              <label class="text-[11px] text-slate-400 block mb-1">目的地</label>
+              <label class="text-[11px] text-slate-400 block mb-1">目的地 (已過濾同國國內線)</label>
               <select v-model="flightSearch.outDest" @change="onOutPortChange" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white font-bold text-sm focus:outline-none">
-                <option value="">選擇抵達機場</option>
+                <option value="">選擇跨國抵達機場</option>
                 <option v-for="apt in availableOutDestAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
               </select>
             </div>
@@ -208,7 +208,7 @@
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">目的地 (回程)</label>
               <select v-model="flightSearch.inDest" @change="onInPortChange" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white font-bold text-sm focus:outline-none">
-                <option value="">選擇抵達機場</option>
+                <option value="">選擇跨國抵達機場</option>
                 <option v-for="apt in availableInDestAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
               </select>
             </div>
@@ -235,10 +235,10 @@
         </div>
       </div>
 
-      <!-- 模式 B 畫面 -->
+      <!-- 模式 B 畫面 (航點探索) -->
       <div v-if="activeTab === 'explore'" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-400 flex items-center justify-between">
-          <span>🌏 【哩程去哪裡最划算？航點探索】</span>
+          <span>🌏 【跨國哩程去哪裡最划算？航點探索】</span>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
@@ -295,20 +295,20 @@
         </div>
 
         <div class="text-xs text-slate-400 flex justify-between items-center px-1 pt-1">
-          <span>符合探索條件之航線（共 {{ filteredRoutes.length }} 個航線）</span>
+          <span>符合跨國探索條件之航線（共 {{ filteredRoutes.length }} 個航線）</span>
         </div>
       </div>
 
     </div>
 
-    <!-- 下方區塊：動態決策比價卡 -->
+    <!-- 下方區塊：動態決策比價卡 (內建新手教學按鈕，點擊開啟站內指南 Modal 並帶有 TCB 40美金返利連結) -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 text-slate-500 text-sm">
         正在自 Google Sheet 載入最新數據...
       </div>
       
       <div v-else-if="filteredRoutes.length === 0" class="text-center py-12 text-slate-500 text-sm">
-        查無符合條件之航點，請調整出發地或艙等
+        查無符合條件之跨國航點，請調整出發地或艙等
       </div>
 
       <div v-else v-for="(item, idx) in filteredRoutes" :key="idx" class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl space-y-4">
@@ -345,9 +345,10 @@
                   <div class="text-[11px] text-slate-400 mt-0.5">含稅金附加費：約 NT$ {{ Math.round(getCabinTaxUsd(item, cabinKey) * rates.usd_twd).toLocaleString() }}</div>
                   <div class="text-amber-300 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'buy').toLocaleString() }}</div>
                 </div>
-                <a href="https://example.com/blog-as-buy-miles" target="_blank" @click="trackGuideClick('AS_Buy_Miles', item.origin, item.dest)" class="block text-center bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-[11px] py-1.5 rounded-lg border border-slate-700 transition">
-                  💡 第一次買 AS 哩程怎麼操作？【看手把手教學 ↗】
-                </a>
+                <!-- 💡 點擊開啟站內新手攻略 Modal -->
+                <button @click="openGuideModal('AS_Buy', item)" class="w-full text-center bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-[11px] py-1.5 rounded-lg border border-slate-700 transition">
+                  💡 新手必看：AS 買哩程實戰攻略 ↗
+                </button>
               </div>
 
               <!-- 2. 阿拉斯加萬豪轉點 -->
@@ -358,9 +359,9 @@
                   <div class="text-[11px] text-slate-400 mt-0.5">需萬豪點數：{{ (getCabinMiles(item, cabinKey, 'as') * 2.4).toLocaleString() }} 點</div>
                   <div class="text-purple-300 font-black text-base mt-1">NT$ {{ getCabinCost(item, cabinKey, 'as', 'marriott').toLocaleString() }}</div>
                 </div>
-                <a href="https://example.com/blog-marriott-transfer" target="_blank" @click="trackGuideClick('Marriott_Transfer', item.origin, item.dest)" class="block text-center bg-slate-800 hover:bg-slate-700 text-purple-300 font-bold text-[11px] py-1.5 rounded-lg border border-slate-700 transition">
-                  💡 萬豪點數怎麼轉進阿拉斯加？【看圖解教學 ↗】
-                </a>
+                <button @click="openGuideModal('Marriott', item)" class="w-full text-center bg-slate-800 hover:bg-slate-700 text-purple-300 font-bold text-[11px] py-1.5 rounded-lg border border-slate-700 transition">
+                  💡 新手必看：萬豪點數轉 AS 攻略 ↗
+                </button>
               </div>
 
               <!-- 3. 阿提哈德 EY 換票 -->
@@ -374,9 +375,9 @@
                   <div class="text-xs text-slate-400">需刷 CUBE 累積 {{ Math.ceil((getCabinEyMiles(item, cabinKey) / 1000) * 420) }} 點小樹點</div>
                   <div class="text-emerald-300 font-black text-base">NT$ {{ getCabinEyCost(item, cabinKey).toLocaleString() }}</div>
                 </div>
-                <a href="https://example.com/blog-cube-ey" target="_blank" @click="trackGuideClick('Cube_EY', item.origin, item.dest)" class="block text-center bg-slate-800 hover:bg-slate-700 text-emerald-300 font-bold text-[11px] py-1.5 rounded-lg border border-slate-700 transition">
-                  💡 國泰 CUBE 卡怎麼換阿提哈德？【看新手攻略 ↗】
-                </a>
+                <button @click="openGuideModal('Cube_EY', item)" class="w-full text-center bg-slate-800 hover:bg-slate-700 text-emerald-300 font-bold text-[11px] py-1.5 rounded-lg border border-slate-700 transition">
+                  💡 新手必看：國泰 CUBE 換阿提哈德攻略 ↗
+                </button>
               </div>
 
             </div>
@@ -386,6 +387,45 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- 🚀 站內新手教學指南彈窗 (整合 TopCashback 40美金返利連結) -->
+  <div v-if="showGuideModal" @click.self="showGuideModal = false" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl w-full max-w-lg p-5 space-y-4 shadow-2xl text-sm">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-cyan-400 font-black text-base">📖 哩程新手實戰攻略指南</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">吳哥親選心法：教你如何從零開始完成這張機票</p>
+        </div>
+        <button @click="showGuideModal = false" class="text-slate-400 hover:text-white font-bold text-lg p-1">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-300 max-h-[60vh] overflow-y-auto pr-1">
+        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
+          <div class="font-bold text-amber-400">1️⃣ 掌握買哩程時機（60% 特賣）</div>
+          <p>AS 哩程特價時常有不同獎勵（普遍介於 40%~60%）。請務必看到 60% 再下手，此時買下來的成本約合每哩 0.6 元台幣最大化效益！</p>
+        </div>
+
+        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
+          <div class="font-bold text-cyan-400">2️⃣ 善用 TopCashback 拿返利與獎勵</div>
+          <p>購買里程屬於海外交易。強烈建議透過返利網進行跳轉購買，不僅能賺取現金回饋，新戶還能享有高額開戶獎勵！</p>
+          <a href="https://www.topcashback.com/ref/gn1884728" target="_blank" @click="trackTCBClick" class="block text-center bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black py-2 rounded-lg transition mt-2">
+            🚀 前往 TopCashback 註冊領取 40 美金獎勵 ↗
+          </a>
+        </div>
+
+        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
+          <div class="font-bold text-purple-400">3️⃣ 善用 1500 哩內定價邏輯與航距查詢</div>
+          <p>AS 哩程以距離定價。單趟 1500 哩內（如台日線）經濟艙僅需 7.5K 哩起。若想精算航距，可使用 Great Circle Mapper (gcmap.com) 查詢。</p>
+        </div>
+      </div>
+
+      <div class="text-center pt-2 border-t border-slate-800">
+        <button @click="showGuideModal = false" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs px-5 py-2 rounded-xl">
+          我知道了，關閉視窗
+        </button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -398,6 +438,7 @@
         const loading = ref(true);
         const showSettings = ref(false);
         const showTricksBox = ref(false);
+        const showGuideModal = ref(false);
         const activeTab = ref('calc');
 
         const selectedCountry = ref('ALL');
@@ -485,6 +526,7 @@
 
         const combinedAllRoutes = computed(() => [...routesData.value, ...secretTricks]);
 
+        // 🚀 跨國航線防呆：自動排除同國家機場（禁止國內線搜尋）
         const availableOutOriginAirports = computed(() => {
           const validOrigins = new Set(combinedAllRoutes.value.map(r => r.origin));
           return allAirports.filter(a => validOrigins.has(a.code));
@@ -492,22 +534,33 @@
 
         const availableOutDestAirports = computed(() => {
           if (!flightSearch.value.outOrigin) return allAirports;
+          const originApt = allAirports.find(a => a.code === flightSearch.value.outOrigin);
           const validDests = new Set(
             combinedAllRoutes.value
               .filter(r => r.origin === flightSearch.value.outOrigin)
               .map(r => r.dest)
           );
-          return allAirports.filter(a => validDests.has(a.code));
+          return allAirports.filter(a => {
+            if (!validDests.has(a.code)) return false;
+            // 排除同國家
+            if (originApt && a.country === originApt.country) return false;
+            return true;
+          });
         });
 
         const availableInDestAirports = computed(() => {
           if (!flightSearch.value.inOrigin) return allAirports;
+          const originApt = allAirports.find(a => a.code === flightSearch.value.inOrigin);
           const validDests = new Set(
             combinedAllRoutes.value
               .filter(r => r.origin === flightSearch.value.inOrigin)
               .map(r => r.dest)
           );
-          return allAirports.filter(a => validDests.has(a.code));
+          return allAirports.filter(a => {
+            if (!validDests.has(a.code)) return false;
+            if (originApt && a.country === originApt.country) return false;
+            return true;
+          });
         });
 
         const flightSummary = computed(() => {
@@ -540,12 +593,16 @@
           };
         });
 
-        const trackGuideClick = (guideType, origin, dest) => {
+        const openGuideModal = (type, item) => {
+          showGuideModal.value = true;
           if (typeof gtag === 'function') {
-            gtag('event', 'click_guide', {
-              'guide_type': guideType,
-              'route': `${origin}_to_${dest}`
-            });
+            gtag('event', 'open_guide_modal', { 'guide_type': type });
+          }
+        };
+
+        const trackTCBClick = () => {
+          if (typeof gtag === 'function') {
+            gtag('event', 'click_tcb_ref', { 'link': 'https://www.topcashback.com/ref/gn1884728' });
           }
         };
 
@@ -789,6 +846,7 @@
           loading,
           showSettings,
           showTricksBox,
+          showGuideModal,
           activeTab,
           selectedCountry,
           selectedAirport,
@@ -825,7 +883,8 @@
           isLowestCost,
           shouldShowCabinCard,
           applyTrick,
-          trackGuideClick
+          openGuideModal,
+          trackTCBClick
         };
       }
     }).mount('#app');
