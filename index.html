@@ -25,7 +25,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_fix_grid_layout" />
+  <link rel="manifest" href="manifest.json?v=20260919_center_title_logo" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -54,30 +54,40 @@
 
   <div id="app" class="w-full max-w-xl space-y-4">
     
-    <!-- 頂部導覽 (完美修正電腦版排版與拿掉主力字眼) -->
+    <!-- 頂部導覽 (標題置中放大 + 航空公司標準飛機 Logo 視覺) -->
     <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 transition-colors duration-300">
       
-      <!-- 頂部主導覽列：採用彈性網格，確保大螢幕絕對不換行 -->
-      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <h1 class="text-xl sm:text-2xl font-black tracking-tight leading-tight shrink-0" :class="currentTheme.titleClass">
+      <!-- 主標題：手機與電腦置中放大 -->
+      <div class="text-center space-y-1">
+        <h1 class="text-2xl sm:text-3xl font-black tracking-tight leading-tight" :class="currentTheme.titleClass">
           常旅客哩程票<span class="text-cyan-400">兌換</span>
         </h1>
+      </div>
+
+      <!-- 航空公司選單 (附帶各家標準飛機代表 Logo 視覺) 與主題/設定按鈕列 -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
         
-        <div class="flex items-center gap-2">
-          <!-- 航空公司選單 (已清除主力字眼) -->
-          <div class="flex-1 sm:flex-initial flex items-center gap-2 bg-slate-950/40 border border-slate-800/60 rounded-xl px-3 py-1.5">
-            <span>✨</span>
-            <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full sm:w-36" :class="currentTheme.titleClass">
-              <option value="starlux" class="bg-slate-900 text-white">星宇航空</option>
-              <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">中華航空 (Coming Soon)</option>
-              <option value="eva_air" disabled class="bg-slate-900 text-slate-500">長榮航空 (Coming Soon)</option>
+        <!-- 航空公司選擇區塊 (帶飛機標誌) -->
+        <div class="flex items-center gap-2.5 w-full sm:w-auto flex-1 bg-slate-950/50 border border-slate-800/80 rounded-2xl px-3.5 py-2.5 shadow-inner">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center shrink-0 shadow-md">
+            <span class="text-base">✈️</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[9px] text-cyan-400 font-bold uppercase tracking-widest">當前執飛航司</div>
+            <select v-model="selectedAirline" class="w-full bg-transparent text-xs sm:text-sm font-black focus:outline-none cursor-pointer pt-0.5" :class="currentTheme.titleClass">
+              <option value="starlux" class="bg-slate-900 text-white">✨ 星宇航空 (Starlux · A350 旗艦)</option>
+              <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">🌸 中華航空 (China Airlines · 777) - Coming Soon</option>
+              <option value="eva_air" disabled class="bg-slate-900 text-slate-500">🟢 長榮航空 (EVA Air · 787) - Coming Soon</option>
             </select>
           </div>
+        </div>
 
-          <button @click="cycleTheme" class="text-xs font-bold px-2.5 py-2 rounded-xl border transition shrink-0" :class="currentTheme.btnClass" title="切換背景主題">
+        <!-- 功能按鈕區 (主題切換 + 設定) -->
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
+          <button @click="cycleTheme" class="text-xs font-bold px-3 py-2.5 rounded-xl border transition flex-1 sm:flex-initial text-center" :class="currentTheme.btnClass" title="切換背景主題">
             🎨 {{ currentTheme.name }}
           </button>
-          <button @click="showSettings = !showSettings" class="text-xs font-bold px-3 py-2 rounded-xl border transition shrink-0" :class="currentTheme.btnClass">
+          <button @click="showSettings = !showSettings" class="text-xs font-bold px-3.5 py-2.5 rounded-xl border transition flex-1 sm:flex-initial text-center" :class="currentTheme.btnClass">
             ⚙️ 設定
           </button>
         </div>
