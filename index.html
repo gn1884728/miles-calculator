@@ -9,7 +9,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#020617" />
   
-  <!-- SEO 與社群分享優化 (解決爬蟲與 LINE 預覽空白問題) -->
+  <!-- SEO 與社群分享優化 -->
   <title>常旅客哩程票最佳兌換精算 | FongArea Points</title>
   <meta name="description" content="輸入出發地與目的地，一鍵比較阿拉斯加買點、萬豪轉點、阿提哈德兌換等哩程方案的實際台幣成本，解鎖 1500哩內免費中停極限密技。" />
   <meta property="og:title" content="常旅客哩程票最佳兌換精算 | FongArea Points" />
@@ -34,7 +34,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-3 sm:p-6 flex flex-col items-center text-sm">
 
-  <!-- 爬蟲友善的隱藏/說明文字 (解決搜尋引擎抓不到實質內容的問題) -->
+  <!-- 爬蟲友善說明文字 -->
   <div class="sr-only">
     <h1>常旅客哩程票最佳兌換精算工具</h1>
     <p>支援阿拉斯加航空 (AS) 1500哩內免費中停、阿提哈德航空 (EY) 哩程兌換、國泰 CUBE 卡小樹點、萬豪旅享家轉點成本即時比價。涵蓋台北、東京、大阪、福岡、沖繩、熊本、宮古島、澳門、香港、釜山、河內等熱門航線。</p>
@@ -343,7 +343,7 @@
 
   </div>
 
-  <!-- 🚀 「精選航點專區」彈窗 (點擊展開所有阿拉斯加 1500哩中停神級飛法) -->
+  <!-- 🚀 「精選航點專區」彈窗 -->
   <div v-if="showTricksModal" @click.self="showTricksModal = false" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -437,7 +437,7 @@
           { origin: 'OKA', dest: 'HAN', origin_name: '沖繩', dest_name: '河內', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 79, biz_miles: 15000, biz_tax_usd: 79, note: '✨ 反向：沖繩 ➔ 台北中停 ➔ 河內' },
           { origin: 'MFM', dest: 'OKA', origin_name: '澳門', dest_name: '沖繩', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, note: '✨ 澳門 ➔ 台北中停 ➔ 沖繩' },
           { origin: 'OKA', dest: 'MFM', origin_name: '沖繩', dest_name: '澳門', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 79, biz_miles: 15000, biz_tax_usd: 79, note: '✨ 反向：沖繩 ➔ 台北中停 ➔ 澳門' },
-          { origin: 'MFM', dest: 'RMQ', origin_name: '澳門', dest_name: '台中', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, note: '✨ 澳門 ➔ 台中中停 ➔ 沖繩' }, // 對應原先設定
+          { origin: 'MFM', dest: 'RMQ', origin_name: '澳門', dest_name: '台中', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, note: '✨ 澳門 ➔ 台中中停 ➔ 沖繩' },
           { origin: 'PUS', dest: 'OKA', origin_name: '釜山', dest_name: '沖繩', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 58, biz_miles: 15000, biz_tax_usd: 58, note: '✨ 釜山 ➔ 台北中停 ➔ 沖繩 (商務不划算)' },
           { origin: 'OKA', dest: 'PUS', origin_name: '沖繩', dest_name: '釜山', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 79, biz_miles: 15000, biz_tax_usd: 79, note: '✨ 反向：沖繩 ➔ 台北中停 ➔ 釜山' },
           { origin: 'SHI', dest: 'HAN', origin_name: '宮古島', dest_name: '河內', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 86, biz_miles: 15000, biz_tax_usd: 86, note: '✨ 宮古島 ➔ 台北中停 ➔ 河內' },
