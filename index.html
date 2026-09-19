@@ -17,7 +17,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919" />
+  <link rel="manifest" href="manifest.json?v=20260919_2" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -87,15 +87,31 @@
         </div>
       </div>
 
-      <!-- 🚀 質感按鈕：開啟「阿拉斯加 1500哩內中停精選航點專區」 -->
-      <div class="bg-gradient-to-r from-cyan-950/60 to-purple-950/60 border border-cyan-500/30 rounded-2xl p-3.5 flex justify-between items-center shadow-md">
-        <div>
-          <div class="text-cyan-300 font-black text-xs">🚀 探索阿拉斯加 1500哩內中停「精選航點」</div>
-          <div class="text-[10px] text-slate-400 mt-0.5">解鎖港澳、日韓越極限雙段飛法，一鍵帶入比價</div>
+      <!-- 🚀 取代彈窗：直接展開/收合的「精選航點專區」卡片 -->
+      <div class="bg-gradient-to-r from-cyan-950/60 to-purple-950/60 border border-cyan-500/30 rounded-2xl p-4 space-y-3 shadow-md">
+        <div class="flex justify-between items-center cursor-pointer" @click="showTricksSection = !showTricksSection">
+          <div>
+            <div class="text-cyan-300 font-black text-xs sm:text-sm">✨ 探索阿拉斯加 1500哩內中停「精選航點」</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">解鎖港澳、日韓越極限雙段飛法，點擊一鍵代入比價</div>
+          </div>
+          <button class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs px-3.5 py-2 rounded-xl shadow transition">
+            {{ showTricksSection ? '收合專區 ▲' : '展開專區 ▼' }}
+          </button>
         </div>
-        <button @click="showTricksModal = true" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs px-3.5 py-2 rounded-xl shadow transition">
-          查看精選
-        </button>
+
+        <!-- 專區內容展開區 -->
+        <div v-if="showTricksSection" class="space-y-2 pt-2 border-t border-cyan-500/20 max-h-[50vh] overflow-y-auto pr-1">
+          <div v-for="(trick, tIdx) in secretTricks" :key="tIdx" @click="applyTrick(trick.origin, trick.dest)" class="bg-slate-950 hover:bg-cyan-950/40 border border-slate-800 hover:border-cyan-500/50 rounded-xl p-3 cursor-pointer transition space-y-1">
+            <div class="flex justify-between items-center text-xs font-bold text-white">
+              <span>{{ trick.origin_name }} ({{ trick.origin }}) ➔ 台北 ➔ {{ trick.dest_name }} ({{ trick.dest }})</span>
+              <span class="text-amber-400">{{ trick.eco_miles >= 15000 ? '15k' : '7.5k' }} 哩 + ${{ trick.eco_tax_usd }} USD</span>
+            </div>
+            <div class="text-[11px] text-slate-400 flex justify-between">
+              <span>{{ trick.note }}</span>
+              <span class="text-cyan-400 font-bold">點擊代入比價 ➔</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 上方區塊：精確航線與多人預算試算 -->
@@ -343,38 +359,6 @@
 
   </div>
 
-  <!-- 🚀 「精選航點專區」彈窗 (改用 v-text 渲染以徹底避免大括號衝突) -->
-  <div v-if="showTricksModal" @click.self="showTricksModal = false" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <div>
-          <h3 class="text-cyan-400 font-black text-base">✨ 阿拉斯加 1500哩內中停「精選航點」</h3>
-          <p class="text-[11px] text-slate-400 mt-0.5">點擊任意航線，直接一鍵代入外層主搜尋引擎進行比價！</p>
-        </div>
-        <button @click="showTricksModal = false" class="text-slate-400 hover:text-white font-bold text-lg p-1">✕</button>
-      </div>
-
-      <div class="space-y-2 max-h-[65vh] overflow-y-auto pr-1">
-        <div v-for="(trick, tIdx) in secretTricks" :key="tIdx" @click="applyTrick(trick.origin, trick.dest)" class="bg-slate-950 hover:bg-cyan-950/40 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-3 cursor-pointer transition space-y-1">
-          <div class="flex justify-between items-center text-xs font-bold text-white">
-            <span v-text="trick.origin_name + ' (' + trick.origin + ') ➔ 台北 ➔ ' + trick.dest_name + ' (' + trick.dest + ')'"></span>
-            <span class="text-amber-400" v-text="(trick.eco_miles >= 15000 ? '15k' : '7.5k') + ' 哩 + $' + trick.eco_tax_usd + ' USD'"></span>
-          </div>
-          <div class="text-[11px] text-slate-400 flex justify-between">
-            <span v-text="trick.note"></span>
-            <span class="text-cyan-400 font-bold">點擊代入比價 ➔</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="text-center pt-2 border-t border-slate-800">
-        <button @click="showTricksModal = false" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs px-5 py-2 rounded-xl">
-          關閉專區
-        </button>
-      </div>
-    </div>
-  </div>
-
   <script>
     const { createApp, ref, computed, onMounted } = Vue;
 
@@ -384,7 +368,7 @@
 
         const loading = ref(true);
         const showSettings = ref(false);
-        const showTricksModal = ref(false);
+        const showTricksSection = ref(false); // 改為折疊區塊開關
 
         const selectedCountry = ref('ALL');
         const selectedAirport = ref('ALL');
@@ -474,7 +458,7 @@
           flightSearch.value.outOrigin = origin;
           flightSearch.value.outDest = dest;
           flightSearch.value.tripType = 'oneWay';
-          showTricksModal.value = false;
+          showTricksSection.value = false; // 點擊後自動收合專區
         };
 
         const onOutOriginChange = () => {
@@ -744,7 +728,7 @@
         return {
           loading,
           showSettings,
-          showTricksModal,
+          showTricksSection,
           selectedCountry,
           selectedAirport,
           selectedDestAirport,
