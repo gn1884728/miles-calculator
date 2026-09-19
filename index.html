@@ -25,7 +25,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_full_complete" />
+  <link rel="manifest" href="manifest.json?v=20260919_airline_selector" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -56,17 +56,29 @@
     
     <!-- 頂部導覽 -->
     <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 transition-colors duration-300">
-      <div class="flex justify-between items-center gap-2">
-        <h1 class="text-xl sm:text-2xl font-black tracking-tight leading-tight" :class="currentTheme.titleClass">
-          常旅客哩程票<span class="text-cyan-400">兌換</span>
-        </h1>
-        <div class="flex items-center gap-1.5 shrink-0">
-          <button @click="cycleTheme" class="text-xs font-bold px-2.5 py-2 rounded-xl border transition" :class="currentTheme.btnClass" title="切換背景主題">
-            🎨 {{ currentTheme.name }}
-          </button>
-          <button @click="showSettings = !showSettings" class="text-xs font-bold px-3 py-2 rounded-xl border transition" :class="currentTheme.btnClass">
-            ⚙️ 設定
-          </button>
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black tracking-tight leading-tight" :class="currentTheme.titleClass">
+            常旅客哩程票<span class="text-cyan-400">兌換</span>
+          </h1>
+        </div>
+        
+        <!-- 🚀 航空公司切換下拉選單 (內建星宇與 Coming Soon 的華航、長榮) -->
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+          <select v-model="selectedAirline" class="text-xs font-bold px-3 py-2 rounded-xl border focus:outline-none transition" :class="currentTheme.inputBg">
+            <option value="starlux">✨ 星宇航空 (主力)</option>
+            <option value="china_airlines" disabled>🌐 中華航空 (Coming Soon)</option>
+            <option value="eva_air" disabled>🟢 長榮航空 (Coming Soon)</option>
+          </select>
+
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button @click="cycleTheme" class="text-xs font-bold px-2.5 py-2 rounded-xl border transition" :class="currentTheme.btnClass" title="切換背景主題">
+              🎨 {{ currentTheme.name }}
+            </button>
+            <button @click="showSettings = !showSettings" class="text-xs font-bold px-3 py-2 rounded-xl border transition" :class="currentTheme.btnClass">
+              ⚙️ 設定
+            </button>
+          </div>
         </div>
       </div>
 
@@ -446,6 +458,7 @@
         const showTricksBox = ref(false);
         const showGuidePanel = ref(false);
         const activeTab = ref('calc');
+        const selectedAirline = ref('starlux'); // 🚀 新增航空公司選擇狀態
 
         // 🎨 4 種佈景主題設定 (確保質感白模式字體清晰、深色模式精簡邊框與統一色彩)
         const themes = [
@@ -1049,6 +1062,7 @@
           showTricksBox,
           showGuidePanel,
           activeTab,
+          selectedAirline,
           themes,
           currentTheme,
           cycleTheme,
