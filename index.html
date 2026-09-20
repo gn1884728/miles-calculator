@@ -25,17 +25,21 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_ux_accordion" />
+  <link rel="manifest" href="manifest.json?v=20260919_clean_home" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <style>
+    /* 強制鎖死頁面根目錄與滾動底色，徹底根治手機版四周與底部白邊 */
     html, body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      margin: 0; padding: 0; min-height: 100vh; height: 100%;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      height: 100%;
       background-color: var(--page-bg, #020617);
       color: var(--page-text, #f1f5f9);
     }
@@ -50,43 +54,26 @@
 
   <div id="app" class="w-full max-w-xl space-y-4">
     
-    <!-- 頂部導覽列 -->
+    <!-- 頂部導覽 (首頁極致乾淨：只留標題、主題與設定) -->
     <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 transition-colors duration-300">
       
       <!-- 主標題置中放大 -->
-      <div class="text-center space-y-1">
-        <h1 class="text-2xl sm:text-3xl font-black tracking-tight leading-tight" :class="currentTheme.titleClass">
+      <div class="flex items-center justify-between gap-2 border-b pb-3" :class="currentTheme.borderClass">
+        <h1 class="text-xl sm:text-2xl font-black tracking-tight leading-tight flex-1 text-center sm:text-left" :class="currentTheme.titleClass">
           常旅客哩程票<span class="text-cyan-400">兌換</span>
         </h1>
-      </div>
-
-      <!-- 航空公司選單與功能按鈕列 -->
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-        <div class="flex items-center gap-2.5 w-full sm:w-auto flex-1 bg-slate-950/50 border border-slate-800/80 rounded-2xl px-3.5 py-2.5 shadow-inner">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center shrink-0 shadow-md">
-            <span class="text-base">✈️</span>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="text-[9px] text-cyan-400 font-bold uppercase tracking-widest">當前執飛航司</div>
-            <select v-model="selectedAirline" class="w-full bg-transparent text-xs sm:text-sm font-black focus:outline-none cursor-pointer pt-0.5" :class="currentTheme.titleClass">
-              <option value="starlux" class="bg-slate-900 text-white">✨ 星宇航空 (Starlux · A350 旗艦)</option>
-              <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">🌸 中華航空 (China Airlines) - Coming Soon</option>
-              <option value="eva_air" disabled class="bg-slate-900 text-slate-500">🟢 長榮航空 (EVA Air) - Coming Soon</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
-          <button @click="cycleTheme" class="text-xs font-bold px-3 py-2.5 rounded-xl border transition flex-1 sm:flex-initial text-center" :class="currentTheme.btnClass" title="切換背景主題">
+        
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button @click="cycleTheme" class="text-xs font-bold px-2.5 py-2 rounded-xl border transition" :class="currentTheme.btnClass" title="切換背景主題">
             🎨 {{ currentTheme.name }}
           </button>
-          <button @click="showSettings = !showSettings" class="text-xs font-bold px-3.5 py-2.5 rounded-xl border transition flex-1 sm:flex-initial text-center" :class="currentTheme.btnClass">
+          <button @click="showSettings = !showSettings" class="text-xs font-bold px-3 py-2 rounded-xl border transition" :class="currentTheme.btnClass">
             ⚙️ 設定
           </button>
         </div>
       </div>
 
-      <!-- 設定抽屜 -->
+      <!-- 設定抽屜（成本設定收納在此） -->
       <div v-if="showSettings" :class="[currentTheme.drawerBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 text-sm">
         <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
           <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數</span>
@@ -120,20 +107,20 @@
         </div>
       </div>
 
-      <!-- 首頁二分流引導 -->
+      <!-- 首頁二分流引導 (採用產品化雙入口語言) -->
       <div class="grid grid-cols-1 gap-2.5">
-        <div @click="activeTab = 'calc'" :class="activeTab === 'calc' ? 'border-cyan-500 bg-cyan-500/10' : currentTheme.tabBorder" class="border rounded-2xl p-3 cursor-pointer transition flex justify-between items-center">
+        <div @click="activeTab = 'calc'" :class="activeTab === 'calc' ? 'border-cyan-500 bg-cyan-500/10' : currentTheme.tabBorder" class="border rounded-2xl p-3.5 cursor-pointer transition flex justify-between items-center">
           <div>
-            <div class="text-xs font-black text-cyan-500">✈️ A｜我已經知道要去哪裡</div>
-            <div class="text-[11px] opacity-70 mt-0.5">精確輸入跨國起訖點與人數進行試算</div>
+            <div class="text-xs font-black text-cyan-500">✈️ 我的旅程要花多少？</div>
+            <div class="text-[11px] opacity-70 mt-0.5">輸入航線、人數與艙等，計算哩程票實際成本</div>
           </div>
           <span v-if="activeTab === 'calc'" class="text-[10px] bg-cyan-500 text-slate-950 px-2.5 py-1 rounded-full font-black">使用中</span>
         </div>
 
-        <div @click="activeTab = 'explore'" :class="activeTab === 'explore' ? 'border-purple-500 bg-purple-500/10' : currentTheme.tabBorder" class="border rounded-2xl p-3 cursor-pointer transition flex justify-between items-center">
+        <div @click="activeTab = 'explore'" :class="activeTab === 'explore' ? 'border-purple-500 bg-purple-500/10' : currentTheme.tabBorder" class="border rounded-2xl p-3.5 cursor-pointer transition flex justify-between items-center">
           <div>
-            <div class="text-xs font-black text-purple-500">🌏 B｜我還不知道去哪裡</div>
-            <div class="text-[11px] opacity-70 mt-0.5">尋找高CP值航點，解鎖中停密技</div>
+            <div class="text-xs font-black text-purple-500">🌏 哩程可以飛去哪？</div>
+            <div class="text-[11px] opacity-70 mt-0.5">從你的出發地開始，探索不同目的地的哩程成本</div>
           </div>
           <span v-if="activeTab === 'explore'" class="text-[10px] bg-purple-500 text-white px-2.5 py-1 rounded-full font-black">探索中</span>
         </div>
@@ -190,7 +177,7 @@
       <!-- 模式 A 畫面 -->
       <div v-if="activeTab === 'calc'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-amber-500 flex items-center justify-between pb-1 border-b" :class="currentTheme.borderClass">
-          <span>✈️ 【跨國精確航線與預算試算】</span>
+          <span>✈️ 【航線與預算試算】</span>
           <button @click="showTricksBox = !showTricksBox" class="text-[11px] text-cyan-500 underline">✨ {{ showTricksBox ? '收合中停密技' : '展開中停密技' }}</button>
         </div>
 
@@ -308,7 +295,7 @@
       <!-- 模式 B 畫面 -->
       <div v-if="activeTab === 'explore'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-500 flex items-center justify-between">
-          <span>🌏 【跨國哩程去哪裡最划算？航點探索】</span>
+          <span>🌏 【航點探索】</span>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
@@ -371,7 +358,7 @@
 
     </div>
 
-    <!-- 下方區塊：動態決策比價卡 (已導入結果頁總成本置頂 + 過程點擊展開明細 UX) -->
+    <!-- 下方區塊：動態決策比價卡（已內嵌下一層航空公司選擇與結果頁大改造） -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 opacity-50 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -383,7 +370,7 @@
 
       <div v-else v-for="(item, idx) in filteredRoutes" :key="idx" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-3xl p-4 sm:p-5 shadow-xl space-y-4 transition-colors duration-300">
         
-        <div class="flex justify-between items-start border-b pb-3" :class="currentTheme.borderClass">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 gap-3" :class="currentTheme.borderClass">
           <div>
             <div class="text-base sm:text-lg font-black">
               {{ item.origin_name }} ({{ item.origin }}) ➔ 台北(TPE) (中停14天) ➔ {{ item.dest_name }} ({{ item.dest }})
@@ -393,9 +380,16 @@
               <span v-if="item.note" class="bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded text-[11px]">{{ item.note }}</span>
             </div>
           </div>
-          <span class="text-xs font-bold text-cyan-500 border px-3 py-1.5 rounded-xl" :class="currentTheme.borderClass">
-            決策比價卡
-          </span>
+
+          <!-- 🚀 航空公司選擇器移至結果與比價層的下一層 -->
+          <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
+            <span>✈️</span>
+            <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
+              <option value="starlux" class="bg-slate-900 text-white">✨ 星宇航空 (A350 旗艦)</option>
+              <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">🌸 中華航空 (Coming Soon)</option>
+              <option value="eva_air" disabled class="bg-slate-900 text-slate-500">🟢 長榮航空 (Coming Soon)</option>
+            </select>
+          </div>
         </div>
 
         <!-- 艙等總覽與唯一最低價判定 -->
@@ -418,7 +412,6 @@
                   <div class="text-[10px] opacity-50 mt-0.5">預估總成本（含哩程與稅金）</div>
                 </div>
 
-                <!-- 🔍 點開看計算明細 (Accordion 折疊設計) -->
                 <details class="group text-xs border-t pt-2" :class="currentTheme.borderClass">
                   <summary class="cursor-pointer font-bold opacity-80 hover:text-cyan-400 transition flex justify-between items-center select-none">
                     <span>🔍 點此展開計算明細</span>
@@ -431,7 +424,6 @@
                   </div>
                 </details>
 
-                <!-- 💵 現金票價比較 (Coming Soon 預留) -->
                 <div class="border-t pt-2 text-[11px] opacity-50 flex justify-between items-center" :class="currentTheme.borderClass">
                   <span>💵 現金票價對比：</span>
                   <span class="italic font-bold">Coming Soon</span>
