@@ -25,7 +25,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_side_by_side" />
+  <link rel="manifest" href="manifest.json?v=20260919_tab_isolate" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -57,15 +57,15 @@
     <!-- 頂部導覽 -->
     <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 transition-colors duration-300">
       
-      <!-- 主標題與頂部功能按鈕列 (主題、設定、攻略) -->
+      <!-- 主標題與頂部功能按鈕 (攻略按鈕已改為「新手攻略」) -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-b pb-3" :class="currentTheme.borderClass">
         <h1 class="text-xl sm:text-2xl font-black tracking-tight leading-tight text-center sm:text-left" :class="currentTheme.titleClass">
           常旅客哩程票<span class="text-cyan-400">兌換</span>
         </h1>
         
         <div class="flex items-center gap-1.5 shrink-0 w-full sm:w-auto justify-center">
-          <button @click="showGuideModal = true" class="text-xs font-bold px-3 py-2 rounded-xl border transition flex-1 sm:flex-initial text-center bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30">
-            📖 攻略
+          <button @click="showGuideModal = true" class="text-xs font-bold px-3.5 py-2 rounded-xl border transition flex-1 sm:flex-initial text-center bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30">
+            📖 新手攻略
           </button>
           <button @click="cycleTheme" class="text-xs font-bold px-2.5 py-2 rounded-xl border transition flex-1 sm:flex-initial text-center" :class="currentTheme.btnClass" title="切換背景主題">
             🎨 {{ currentTheme.name }}
@@ -110,7 +110,7 @@
         </div>
       </div>
 
-      <!-- 🚀 左右並排的雙主軸切換按鈕 (左：精確試算，右：航點探索) -->
+      <!-- 左右並排的雙主軸切換按鈕 -->
       <div class="grid grid-cols-2 gap-2.5">
         <div @click="activeTab = 'calc'" :class="activeTab === 'calc' ? 'border-cyan-500 bg-cyan-500/10 shadow-md shadow-cyan-500/10' : currentTheme.tabBorder" class="border rounded-2xl p-3.5 cursor-pointer transition flex flex-col justify-between">
           <div class="flex justify-between items-start mb-1">
@@ -120,7 +120,7 @@
           <div class="text-[11px] opacity-70 leading-tight">我的旅程要花多少？計算實際總成本</div>
         </div>
 
-        <div @click="activeTab = 'explore'" :class="activeTab === 'explore' ? 'border-purple-500 bg-purple-500/10 shadow-md shadow-purple-500/10' : currentTheme.tabBorder" class="border rounded-2xl p-3.5 cursor-pointer transition flex flex-col justify-between">
+        <div @click="activeTab = 'explore'" :class="activeTab === 'explore' ? 'border-purple-500 bg-purple-500/10' : currentTheme.tabBorder" class="border rounded-2xl p-3.5 cursor-pointer transition flex flex-col justify-between">
           <div class="flex justify-between items-start mb-1">
             <span class="text-xs font-black text-purple-400">🌏 航點探索</span>
             <span v-if="activeTab === 'explore'" class="text-[9px] bg-purple-500 text-white px-2 py-0.5 rounded-full font-black">探索中</span>
@@ -129,7 +129,7 @@
         </div>
       </div>
 
-      <!-- 模式 A 畫面 -->
+      <!-- 模式 A 畫面 (僅在 activeTab === 'calc' 時顯示) -->
       <div v-if="activeTab === 'calc'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-amber-500 flex items-center justify-between pb-1 border-b" :class="currentTheme.borderClass">
           <span>✈️ 【航線與預算試算】</span>
@@ -247,7 +247,7 @@
         </div>
       </div>
 
-      <!-- 模式 B 畫面 -->
+      <!-- 模式 B 畫面 (僅在 activeTab === 'explore' 時顯示) -->
       <div v-if="activeTab === 'explore'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-500 flex items-center justify-between">
           <span>🌏 【航點探索】</span>
@@ -358,8 +358,41 @@
       </div>
     </div>
 
-    <!-- 下方區塊：動態決策比價卡 -->
-    <div class="space-y-3">
+    <!-- 下方區塊：動態決策比價卡 (僅在 activeTab === 'calc' 時顯示精確試算結果；若在 explore 則顯示航點探索結果) -->
+    <div class="space-y-3" v-if="activeTab === 'calc'">
+      <div v-if="loading" class="text-center py-12 opacity-50 text-sm">
+        正在自 Google Sheet 載入最新數據...
+      </div>
+      
+      <div v-else-if="!flightSummary" class="text-center py-12 opacity-50 text-sm">
+        請在上方「精確試算」選擇出發地與目的地以查看比價方案
+      </div>
+
+      <div v-else class="space-y-3">
+        <!-- 顯示精確試算結果卡片 -->
+        <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-3xl p-4 sm:p-5 shadow-xl space-y-4 transition-colors duration-300">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 gap-3" :class="currentTheme.borderClass">
+            <div>
+              <div class="text-base sm:text-lg font-black">
+                {{ flightSummary.outLabel }}
+              </div>
+            </div>
+            <!-- 航司選擇器 -->
+            <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
+              <span>✨</span>
+              <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
+                <option value="starlux" class="bg-slate-900 text-white">星宇航空</option>
+                <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">中華航空 (Coming Soon)</option>
+                <option value="eva_air" disabled class="bg-slate-900 text-slate-500">長榮航空 (Coming Soon)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 航點探索模式下的結果卡片顯示 (當 activeTab === 'explore') -->
+    <div class="space-y-3" v-if="activeTab === 'explore'">
       <div v-if="loading" class="text-center py-12 opacity-50 text-sm">
         正在自 Google Sheet 載入最新數據...
       </div>
@@ -381,7 +414,6 @@
             </div>
           </div>
 
-          <!-- 航司選擇器 (下層) -->
           <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
             <span>✨</span>
             <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
@@ -392,7 +424,7 @@
           </div>
         </div>
 
-        <!-- 艙等總覽與唯一最低價判定 -->
+        <!-- 艙等總覽 -->
         <div v-for="cabinKey in ['biz', 'prem', 'eco']" :key="cabinKey">
           <div v-if="shouldShowCabinCard(item, cabinKey)" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-3.5 space-y-3 mt-2">
             <div class="text-xs font-extrabold text-amber-500 flex items-center gap-1.5 border-b pb-2" :class="currentTheme.borderClass">
@@ -400,8 +432,7 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              
-              <!-- 1. 阿拉斯加買點方案 -->
+              <!-- 1. AS買點 -->
               <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3">
                 <span v-if="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy'))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
                 <div>
@@ -430,7 +461,7 @@
                 </div>
               </div>
 
-              <!-- 2. 阿拉斯加萬豪轉點方案 -->
+              <!-- 2. 萬豪轉點 -->
               <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3">
                 <span v-if="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott'))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
                 <div>
@@ -459,7 +490,7 @@
                 </div>
               </div>
 
-              <!-- 3. 阿提哈德 EY 換票方案 -->
+              <!-- 3. 阿提哈德 -->
               <div v-if="getCabinEyMiles(item, cabinKey)" :class="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey)) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between sm:col-span-2 space-y-3">
                 <span v-if="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
                 <div class="flex justify-between items-start">
@@ -512,7 +543,7 @@
         const loading = ref(true);
         const showSettings = ref(false);
         const showTricksBox = ref(false);
-        const showGuideModal = ref(false); // 🚀 新增攻略彈窗狀態
+        const showGuideModal = ref(false);
         const showGuidePanel = ref(false);
         const activeTab = ref('calc');
         const selectedAirline = ref('starlux');
@@ -1063,7 +1094,6 @@
 
         const getMinCabinCost = (item, cabin) => {
           let costs = [];
-          // 🚀 修正：確保沖繩等點到點航線可以完整計算 AS 與萬豪的成本
           if (getCabinMiles(item, cabin, 'as')) {
             costs.push(getCabinCost(item, cabin, 'as', 'buy'));
             costs.push(getCabinCost(item, cabin, 'as', 'marriott'));
