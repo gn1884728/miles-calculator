@@ -25,7 +25,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_fix_logic_v2" />
+  <link rel="manifest" href="manifest.json?v=20260919_restore_as_oka" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -49,7 +49,7 @@
 
   <div class="sr-only">
     <h1>常旅客哩程票兌換工具</h1>
-    <p>支援阿拉斯加航空 (AS) 1500哩內免費中停、阿提哈德航空 (EY) 哩程兌換、國泰 CUBE 卡小樹點、萬豪旅享家轉點成本即時比價。涵蓋台北、東京、大阪、福岡、沖繩、熊本、宮古島、澳門、香港、釜山、河內等熱門跨國航線。</p>
+    <p>支援阿拉斯加航空 (AS) 1500哩內免費中停、阿提哈德航空 (EY) 哩程兌換、國泰 CUBE 卡小樹點、萬豪旅享家轉點成本即時比價。涵蓋台北, 東京, 大阪, 福岡, 沖繩, 熊本, 宮古島, 澳門, 香港, 釜山, 河內等熱門跨國航線。</p>
   </div>
 
   <div id="app" class="w-full max-w-xl space-y-4">
@@ -372,7 +372,7 @@
         
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 gap-3" :class="currentTheme.borderClass">
           <div>
-            <!-- 🚀 修正：只有當航線包含中停時才顯示中停字眼，點到點航線保持純淨的 A ➔ B -->
+            <!-- 🚀 點到點航線保持純淨的 A ➔ B，中停航線帶出中停文字 -->
             <div class="text-base sm:text-lg font-black">
               {{ item.origin_name }} ({{ item.origin }}) ➔ {{ item.airline && item.airline.includes('中停') ? '台北(TPE) (中停14天) ➔ ' : '' }}{{ item.dest_name }} ({{ item.dest }})
             </div>
@@ -382,13 +382,13 @@
             </div>
           </div>
 
-          <!-- 航司選擇器 (下層) -->
+          <!-- 航司選擇器 (星宇航空已精簡名稱，無A350字眼) -->
           <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
-            <span>✈️</span>
+            <span>✨</span>
             <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
-              <option value="starlux" class="bg-slate-900 text-white">✨ 星宇航空</option>
-              <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">🌸 中華航空 (Coming Soon)</option>
-              <option value="eva_air" disabled class="bg-slate-900 text-slate-500">🟢 長榮航空 (Coming Soon)</option>
+              <option value="starlux" class="bg-slate-900 text-white">星宇航空</option>
+              <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">中華航空 (Coming Soon)</option>
+              <option value="eva_air" disabled class="bg-slate-900 text-slate-500">長榮航空 (Coming Soon)</option>
             </select>
           </div>
         </div>
@@ -402,8 +402,8 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               
-              <!-- 1. 阿拉斯加買點方案 (🚀 防呆：非中停/點到點航線如台北沖繩，若不適用AS則自動隱藏，避免混亂) -->
-              <div v-if="getCabinMiles(item, cabinKey, 'as') && !(item.origin === 'TPE' && item.dest === 'OKA')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3">
+              <!-- 1. 阿拉斯加買點方案 (🚀 允許台北沖繩等點到點航線完整呈現 AS 買點) -->
+              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3">
                 <span v-if="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy'))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
                 <div>
                   <div class="text-xs opacity-70 font-bold">AS 直接買哩程</div>
@@ -431,8 +431,8 @@
                 </div>
               </div>
 
-              <!-- 2. 阿拉斯加萬豪轉點方案 (🚀 防呆：點到點航線如台北沖繩隱藏AS萬豪) -->
-              <div v-if="getCabinMiles(item, cabinKey, 'as') && !(item.origin === 'TPE' && item.dest === 'OKA')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3">
+              <!-- 2. 阿拉斯加萬豪轉點方案 (🚀 允許台北沖繩等點到點航線完整呈現 萬豪轉點) -->
+              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3">
                 <span v-if="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott'))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
                 <div>
                   <div class="text-xs opacity-70 font-bold">AS × 萬豪旅享家轉點</div>
@@ -460,7 +460,7 @@
                 </div>
               </div>
 
-              <!-- 3. 阿提哈德 EY 換票方案 (適用於台北沖繩等點到點專屬方案) -->
+              <!-- 3. 阿提哈德 EY 換票方案 -->
               <div v-if="getCabinEyMiles(item, cabinKey)" :class="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey)) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between sm:col-span-2 space-y-3">
                 <span v-if="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
                 <div class="flex justify-between items-start">
@@ -916,7 +916,6 @@
             const cleanDestName = item.dest_name || allAirports.find(a => a.code === item.dest)?.name || item.dest;
             const airlineText = item.airline && item.airline.includes('精選') ? '星宇航空' : (item.airline || '星宇航空');
             
-            // 🚀 智慧判斷：只有當項目本身標註為中停時才顯示中停，否則維持 A ➔ B 點到點
             const isStopover = item.airline && item.airline.includes('中停');
             const standardizedLabel = isStopover 
               ? `${cleanOriginName}(${item.origin}) ➔ 台北(TPE) (中停14天) ➔ ${cleanDestName}(${item.dest})`
@@ -1064,7 +1063,7 @@
 
         const getMinCabinCost = (item, cabin) => {
           let costs = [];
-          if (getCabinMiles(item, cabin, 'as') && !(item.origin === 'TPE' && item.dest === 'OKA')) {
+          if (getCabinMiles(item, cabin, 'as')) {
             costs.push(getCabinCost(item, cabin, 'as', 'buy'));
             costs.push(getCabinCost(item, cabin, 'as', 'marriott'));
           }
