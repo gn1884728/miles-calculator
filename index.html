@@ -477,10 +477,13 @@
             </div>
           </div>
 
+          <!-- 💡 預留未來動態多航司選擇器（已依規範排序：CI 中華航空、BR 長榮航空、JX 星宇航空） -->
           <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
             <span>✨</span>
             <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
-              <option value="starlux" class="bg-slate-900 text-white">星宇 / 華航 / 夥伴航空</option>
+              <option value="ci" class="bg-slate-900 text-white">CI 中華航空</option>
+              <option value="br" class="bg-slate-900 text-white">BR 長榮航空</option>
+              <option value="jx" class="bg-slate-900 text-white">JX 星宇航空</option>
             </select>
           </div>
         </div>
@@ -528,7 +531,7 @@
         const showTricksBox = ref(false);
         const showGuideModal = ref(false);
         const activeTab = ref('calc');
-        const selectedAirline = ref('starlux');
+        const selectedAirline = ref('ci');
 
         const userAssets = ref({
           asMiles: 0
