@@ -25,7 +25,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260920_giant_cost" />
+  <link rel="manifest" href="manifest.json?v=20260920_full_master" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -219,7 +219,7 @@
           </div>
         </div>
 
-        <!-- 🛒 自由混搭購物車 (支援手機友善的 [-] / [+] 觸控按鈕) -->
+        <!-- 🛒 自由混搭購物車 (強烈凸顯哩程計畫標籤) -->
         <div v-if="availableRouteOptions.length > 0" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3.5 space-y-3">
           <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
             <span class="text-xs font-black text-cyan-400">🛒 自由搭配購物車（支援混搭人數與艙等）</span>
@@ -229,11 +229,11 @@
           <!-- 新增品項列 -->
           <div class="space-y-2 text-xs">
             <div>
-              <label class="block mb-1 opacity-70">選擇兌換方案</label>
+              <label class="block mb-1 opacity-70">選擇兌換方案 (包含明確哩程計畫)</label>
               <select v-model="selectedCartOptionId" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold focus:outline-none">
                 <option value="">-- 請選擇航段與艙等方案 --</option>
                 <option v-for="opt in availableRouteOptions" :key="opt.id" :value="opt.id">
-                  {{ opt.name }} (約 NT$ {{ opt.cost }})
+                  [{{ opt.programTag }}] {{ opt.name }} (約 NT$ {{ opt.cost }})
                 </option>
               </select>
             </div>
@@ -249,11 +249,14 @@
             </div>
           </div>
 
-          <!-- 已加入購物車清單 -->
+          <!-- 已加入購物車清單 (計畫標籤醒目凸顯) -->
           <div v-if="cartItems.length > 0" class="space-y-2 pt-2 border-t" :class="currentTheme.borderClass">
             <div v-for="(item, cIdx) in cartItems" :key="cIdx" class="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs bg-slate-950/40 p-2.5 rounded-lg border border-slate-800 gap-2">
-              <div>
-                <span class="font-bold text-amber-400 block sm:inline">{{ item.name }}</span>
+              <div class="flex items-center gap-2">
+                <span class="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 px-2 py-0.5 rounded font-black text-[10px] uppercase tracking-wider">
+                  {{ item.programTag }}
+                </span>
+                <span class="font-bold text-amber-400">{{ item.name }}</span>
               </div>
               <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3">
                 <div class="flex items-center gap-1">
@@ -272,7 +275,6 @@
         <div v-if="cartSummary.totalCost > 0" class="bg-gradient-to-r from-amber-500/20 to-cyan-500/20 border-2 border-amber-500/60 rounded-2xl p-4 space-y-2 text-sm shadow-lg">
           <div class="flex flex-col items-center justify-center border-b border-amber-500/30 pb-3 text-center">
             <span class="text-xs uppercase tracking-widest text-amber-400 font-bold mb-1">✨ 購物車最終總成本</span>
-            <!-- 🚀 關鍵放大：總金額字體極大化清晰呈現 -->
             <div class="text-3xl sm:text-4xl font-black text-amber-300 tracking-tight">
               NT$ {{ cartSummary.totalCost.toLocaleString() }}
             </div>
@@ -312,7 +314,6 @@
             </div>
 
             <div v-if="mileageGap > 0" class="grid grid-cols-1 gap-2 pt-1">
-              <!-- 方案 1：萬豪轉點補齊 -->
               <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-2.5 space-y-1">
                 <div class="flex justify-between items-center text-[11px] font-bold text-purple-400">
                   <span>🟣 萬豪點數轉點補齊方案</span>
@@ -324,7 +325,6 @@
                 </div>
               </div>
 
-              <!-- 方案 2：IHG 住房 Stay 補齊 -->
               <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 space-y-1">
                 <div class="flex justify-between items-center text-[11px] font-bold text-amber-400">
                   <span>🏨 IHG 住房累積補齊方案</span>
@@ -372,10 +372,10 @@
           </div>
 
           <div>
-            <label class="text-[11px] opacity-70 font-bold block mb-1">3️⃣ 目的地機場</label>
+            <label class="text-[11px] opacity-70 font-bold block mb-1">3️⃣ 目的地機場 (自動排除同國)</label>
             <select v-model="selectedDestAirport" :class="currentTheme.inputBg" class="w-full border rounded-xl p-2 text-xs font-bold focus:outline-none">
               <option value="ALL">全部目的地</option>
-              <optgroup v-for="group in airportGroups" :key="group.country" :label="group.label">
+              <optgroup v-for="group in filteredExploreGroups" :key="group.country" :label="group.label">
                 <option v-for="apt in group.airports" :key="apt.code" :value="apt.code">
                   {{ apt.name }} ({{ apt.code }})
                 </option>
@@ -454,7 +454,7 @@
       </div>
     </div>
 
-    <!-- 航點探索模式下的結果卡片顯示 (當 activeTab === 'explore') -->
+    <!-- 航點探索模式下的結果卡片顯示 (凸顯哩程計畫標籤) -->
     <div class="space-y-3" v-if="activeTab === 'explore'">
       <div v-if="loading" class="text-center py-12 opacity-50 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -477,7 +477,7 @@
             </div>
           </div>
 
-          <!-- 💡 預留未來動態多航司選擇器（已依規範排序：CI 中華航空、BR 長榮航空、JX 星宇航空） -->
+          <!-- 💡 動態多航司選擇器（已依規範排序：CI 中華航空、BR 長榮航空、JX 星宇航空） -->
           <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
             <span>✨</span>
             <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
@@ -488,11 +488,14 @@
           </div>
         </div>
 
-        <!-- 艙等總覽 -->
+        <!-- 艙等總覽 (凸顯計畫標籤) -->
         <div v-for="cabinKey in ['biz', 'prem', 'eco']" :key="cabinKey">
           <div v-if="shouldShowCabinCard(item, cabinKey)" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-3.5 space-y-3 mt-2">
-            <div class="text-xs font-extrabold text-amber-500 flex items-center gap-1.5 border-b pb-2" :class="currentTheme.borderClass">
+            <div class="text-xs font-extrabold text-amber-500 flex items-center justify-between border-b pb-2" :class="currentTheme.borderClass">
               <span>{{ cabinKey === 'biz' ? '👑 商務艙 (Business)' : cabinKey === 'prem' ? '⭐ 豪華經濟艙 (Prem Eco)' : '✈️ 經濟艙 (Economy)' }}</span>
+              <span class="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 px-2 py-0.5 rounded font-black text-[10px] uppercase">
+                {{ item.programTag || (item.airline && item.airline.includes('Flying Blue') ? 'Flying Blue' : 'AS / Etihad') }}
+              </span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -643,7 +646,8 @@
           cube_rate: savedRates.cube_rate !== undefined ? savedRates.cube_rate : 0.34,
           ctbc_rate: savedRates.ctbc_rate !== undefined ? savedRates.ctbc_rate : 0.23,
           as_buy_val: savedRates.as_buy_val !== undefined ? savedRates.as_buy_val : 0.60,
-          marriott_val: savedRates.marriott_val !== undefined ? savedRates.marriott_val : 0.25
+          marriott_val: savedRates.marriott_val !== undefined ? savedRates.marriott_val : 0.25,
+          etihad_val: savedRates.etihad_val !== undefined ? savedRates.etihad_val : 0.42
         });
 
         const saveRates = () => { localStorage.setItem('miles_rates', JSON.stringify(rates.value)); };
@@ -694,25 +698,27 @@
           { country: 'ID', label: '🇮🇩 印尼 (Indonesia)', airports: allAirports.filter(a => a.country === 'ID') }
         ];
 
+        // 💡 內建阿提哈德（Etihad Guest）兌換星宇專屬航線數據
+        const etihadJxRoutes = [
+          { origin: 'TPE', dest: 'OKA', origin_name: '台北桃園', dest_name: '沖繩', programTag: 'Etihad Guest', airline: 'EY 兌換星宇', eco_miles: 6000, eco_tax_usd: 44, note: '✨ 阿提哈德神級甜蜜點' }
+        ];
+
         const secretTricks = [
-          { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, note: '✨ 熊本 ➔ 台北(TPE) (中停14天) ➔ 澳門' },
-          { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, note: '✨ 澳門 ➔ 台北(TPE) (中停14天) ➔ 熊本' }
+          { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, programTag: 'AS', note: '✨ 熊本 ➔ 台北(TPE) (中停14天) ➔ 澳門' },
+          { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停14天) ➔ 熊本' }
         ];
 
         const flightSearch = ref({ tripType: 'oneWay', outOrigin: '', outDest: '', inOrigin: '', inDest: '' });
 
-        const combinedAllRoutes = computed(() => [...routesData.value, ...secretTricks]);
+        const combinedAllRoutes = computed(() => [...routesData.value, ...etihadJxRoutes, ...secretTricks]);
 
         const availableOutOriginCodes = computed(() => new Set(combinedAllRoutes.value.map(r => r.origin)));
 
         const availableOutDestCodes = computed(() => {
           if (!flightSearch.value.outOrigin) return new Set(allAirports.map(a => a.code));
           const originApt = allAirports.find(a => a.code === flightSearch.value.outOrigin);
-          const validDests = new Set(combinedAllRoutes.value.filter(r => r.origin === flightSearch.value.outOrigin).map(r => r.dest));
           let codes = new Set();
           allAirports.forEach(a => {
-            if (!validDests.has(a.code)) return;
-            if (a.code === flightSearch.value.outOrigin) return;
             if (originApt && a.country === originApt.country) return;
             codes.add(a.code);
           });
@@ -722,22 +728,26 @@
         const availableInDestCodes = computed(() => {
           if (!flightSearch.value.inOrigin) return new Set(allAirports.map(a => a.code));
           const originApt = allAirports.find(a => a.code === flightSearch.value.inOrigin);
-          const validDests = new Set(combinedAllRoutes.value.filter(r => r.origin === flightSearch.value.inOrigin).map(r => r.dest));
           let codes = new Set();
           allAirports.forEach(a => {
-            if (!validDests.has(a.code)) return;
-            if (a.code === flightSearch.value.inOrigin) return;
             if (originApt && a.country === originApt.country) return;
             codes.add(a.code);
           });
           return codes;
         });
 
+        // 💡 完整支援各大哩程計畫計算模型
         const calcFlyingBlueCost = (miles, taxUsd) => {
           if (!miles) return 0;
           const taxTwd = Number(taxUsd || 56) * rates.value.usd_twd;
           const cubePointsNeeded = Math.ceil((Number(miles) / 1000) * 340);
           return Math.round(cubePointsNeeded * rates.value.cube_rate + taxTwd);
+        };
+
+        const calcEtihadCost = (miles, taxUsd) => {
+          if (!miles) return 0;
+          const taxTwd = Number(taxUsd || 44) * rates.value.usd_twd;
+          return Math.round(Number(miles) * rates.value.etihad_val + taxTwd);
         };
 
         const calcAsCost = (miles, taxUsd, type) => {
@@ -759,14 +769,21 @@
             const cleanOriginName = item.origin_name || allAirports.find(a => a.code === item.origin)?.name || item.origin;
             const cleanDestName = item.dest_name || allAirports.find(a => a.code === item.dest)?.name || item.dest;
             const airlineName = item.airline || 'AS';
+            const tag = item.programTag || (airlineName.includes('Flying Blue') ? 'Flying Blue' : 'AS');
 
             if (item.eco_miles) {
-              const cost = airlineName.includes('Flying Blue') 
-                ? calcFlyingBlueCost(item.eco_miles, item.eco_tax_usd)
-                : calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy');
+              let cost = 0;
+              if (tag === 'Etihad Guest') {
+                cost = calcEtihadCost(item.eco_miles, item.eco_tax_usd);
+              } else if (tag === 'Flying Blue' || airlineName.includes('Flying Blue')) {
+                cost = calcFlyingBlueCost(item.eco_miles, item.eco_tax_usd);
+              } else {
+                cost = calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy');
+              }
 
               list.push({
-                id: `${item.origin}-${item.dest}_eco_${airlineName}`,
+                id: `${item.origin}-${item.dest}_eco_${tag}_${airlineName}`,
+                programTag: tag,
                 name: `${cleanOriginName}➔${cleanDestName} 經濟艙 [${airlineName}]`,
                 miles: Number(item.eco_miles),
                 taxUsd: Number(item.eco_tax_usd || 44),
@@ -774,12 +791,18 @@
               });
             }
             if (item.biz_miles) {
-              const cost = airlineName.includes('Flying Blue') 
-                ? calcFlyingBlueCost(item.biz_miles, item.biz_tax_usd)
-                : calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy');
+              let cost = 0;
+              if (tag === 'Etihad Guest') {
+                cost = calcEtihadCost(item.biz_miles, item.biz_tax_usd);
+              } else if (tag === 'Flying Blue' || airlineName.includes('Flying Blue')) {
+                cost = calcFlyingBlueCost(item.biz_miles, item.biz_tax_usd);
+              } else {
+                cost = calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy');
+              }
 
               list.push({
-                id: `${item.origin}-${item.dest}_biz_${airlineName}`,
+                id: `${item.origin}-${item.dest}_biz_${tag}_${airlineName}`,
+                programTag: tag,
                 name: `${cleanOriginName}➔${cleanDestName} 商務艙 [${airlineName}]`,
                 miles: Number(item.biz_miles),
                 taxUsd: Number(item.biz_tax_usd || 44),
@@ -803,6 +826,7 @@
           } else {
             cartItems.value.push({
               id: opt.id,
+              programTag: opt.programTag,
               name: opt.name,
               miles: opt.miles,
               taxUsd: opt.taxUsd,
@@ -878,6 +902,19 @@
 
         onMounted(() => { fetchData(); });
 
+        const linkedAirports = computed(() => selectedCountry.value === 'ALL' ? allAirports : allAirports.filter(a => a.country === selectedCountry.value));
+        const filteredExploreGroups = computed(() => {
+          let originCountry = null;
+          if (selectedAirport.value !== 'ALL') {
+            const apt = allAirports.find(a => a.code === selectedAirport.value);
+            if (apt) originCountry = apt.country;
+          }
+          return airportGroups.map(group => ({
+            ...group,
+            airports: group.airports.filter(apt => apt.country !== originCountry)
+          })).filter(group => group.airports.length > 0);
+        });
+
         const onCountryChange = () => { selectedAirport.value = 'ALL'; selectedDestAirport.value = 'ALL'; };
         const onExploreOriginChange = () => { selectedDestAirport.value = 'ALL'; };
 
@@ -890,9 +927,9 @@
         const getExploreCost = (item, cabin) => {
           const miles = getExploreMiles(item, cabin);
           const tax = cabin === 'biz' ? (item.biz_tax_usd || 56) : (item.eco_tax_usd || 56);
-          if (item.airline && item.airline.includes('Flying Blue')) {
-            return calcFlyingBlueCost(miles, tax);
-          }
+          const tag = item.programTag || (item.airline && item.airline.includes('Flying Blue') ? 'Flying Blue' : 'AS');
+          if (tag === 'Etihad Guest') return calcEtihadCost(miles, tax);
+          if (tag === 'Flying Blue' || (item.airline && item.airline.includes('Flying Blue'))) return calcFlyingBlueCost(miles, tax);
           return calcAsCost(miles, tax, 'buy');
         };
 
@@ -928,10 +965,9 @@
         return {
           loading, showSettings, showTricksBox, showGuideModal, activeTab, selectedAirline,
           themes, currentTheme, cycleTheme, selectedCountry, selectedAirport, selectedDestAirport,
-          selectedCabin, sortOrder, linkedAirports: computed(() => selectedCountry.value === 'ALL' ? allAirports : allAirports.filter(a => a.country === selectedCountry.value)),
+          selectedCabin, sortOrder, linkedAirports, filteredExploreGroups,
           onCountryChange, onExploreOriginChange,
-          availableExploreDestAirports: computed(() => allAirports), rates, saveRates, routesData,
-          filteredRoutes, allAirports, airportGroups, secretTricks, flightSearch,
+          rates, saveRates, routesData, filteredRoutes, allAirports, airportGroups, secretTricks, flightSearch,
           availableOutOriginCodes, availableOutDestCodes, availableInDestCodes,
           userAssets, mileageGap, requiredMarriottForGap, marriottBridgeCost, requiredIhgStays,
           cartItems, selectedCartOptionId, tempCartQty, availableRouteOptions, addToCart, cartSummary,
