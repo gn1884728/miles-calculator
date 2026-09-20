@@ -25,7 +25,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_clean_home" />
+  <link rel="manifest" href="manifest.json?v=20260919_fix_logic_v2" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -54,7 +54,7 @@
 
   <div id="app" class="w-full max-w-xl space-y-4">
     
-    <!-- 頂部導覽 (首頁極致乾淨：只留標題、主題與設定) -->
+    <!-- 頂部導覽 -->
     <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 transition-colors duration-300">
       
       <!-- 主標題置中放大 -->
@@ -73,7 +73,7 @@
         </div>
       </div>
 
-      <!-- 設定抽屜（成本設定收納在此） -->
+      <!-- 設定抽屜 -->
       <div v-if="showSettings" :class="[currentTheme.drawerBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 text-sm">
         <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
           <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數</span>
@@ -107,7 +107,7 @@
         </div>
       </div>
 
-      <!-- 首頁二分流引導 (採用產品化雙入口語言) -->
+      <!-- 首頁二分流引導 -->
       <div class="grid grid-cols-1 gap-2.5">
         <div @click="activeTab = 'calc'" :class="activeTab === 'calc' ? 'border-cyan-500 bg-cyan-500/10' : currentTheme.tabBorder" class="border rounded-2xl p-3.5 cursor-pointer transition flex justify-between items-center">
           <div>
@@ -358,7 +358,7 @@
 
     </div>
 
-    <!-- 下方區塊：動態決策比價卡（已內嵌下一層航空公司選擇與結果頁大改造） -->
+    <!-- 下方區塊：動態決策比價卡 -->
     <div class="space-y-3">
       <div v-if="loading" class="text-center py-12 opacity-50 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -372,8 +372,9 @@
         
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 gap-3" :class="currentTheme.borderClass">
           <div>
+            <!-- 🚀 修正：只有當航線包含中停時才顯示中停字眼，點到點航線保持純淨的 A ➔ B -->
             <div class="text-base sm:text-lg font-black">
-              {{ item.origin_name }} ({{ item.origin }}) ➔ 台北(TPE) (中停14天) ➔ {{ item.dest_name }} ({{ item.dest }})
+              {{ item.origin_name }} ({{ item.origin }}) ➔ {{ item.airline && item.airline.includes('中停') ? '台北(TPE) (中停14天) ➔ ' : '' }}{{ item.dest_name }} ({{ item.dest }})
             </div>
             <div class="text-xs opacity-70 mt-1 flex items-center gap-2">
               <span class="font-bold">{{ item.airline }}</span>
@@ -381,11 +382,11 @@
             </div>
           </div>
 
-          <!-- 🚀 航空公司選擇器移至結果與比價層的下一層 -->
+          <!-- 航司選擇器 (下層) -->
           <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
             <span>✈️</span>
             <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
-              <option value="starlux" class="bg-slate-900 text-white">✨ 星宇航空 (A350 旗艦)</option>
+              <option value="starlux" class="bg-slate-900 text-white">✨ 星宇航空</option>
               <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">🌸 中華航空 (Coming Soon)</option>
               <option value="eva_air" disabled class="bg-slate-900 text-slate-500">🟢 長榮航空 (Coming Soon)</option>
             </select>
@@ -401,8 +402,8 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               
-              <!-- 1. 阿拉斯加買點方案 -->
-              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3">
+              <!-- 1. 阿拉斯加買點方案 (🚀 防呆：非中停/點到點航線如台北沖繩，若不適用AS則自動隱藏，避免混亂) -->
+              <div v-if="getCabinMiles(item, cabinKey, 'as') && !(item.origin === 'TPE' && item.dest === 'OKA')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3">
                 <span v-if="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'buy'))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
                 <div>
                   <div class="text-xs opacity-70 font-bold">AS 直接買哩程</div>
@@ -430,8 +431,8 @@
                 </div>
               </div>
 
-              <!-- 2. 阿拉斯加萬豪轉點方案 -->
-              <div v-if="getCabinMiles(item, cabinKey, 'as')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3">
+              <!-- 2. 阿拉斯加萬豪轉點方案 (🚀 防呆：點到點航線如台北沖繩隱藏AS萬豪) -->
+              <div v-if="getCabinMiles(item, cabinKey, 'as') && !(item.origin === 'TPE' && item.dest === 'OKA')" :class="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott')) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3">
                 <span v-if="isLowestCost(item, cabinKey, getCabinCost(item, cabinKey, 'as', 'marriott'))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
                 <div>
                   <div class="text-xs opacity-70 font-bold">AS × 萬豪旅享家轉點</div>
@@ -459,7 +460,7 @@
                 </div>
               </div>
 
-              <!-- 3. 阿提哈德 EY 換票方案 -->
+              <!-- 3. 阿提哈德 EY 換票方案 (適用於台北沖繩等點到點專屬方案) -->
               <div v-if="getCabinEyMiles(item, cabinKey)" :class="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey)) ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-md' : currentTheme.cardBg + ' border ' + currentTheme.borderClass" class="rounded-xl p-3.5 relative flex flex-col justify-between sm:col-span-2 space-y-3">
                 <span v-if="isLowestCost(item, cabinKey, getCabinEyCost(item, cabinKey))" class="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow">👑 預估成本最低方案</span>
                 <div class="flex justify-between items-start">
@@ -913,9 +914,13 @@
             const routeKey = `${item.origin}-${item.dest}-${item.airline || 'AS'}`;
             const cleanOriginName = item.origin_name || allAirports.find(a => a.code === item.origin)?.name || item.origin;
             const cleanDestName = item.dest_name || allAirports.find(a => a.code === item.dest)?.name || item.dest;
-            const airlineText = item.airline && item.airline.includes('精選') ? '星宇航空' : (item.airline || '阿拉斯加');
+            const airlineText = item.airline && item.airline.includes('精選') ? '星宇航空' : (item.airline || '星宇航空');
             
-            const standardizedLabel = `${cleanOriginName}(${item.origin}) ➔ 台北(TPE) (中停14天) ➔ ${cleanDestName}(${item.dest})`;
+            // 🚀 智慧判斷：只有當項目本身標註為中停時才顯示中停，否則維持 A ➔ B 點到點
+            const isStopover = item.airline && item.airline.includes('中停');
+            const standardizedLabel = isStopover 
+              ? `${cleanOriginName}(${item.origin}) ➔ 台北(TPE) (中停14天) ➔ ${cleanDestName}(${item.dest})`
+              : `${cleanOriginName}(${item.origin}) ➔ ${cleanDestName}(${item.dest})`;
 
             if (item.biz_miles) {
               const bCost = calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy');
@@ -1059,7 +1064,7 @@
 
         const getMinCabinCost = (item, cabin) => {
           let costs = [];
-          if (getCabinMiles(item, cabin, 'as')) {
+          if (getCabinMiles(item, cabin, 'as') && !(item.origin === 'TPE' && item.dest === 'OKA')) {
             costs.push(getCabinCost(item, cabin, 'as', 'buy'));
             costs.push(getCabinCost(item, cabin, 'as', 'marriott'));
           }
