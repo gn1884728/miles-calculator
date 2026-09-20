@@ -25,7 +25,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260920_flying_blue_all" />
+  <link rel="manifest" href="manifest.json?v=20260920_giant_cost" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -240,7 +240,6 @@
 
             <div class="flex items-center justify-between pt-1">
               <label class="opacity-70">張數 / 人數</label>
-              <!-- 手機友善的 [-] [數值] [+] 按鈕組 -->
               <div class="flex items-center gap-1.5">
                 <button @click="tempCartQty = Math.max(1, tempCartQty - 1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-black flex items-center justify-center border border-slate-700 transition">-</button>
                 <input type="number" min="1" v-model.number="tempCartQty" :class="currentTheme.inputBg" class="w-12 h-8 border rounded-lg text-center font-bold text-xs">
@@ -250,7 +249,7 @@
             </div>
           </div>
 
-          <!-- 已加入購物車清單 (清單內的數量同樣支援手機點擊調整或移除) -->
+          <!-- 已加入購物車清單 -->
           <div v-if="cartItems.length > 0" class="space-y-2 pt-2 border-t" :class="currentTheme.borderClass">
             <div v-for="(item, cIdx) in cartItems" :key="cIdx" class="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs bg-slate-950/40 p-2.5 rounded-lg border border-slate-800 gap-2">
               <div>
@@ -269,14 +268,16 @@
           </div>
         </div>
 
-        <!-- 試算結果與總結算面板 -->
-        <div v-if="cartSummary.totalCost > 0" class="bg-gradient-to-r from-amber-500/20 to-cyan-500/20 border border-amber-500/40 rounded-xl p-3.5 space-y-2 text-sm">
-          <div class="flex justify-between items-center border-b border-amber-500/20 pb-2">
-            <span class="text-amber-500 font-black text-xs sm:text-sm">
-              ✨ 購物車總計 : 總成本 NT$ {{ cartSummary.totalCost.toLocaleString() }}
-            </span>
+        <!-- 試算結果與極大化總結算金額面板 -->
+        <div v-if="cartSummary.totalCost > 0" class="bg-gradient-to-r from-amber-500/20 to-cyan-500/20 border-2 border-amber-500/60 rounded-2xl p-4 space-y-2 text-sm shadow-lg">
+          <div class="flex flex-col items-center justify-center border-b border-amber-500/30 pb-3 text-center">
+            <span class="text-xs uppercase tracking-widest text-amber-400 font-bold mb-1">✨ 購物車最終總成本</span>
+            <!-- 🚀 關鍵放大：總金額字體極大化清晰呈現 -->
+            <div class="text-3xl sm:text-4xl font-black text-amber-300 tracking-tight">
+              NT$ {{ cartSummary.totalCost.toLocaleString() }}
+            </div>
           </div>
-          <div class="text-xs opacity-90 space-y-1">
+          <div class="flex justify-around text-xs opacity-90 pt-1">
             <div>所需總哩程：<span class="font-bold text-cyan-400">{{ cartSummary.totalMiles.toLocaleString() }} 哩</span></div>
             <div>預估總稅金：<span class="font-bold text-amber-400">US$ {{ cartSummary.totalTaxUsd.toFixed(2) }} (約 NT$ {{ Math.round(cartSummary.totalTaxUsd * rates.usd_twd).toLocaleString() }})</span></div>
           </div>
@@ -291,7 +292,7 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             <div>
-              <label class="block mb-1 opacity-85">目前手上有多少 AS 哩程？</label>
+              <label class="block mb-1 opacity-85">目前手上有多少計畫哩程（或點數）？</label>
               <input type="number" v-model.number="userAssets.asMiles" placeholder="例如: 10000" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold">
             </div>
             <div class="flex items-end">
@@ -310,7 +311,6 @@
               </span>
             </div>
 
-            <!-- 若有缺口，呈現萬豪與IHG補齊試算 -->
             <div v-if="mileageGap > 0" class="grid grid-cols-1 gap-2 pt-1">
               <!-- 方案 1：萬豪轉點補齊 -->
               <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-2.5 space-y-1">
@@ -373,7 +373,6 @@
 
           <div>
             <label class="text-[11px] opacity-70 font-bold block mb-1">3️⃣ 目的地機場</label>
-            <!-- 航點探索目的地選單採用國家群組化 <optgroup> -->
             <select v-model="selectedDestAirport" :class="currentTheme.inputBg" class="w-full border rounded-xl p-2 text-xs font-bold focus:outline-none">
               <option value="ALL">全部目的地</option>
               <optgroup v-for="group in airportGroups" :key="group.country" :label="group.label">
@@ -494,7 +493,6 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <!-- 方案展示 -->
               <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3 sm:col-span-2">
                 <div class="flex justify-between items-start">
                   <div>
@@ -620,13 +618,8 @@
           document.documentElement.style.setProperty('--page-text', theme.rootText);
         };
 
-        onMounted(() => {
-          updateRootCss(currentTheme.value);
-        });
-
-        watch(currentTheme, (newTheme) => {
-          updateRootCss(newTheme);
-        });
+        onMounted(() => { updateRootCss(currentTheme.value); });
+        watch(currentTheme, (newTheme) => { updateRootCss(newTheme); });
 
         const cycleTheme = () => {
           currentThemeIdx.value = (currentThemeIdx.value + 1) % themes.length;
@@ -644,15 +637,13 @@
           usd_twd: savedRates.usd_twd !== undefined ? savedRates.usd_twd : 31.8,
           jpy_twd: savedRates.jpy_twd !== undefined ? savedRates.jpy_twd : 0.21,
           aed_twd: savedRates.aed_twd !== undefined ? savedRates.aed_twd : 8.7,
-          cube_rate: savedRates.cube_rate !== undefined ? savedRates.cube_rate : 0.34, // 國泰小樹點換 Flying Blue (340點=1000哩，約0.34元/點)
-          ctbc_rate: savedRates.ctbc_rate !== undefined ? savedRates.ctbc_rate : 0.23, // 中信紅利點數價值
+          cube_rate: savedRates.cube_rate !== undefined ? savedRates.cube_rate : 0.34,
+          ctbc_rate: savedRates.ctbc_rate !== undefined ? savedRates.ctbc_rate : 0.23,
           as_buy_val: savedRates.as_buy_val !== undefined ? savedRates.as_buy_val : 0.60,
           marriott_val: savedRates.marriott_val !== undefined ? savedRates.marriott_val : 0.25
         });
 
-        const saveRates = () => {
-          localStorage.setItem('miles_rates', JSON.stringify(rates.value));
-        };
+        const saveRates = () => { localStorage.setItem('miles_rates', JSON.stringify(rates.value)); };
 
         const routesData = ref([]);
 
@@ -705,13 +696,7 @@
           { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, note: '✨ 澳門 ➔ 台北(TPE) (中停14天) ➔ 熊本' }
         ];
 
-        const flightSearch = ref({
-          tripType: 'oneWay',
-          outOrigin: '',
-          outDest: '',
-          inOrigin: '',
-          inDest: ''
-        });
+        const flightSearch = ref({ tripType: 'oneWay', outOrigin: '', outDest: '', inOrigin: '', inDest: '' });
 
         const combinedAllRoutes = computed(() => [...routesData.value, ...secretTricks]);
 
@@ -745,13 +730,19 @@
           return codes;
         });
 
-        // 計算 Flying Blue 哩程透過國泰 CUBE 點數或中信紅利的換算成本
         const calcFlyingBlueCost = (miles, taxUsd) => {
           if (!miles) return 0;
           const taxTwd = Number(taxUsd || 56) * rates.value.usd_twd;
-          // 國泰 CUBE 340點 = 1000哩
           const cubePointsNeeded = Math.ceil((Number(miles) / 1000) * 340);
           return Math.round(cubePointsNeeded * rates.value.cube_rate + taxTwd);
+        };
+
+        const calcAsCost = (miles, taxUsd, type) => {
+          if (!miles) return 0;
+          const taxTwd = Number(taxUsd || 44) * rates.value.usd_twd;
+          const m = Number(miles);
+          if (type === 'buy') return Math.round(m * rates.value.as_buy_val + taxTwd);
+          return 0;
         };
 
         const availableRouteOptions = computed(() => {
@@ -887,19 +878,6 @@
         const onCountryChange = () => { selectedAirport.value = 'ALL'; selectedDestAirport.value = 'ALL'; };
         const onExploreOriginChange = () => { selectedDestAirport.value = 'ALL'; };
 
-        const linkedAirports = computed(() => {
-          if (selectedCountry.value === 'ALL') return allAirports;
-          return allAirports.filter(apt => apt.country === selectedCountry.value);
-        });
-
-        const calcAsCost = (miles, taxUsd, type) => {
-          if (!miles) return 0;
-          const taxTwd = Number(taxUsd || 44) * rates.value.usd_twd;
-          const m = Number(miles);
-          if (type === 'buy') return Math.round(m * rates.value.as_buy_val + taxTwd);
-          return 0;
-        };
-
         const getExploreMiles = (item, cabin) => {
           if (cabin === 'biz') return item.biz_miles || 0;
           if (cabin === 'eco') return item.eco_miles || 0;
@@ -947,7 +925,8 @@
         return {
           loading, showSettings, showTricksBox, showGuideModal, activeTab, selectedAirline,
           themes, currentTheme, cycleTheme, selectedCountry, selectedAirport, selectedDestAirport,
-          selectedCabin, sortOrder, linkedAirports, onCountryChange, onExploreOriginChange,
+          selectedCabin, sortOrder, linkedAirports: computed(() => selectedCountry.value === 'ALL' ? allAirports : allAirports.filter(a => a.country === selectedCountry.value)),
+          onCountryChange, onExploreOriginChange,
           availableExploreDestAirports: computed(() => allAirports), rates, saveRates, routesData,
           filteredRoutes, allAirports, airportGroups, secretTricks, flightSearch,
           availableOutOriginCodes, availableOutDestCodes, availableInDestCodes,
