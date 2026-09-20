@@ -19,13 +19,13 @@
   </script>
   
   <title>常旅客哩程票兌換 | FongArea Points</title>
-  <meta name="description" content="輸入出發地與目的地，一鍵比較阿拉斯加買點、萬豪轉點、阿提哈德兌換等哩程方案的實際台幣成本，解鎖 1500哩內免費中停極限密技。" />
+  <meta name="description" content="輸入出發地與目的地，一鍵比較阿拉斯加買點、萬豪轉點、阿提哈德兌換等哩程方案的實際台幣成本，解鎖 1500哩內免費中停極限密技與哩程資產缺口規劃。" />
   <meta property="og:title" content="常旅客哩程票兌換 | FongArea Points" />
-  <meta property="og:description" content="商務艙、經濟艙哩程票怎麼換最便宜？新手實戰教學與多航點即時比價工具。" />
+  <meta property="og:description" content="商務艙、經濟艙哩程票怎麼換最便宜？新手實戰教學與多航點即時比價、哩程缺口拼圖工具。" />
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260919_tab_isolate" />
+  <link rel="manifest" href="manifest.json?v=20260920_asset_gap_grouped" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -49,7 +49,7 @@
 
   <div class="sr-only">
     <h1>常旅客哩程票兌換工具</h1>
-    <p>支援阿拉斯加航空 (AS) 1500哩內免費中停、阿提哈德航空 (EY) 哩程兌換、國泰 CUBE 卡小樹點、萬豪旅享家轉點成本即時比價。涵蓋台北、東京、大阪、福岡、沖繩、熊本、宮古島、澳門、香港、釜山、河內等熱門跨國航線。</p>
+    <p>支援阿拉斯加航空 (AS) 1500哩內免費中停、阿提哈德航空 (EY) 哩程兌換、國泰 CUBE 卡小樹點、萬豪旅享家轉點與 IHG 住房回饋拼圖試算。</p>
   </div>
 
   <div id="app" class="w-full max-w-xl space-y-4">
@@ -57,7 +57,7 @@
     <!-- 頂部導覽 -->
     <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 transition-colors duration-300">
       
-      <!-- 主標題與頂部功能按鈕 (攻略按鈕已改為「新手攻略」) -->
+      <!-- 主標題與頂部功能按鈕 -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-b pb-3" :class="currentTheme.borderClass">
         <h1 class="text-xl sm:text-2xl font-black tracking-tight leading-tight text-center sm:text-left" :class="currentTheme.titleClass">
           常旅客哩程票<span class="text-cyan-400">兌換</span>
@@ -129,7 +129,7 @@
         </div>
       </div>
 
-      <!-- 模式 A 畫面 (僅在 activeTab === 'calc' 時顯示) -->
+      <!-- 模式 A 畫面 (精確試算) -->
       <div v-if="activeTab === 'calc'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-amber-500 flex items-center justify-between pb-1 border-b" :class="currentTheme.borderClass">
           <span>✈️ 【航線與預算試算】</span>
@@ -163,7 +163,7 @@
           </div>
         </div>
 
-        <!-- 去程設定 -->
+        <!-- 去程設定 (採用國家群組化 <optgroup>) -->
         <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3 space-y-2 text-sm">
           <div class="flex justify-between items-center text-xs font-bold opacity-90">
             <span>✈️ 去程航段 (僅限跨國)</span>
@@ -179,14 +179,22 @@
               <label class="text-[11px] opacity-70 block mb-1">出發地</label>
               <select v-model="flightSearch.outOrigin" @change="onOutOriginChange" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2.5 font-bold text-sm focus:outline-none">
                 <option value="">選擇出發機場</option>
-                <option v-for="apt in availableOutOriginAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
+                <optgroup v-for="group in airportGroups" :key="group.country" :label="group.label">
+                  <option v-for="apt in group.airports" :key="apt.code" :value="apt.code" :disabled="!availableOutOriginCodes.has(apt.code)">
+                    {{ apt.name }} ({{ apt.code }})
+                  </option>
+                </optgroup>
               </select>
             </div>
             <div>
               <label class="text-[11px] opacity-70 block mb-1">目的地</label>
               <select v-model="flightSearch.outDest" @change="onOutPortChange" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2.5 font-bold text-sm focus:outline-none">
                 <option value="">選擇跨國抵達機場</option>
-                <option v-for="apt in availableOutDestAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
+                <optgroup v-for="group in airportGroups" :key="group.country" :label="group.label">
+                  <option v-for="apt in group.airports" :key="apt.code" :value="apt.code" :disabled="!availableOutDestCodes.has(apt.code)">
+                    {{ apt.name }} ({{ apt.code }})
+                  </option>
+                </optgroup>
               </select>
             </div>
           </div>
@@ -214,14 +222,22 @@
               <label class="text-[11px] opacity-70 block mb-1">出發地 (回程)</label>
               <select v-model="flightSearch.inOrigin" @change="onInOriginChange" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2.5 font-bold text-sm focus:outline-none">
                 <option value="">選擇出發機場</option>
-                <option v-for="apt in allAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
+                <optgroup v-for="group in airportGroups" :key="group.country" :label="group.label">
+                  <option v-for="apt in group.airports" :key="apt.code" :value="apt.code">
+                    {{ apt.name }} ({{ apt.code }})
+                  </option>
+                </optgroup>
               </select>
             </div>
             <div>
               <label class="text-[11px] opacity-70 block mb-1">目的地 (回程)</label>
               <select v-model="flightSearch.inDest" @change="onInPortChange" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2.5 font-bold text-sm focus:outline-none">
                 <option value="">選擇跨國抵達機場</option>
-                <option v-for="apt in availableInDestAirports" :value="apt.code">{{ apt.name }} ({{ apt.code }})</option>
+                <optgroup v-for="group in airportGroups" :key="group.country" :label="group.label">
+                  <option v-for="apt in group.airports" :key="apt.code" :value="apt.code" :disabled="!availableInDestCodes.has(apt.code)">
+                    {{ apt.name }} ({{ apt.code }})
+                  </option>
+                </optgroup>
               </select>
             </div>
           </div>
@@ -245,9 +261,66 @@
             <div v-if="flightSearch.tripType === 'round'">回程：{{ flightSummary.inLabel }}</div>
           </div>
         </div>
+
+        <!-- 🧮 互動式哩程資產拼圖與缺口補齊試算器 -->
+        <div v-if="flightSummary" class="bg-slate-950/70 border border-cyan-500/30 rounded-xl p-3.5 space-y-3 mt-3">
+          <div class="flex justify-between items-center border-b border-cyan-500/20 pb-2">
+            <span class="text-cyan-400 font-black text-xs">🧩 哩程資產拼圖與缺口補齊規劃</span>
+            <span class="text-[10px] opacity-70">支援 AS / 萬豪階梯轉點 / IHG 住房</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div>
+              <label class="block mb-1 opacity-85">目前手上有多少 AS 哩程？</label>
+              <input type="number" v-model.number="userAssets.asMiles" placeholder="例如: 5000" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold">
+            </div>
+            <div class="flex items-end">
+              <div class="w-full bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-2 text-center">
+                <span class="opacity-70 text-[10px] block">單人目標需求</span>
+                <span class="text-cyan-400 font-black text-sm">{{ flightSummary.singleTripMiles.toLocaleString() }} 哩</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 計算缺口與補齊方案 -->
+          <div v-if="userAssets.asMiles >= 0" class="space-y-2 pt-1">
+            <div class="flex justify-between items-center text-xs px-1">
+              <span class="font-bold" :class="mileageGap > 0 ? 'text-amber-400' : 'text-emerald-400'">
+                {{ mileageGap > 0 ? `🚨 尚缺哩程缺口：${mileageGap.toLocaleString()} 哩` : '🎉 哩程已完全達標！' }}
+              </span>
+            </div>
+
+            <!-- 若有缺口，呈現萬豪與IHG補齊試算 -->
+            <div v-if="mileageGap > 0" class="grid grid-cols-1 gap-2 pt-1">
+              <!-- 方案 1：萬豪轉點補齊 -->
+              <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-2.5 space-y-1">
+                <div class="flex justify-between items-center text-[11px] font-bold text-purple-400">
+                  <span>🟣 萬豪點數轉點補齊方案</span>
+                  <span>需消耗約 NT$ {{ marriottBridgeCost.toLocaleString() }}</span>
+                </div>
+                <div class="text-[10px] opacity-80">
+                  需轉入萬豪點數：<span class="font-bold text-white">{{ requiredMarriottForGap.toLocaleString() }} 點</span>
+                  <span v-if="requiredMarriottForGap < 60000" class="text-amber-400 block mt-0.5">💡 提醒：未達 60,000 點門檻（享 5k 額外獎勵），若湊滿 60k 轉點效益最佳！</span>
+                </div>
+              </div>
+
+              <!-- 方案 2：IHG 住房 Stay 補齊 -->
+              <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 space-y-1">
+                <div class="flex justify-between items-center text-[11px] font-bold text-amber-400">
+                  <span>🏨 IHG 住房累積補齊方案</span>
+                  <span>需完成 {{ requiredIhgStays }} 個 Stay</span>
+                </div>
+                <div class="text-[10px] opacity-80">
+                  將 IHG 累積偏好指定為阿拉斯加航空（每 Stay 回饋 500 哩），補足缺口約需入住 <span class="font-bold text-white">{{ requiredIhgStays }}</span> 晚/次。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- 模式 B 畫面 (僅在 activeTab === 'explore' 時顯示) -->
+      <!-- 模式 B 畫面 (航點探索) -->
       <div v-if="activeTab === 'explore'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-500 flex items-center justify-between">
           <span>🌏 【航點探索】</span>
@@ -264,6 +337,7 @@
               <option value="HK">香港</option>
               <option value="KR">南韓</option>
               <option value="VN">越南</option>
+              <option value="TH">泰國</option>
             </select>
           </div>
 
@@ -358,7 +432,7 @@
       </div>
     </div>
 
-    <!-- 下方區塊：動態決策比價卡 (僅在 activeTab === 'calc' 時顯示精確試算結果；若在 explore 則顯示航點探索結果) -->
+    <!-- 下方區塊：動態決策比價卡 (精確試算模式) -->
     <div class="space-y-3" v-if="activeTab === 'calc'">
       <div v-if="loading" class="text-center py-12 opacity-50 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -381,7 +455,7 @@
             <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
               <span>✨</span>
               <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
-                <option value="starlux" class="bg-slate-900 text-white">星宇航空</option>
+                <option value="starlux" class="bg-slate-900 text-white">星宇航空 / 夥伴航空</option>
                 <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">中華航空 (Coming Soon)</option>
                 <option value="eva_air" disabled class="bg-slate-900 text-slate-500">長榮航空 (Coming Soon)</option>
               </select>
@@ -417,7 +491,7 @@
           <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
             <span>✨</span>
             <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
-              <option value="starlux" class="bg-slate-900 text-white">星宇航空</option>
+              <option value="starlux" class="bg-slate-900 text-white">星宇航空 / 夥伴航空</option>
               <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">中華航空 (Coming Soon)</option>
               <option value="eva_air" disabled class="bg-slate-900 text-slate-500">長榮航空 (Coming Soon)</option>
             </select>
@@ -544,9 +618,13 @@
         const showSettings = ref(false);
         const showTricksBox = ref(false);
         const showGuideModal = ref(false);
-        const showGuidePanel = ref(false);
         const activeTab = ref('calc');
         const selectedAirline = ref('starlux');
+
+        // 使用者資產輸入（用於哩程缺口拼圖）
+        const userAssets = ref({
+          asMiles: 0
+        });
 
         // 🎨 4 種佈景主題設定
         const themes = [
@@ -683,7 +761,50 @@
           { code: 'MFM', name: '澳門', country: 'MO' },
           { code: 'HKG', name: '香港', country: 'HK' },
           { code: 'PUS', name: '釜山', country: 'KR' },
-          { code: 'HAN', name: '河內', country: 'VN' }
+          { code: 'HAN', name: '河內', country: 'VN' },
+          { code: 'CNX', name: '清邁', country: 'TH' },
+          { code: 'SGN', name: '胡志明', country: 'VN' },
+          { code: 'DAD', name: '峴港', country: 'VN' },
+          { code: 'BKK', name: '曼谷', country: 'TH' }
+        ];
+
+        // 國家群組化結構
+        const airportGroups = [
+          {
+            country: 'TW',
+            label: '🇹🇼 台灣 (Taiwan)',
+            airports: allAirports.filter(a => a.country === 'TW')
+          },
+          {
+            country: 'JP',
+            label: '🇯🇵 日本 (Japan)',
+            airports: allAirports.filter(a => a.country === 'JP')
+          },
+          {
+            country: 'TH',
+            label: '🇹🇭 泰國 (Thailand)',
+            airports: allAirports.filter(a => a.country === 'TH')
+          },
+          {
+            country: 'VN',
+            label: '🇻🇳 越南 (Vietnam)',
+            airports: allAirports.filter(a => a.country === 'VN')
+          },
+          {
+            country: 'HK',
+            label: '🇭🇰 香港 (Hong Kong)',
+            airports: allAirports.filter(a => a.country === 'HK')
+          },
+          {
+            country: 'MO',
+            label: '🇲🇴 澳門 (Macau)',
+            airports: allAirports.filter(a => a.country === 'MO')
+          },
+          {
+            country: 'KR',
+            label: '🇰🇷 南韓 (South Korea)',
+            airports: allAirports.filter(a => a.country === 'KR')
+          }
         ];
 
         const secretTricks = [
@@ -730,41 +851,44 @@
 
         const combinedAllRoutes = computed(() => [...routesData.value, ...secretTricks]);
 
-        const availableOutOriginAirports = computed(() => {
-          const validOrigins = new Set(combinedAllRoutes.value.map(r => r.origin));
-          return allAirports.filter(a => validOrigins.has(a.code));
+        const availableOutOriginCodes = computed(() => {
+          return new Set(combinedAllRoutes.value.map(r => r.origin));
         });
 
-        const availableOutDestAirports = computed(() => {
-          if (!flightSearch.value.outOrigin) return allAirports;
+        const availableOutDestCodes = computed(() => {
+          if (!flightSearch.value.outOrigin) return new Set(allAirports.map(a => a.code));
           const originApt = allAirports.find(a => a.code === flightSearch.value.outOrigin);
           const validDests = new Set(
             combinedAllRoutes.value
               .filter(r => r.origin === flightSearch.value.outOrigin)
               .map(r => r.dest)
           );
-          return allAirports.filter(a => {
-            if (!validDests.has(a.code)) return false;
-            if (a.code === flightSearch.value.outOrigin) return false;
-            if (originApt && a.country === originApt.country) return false;
-            return true;
+          let codes = new Set();
+          allAirports.forEach(a => {
+            if (!validDests.has(a.code)) return;
+            if (a.code === flightSearch.value.outOrigin) return;
+            if (originApt && a.country === originApt.country) return;
+            codes.add(a.code);
           });
+          return codes;
         });
 
-        const availableInDestAirports = computed(() => {
-          if (!flightSearch.value.inOrigin) return allAirports;
+        const availableInDestCodes = computed(() => {
+          if (!flightSearch.value.inOrigin) return new Set(allAirports.map(a => a.code));
           const originApt = allAirports.find(a => a.code === flightSearch.value.inOrigin);
           const validDests = new Set(
             combinedAllRoutes.value
               .filter(r => r.origin === flightSearch.value.inOrigin)
               .map(r => r.dest)
           );
-          return allAirports.filter(a => {
-            if (!validDests.has(a.code)) return false;
-            if (a.code === flightSearch.value.inOrigin) return false;
-            if (originApt && a.country === originApt.country) return false;
-            return true;
+          let codes = new Set();
+          allAirports.forEach(a => {
+            if (!validDests.has(a.code)) return;
+            if (a.code === flightSearch.value.inOrigin) return;
+            if (originApt && a.country === originApt.country) return;
+            codes.add(a.code);
           });
+          return codes;
         });
 
         const availableExploreDestAirports = computed(() => {
@@ -810,6 +934,7 @@
 
           if (flightSearch.value.tripType === 'oneWay') {
             return {
+              singleTripMiles: outOpt.miles,
               totalMiles: outOpt.miles * pax,
               totalCost: outOpt.cost * pax,
               totalTaxText: outOpt.taxText,
@@ -823,12 +948,42 @@
           if (!inOpt) return null;
 
           return {
+            singleTripMiles: outOpt.miles + inOpt.miles,
             totalMiles: (outOpt.miles + inOpt.miles) * pax,
             totalCost: (outOpt.cost + inOpt.cost) * pax,
             totalTaxText: `${outOpt.taxText} + ${inOpt.taxText}`,
             outLabel: outOpt.label,
             inLabel: inOpt.label
           };
+        });
+
+        // 🧮 哩程缺口計算邏輯 (含萬豪階梯轉點防呆)
+        const mileageGap = computed(() => {
+          if (!flightSummary.value) return 0;
+          const required = flightSummary.value.singleTripMiles * flightSearch.value.passengers;
+          const owned = Number(userAssets.value.asMiles || 0);
+          return Math.max(0, required - owned);
+        });
+
+        const requiredMarriottForGap = computed(() => {
+          const gap = mileageGap.value;
+          if (gap <= 0) return 0;
+          if (gap >= 25000) {
+            return Math.ceil(gap * 2.4);
+          } else {
+            return gap * 3;
+          }
+        });
+
+        const marriottBridgeCost = computed(() => {
+          const mPoints = requiredMarriottForGap.value;
+          return Math.round(mPoints * rates.value.marriott_val);
+        });
+
+        const requiredIhgStays = computed(() => {
+          const gap = mileageGap.value;
+          if (gap <= 0) return 0;
+          return Math.ceil(gap / 500);
         });
 
         const trackGA = (actionName) => {
@@ -1152,7 +1307,6 @@
           showSettings,
           showTricksBox,
           showGuideModal,
-          showGuidePanel,
           activeTab,
           selectedAirline,
           themes,
@@ -1172,18 +1326,24 @@
           routesData,
           filteredRoutes,
           allAirports,
+          airportGroups,
           secretTricks,
           flightSearch,
           filteredOutboundOptions,
           filteredInboundOptions,
           flightSummary,
+          availableOutOriginCodes,
+          availableOutDestCodes,
+          availableInDestCodes,
+          userAssets,
+          mileageGap,
+          requiredMarriottForGap,
+          marriottBridgeCost,
+          requiredIhgStays,
           onOutOriginChange,
           onOutPortChange,
           onInOriginChange,
           onInPortChange,
-          availableOutOriginAirports,
-          availableOutDestAirports,
-          availableInDestAirports,
           fetchData,
           calcAsCost,
           calcEyCost,
