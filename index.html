@@ -25,7 +25,7 @@
   <meta property="og:image" content="https://points.fongarea.com/icon.png" />
   <meta property="og:type" content="website" />
   
-  <link rel="manifest" href="manifest.json?v=20260920_asset_gap_grouped" />
+  <link rel="manifest" href="manifest.json?v=20260920_cart_mix" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -110,14 +110,14 @@
         </div>
       </div>
 
-      <!-- 左右並排的雙主軸切換按鈕 -->
+      <!-- 左右並排的雙主軸切換按鈕 (精確試算改為「旅程規劃試算」) -->
       <div class="grid grid-cols-2 gap-2.5">
         <div @click="activeTab = 'calc'" :class="activeTab === 'calc' ? 'border-cyan-500 bg-cyan-500/10 shadow-md shadow-cyan-500/10' : currentTheme.tabBorder" class="border rounded-2xl p-3.5 cursor-pointer transition flex flex-col justify-between">
           <div class="flex justify-between items-start mb-1">
-            <span class="text-xs font-black text-cyan-400">✈️ 精確試算</span>
+            <span class="text-xs font-black text-cyan-400">✈️ 旅程規劃試算</span>
             <span v-if="activeTab === 'calc'" class="text-[9px] bg-cyan-500 text-slate-950 px-2 py-0.5 rounded-full font-black">使用中</span>
           </div>
-          <div class="text-[11px] opacity-70 leading-tight">我的旅程要花多少？計算實際總成本</div>
+          <div class="text-[11px] opacity-70 leading-tight">自定人數與混搭艙等，計算實際總成本</div>
         </div>
 
         <div @click="activeTab = 'explore'" :class="activeTab === 'explore' ? 'border-purple-500 bg-purple-500/10' : currentTheme.tabBorder" class="border rounded-2xl p-3.5 cursor-pointer transition flex flex-col justify-between">
@@ -129,7 +129,7 @@
         </div>
       </div>
 
-      <!-- 模式 A 畫面 (精確試算) -->
+      <!-- 模式 A 畫面 (旅程規劃試算) -->
       <div v-if="activeTab === 'calc'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-amber-500 flex items-center justify-between pb-1 border-b" :class="currentTheme.borderClass">
           <span>✈️ 【航線與預算試算】</span>
@@ -146,33 +146,17 @@
           </div>
         </div>
         
-        <div class="grid grid-cols-2 gap-2 text-sm">
+        <div class="grid grid-cols-1 gap-2 text-sm">
           <select v-model="flightSearch.tripType" :class="currentTheme.inputBg" class="border rounded-xl px-3 py-2 font-bold focus:outline-none">
             <option value="oneWay">→ 單程 / 中停</option>
             <option value="round">⇄ 來回 / 混艙</option>
           </select>
-
-          <div :class="currentTheme.inputBg" class="border rounded-xl px-3 py-2 font-bold flex items-center justify-between">
-            <span>👤 人數:</span>
-            <select v-model.number="flightSearch.passengers" class="bg-transparent text-amber-500 font-black focus:outline-none">
-              <option :value="1">1 人</option>
-              <option :value="2">2 人</option>
-              <option :value="3">3 人</option>
-              <option :value="4">4 人</option>
-            </select>
-          </div>
         </div>
 
         <!-- 去程設定 (採用國家群組化 <optgroup>) -->
         <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3 space-y-2 text-sm">
-          <div class="flex justify-between items-center text-xs font-bold opacity-90">
+          <div class="text-xs font-bold opacity-90">
             <span>✈️ 去程航段 (僅限跨國)</span>
-            <select v-model="flightSearch.outCabin" @change="handleCabinChange('out')" :class="currentTheme.inputBg" class="border rounded-lg px-2 py-1 text-cyan-500 font-bold text-xs focus:outline-none">
-              <option value="ALL">全部艙等</option>
-              <option value="biz">👑 商務</option>
-              <option value="prem">⭐ 豪經</option>
-              <option value="eco">✈️ 經濟</option>
-            </select>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
@@ -198,24 +182,12 @@
               </select>
             </div>
           </div>
-          <select v-model="flightSearch.outboundKey" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2.5 font-bold text-sm focus:outline-none mt-1">
-            <option value="">-- 請選擇去程具體兌換方案 --</option>
-            <option v-for="opt in filteredOutboundOptions" :key="opt.id" :value="opt.id">
-              {{ opt.shortLabel }} - NT$ {{ opt.cost }}
-            </option>
-          </select>
         </div>
 
         <!-- 回程設定 -->
         <div v-if="flightSearch.tripType === 'round'" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3 space-y-2 text-sm">
-          <div class="flex justify-between items-center text-xs font-bold opacity-90">
+          <div class="text-xs font-bold opacity-90">
             <span>🔄 回程航段 (支援混艙)</span>
-            <select v-model="flightSearch.inCabin" @change="handleCabinChange('in')" :class="currentTheme.inputBg" class="border rounded-lg px-2 py-1 text-cyan-500 font-bold text-xs focus:outline-none">
-              <option value="ALL">全部艙等</option>
-              <option value="biz">👑 商務</option>
-              <option value="prem">⭐ 豪經</option>
-              <option value="eco">✈️ 經濟</option>
-            </select>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
@@ -241,43 +213,79 @@
               </select>
             </div>
           </div>
-          <select v-model="flightSearch.inboundKey" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2.5 font-bold text-sm focus:outline-none mt-1">
-            <option value="">-- 請選擇回程具體兌換方案 --</option>
-            <option v-for="opt in filteredInboundOptions" :key="opt.id" :value="opt.id">
-              {{ opt.shortLabel }} - NT$ {{ opt.cost }}
-            </option>
-          </select>
         </div>
 
-        <!-- 試算結果面板 -->
-        <div v-if="flightSummary" class="bg-gradient-to-r from-amber-500/20 to-cyan-500/20 border border-amber-500/40 rounded-xl p-3.5 space-y-2 text-sm">
+        <!-- 🛒 自由混搭購物車 (Cart Builder) -->
+        <div v-if="availableRouteOptions.length > 0" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3.5 space-y-3">
+          <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
+            <span class="text-xs font-black text-cyan-400">🛒 自由搭配購物車（可混搭人數與艙等）</span>
+            <button @click="cartItems = []" class="text-[10px] opacity-70 hover:underline">清空購物車</button>
+          </div>
+
+          <!-- 新增品項列 -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+            <div class="sm:col-span-2">
+              <label class="block mb-1 opacity-70">選擇兌換方案</label>
+              <select v-model="selectedCartOptionId" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold focus:outline-none">
+                <option value="">-- 請選擇航段與艙等方案 --</option>
+                <option v-for="opt in availableRouteOptions" :key="opt.id" :value="opt.id">
+                  {{ opt.shortLabel }} (NT$ {{ opt.cost }})
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="block mb-1 opacity-70">張數 / 人數</label>
+              <div class="flex gap-1">
+                <input type="number" min="1" v-model.number="tempCartQty" :class="currentTheme.inputBg" class="w-16 border rounded-lg p-2 text-center font-bold">
+                <button @click="addToCart" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-black rounded-lg py-2 transition">加入</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 已加入購物車清單 -->
+          <div v-if="cartItems.length > 0" class="space-y-2 pt-2 border-t" :class="currentTheme.borderClass">
+            <div v-for="(item, cIdx) in cartItems" :key="cIdx" class="flex justify-between items-center text-xs bg-slate-950/40 p-2 rounded-lg border border-slate-800">
+              <div>
+                <span class="font-bold text-amber-400">{{ item.name }}</span>
+                <span class="opacity-70 ml-2">x {{ item.qty }} 人</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="font-bold">NT$ {{ (item.cost * item.qty).toLocaleString() }}</span>
+                <button @click="cartItems.splice(cIdx, 1)" class="text-rose-400 hover:text-rose-300 font-bold">✕</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 試算結果與總結算面板 -->
+        <div v-if="cartSummary.totalCost > 0" class="bg-gradient-to-r from-amber-500/20 to-cyan-500/20 border border-amber-500/40 rounded-xl p-3.5 space-y-2 text-sm">
           <div class="flex justify-between items-center border-b border-amber-500/20 pb-2">
             <span class="text-amber-500 font-black text-xs sm:text-sm">
-              ✨ 總計 ({{ flightSearch.passengers }}人) : 總成本 NT$ {{ flightSummary.totalCost.toLocaleString() }}
+              ✨ 購物車總計 : 總成本 NT$ {{ cartSummary.totalCost.toLocaleString() }}
             </span>
           </div>
           <div class="text-xs opacity-90 space-y-1">
-            <div>去程：{{ flightSummary.outLabel }}</div>
-            <div v-if="flightSearch.tripType === 'round'">回程：{{ flightSummary.inLabel }}</div>
+            <div>所需總哩程：<span class="font-bold text-cyan-400">{{ cartSummary.totalMiles.toLocaleString() }} 哩</span></div>
+            <div>預估總稅金：<span class="font-bold text-amber-400">US$ {{ cartSummary.totalTaxUsd.toFixed(2) }} (約 NT$ {{ Math.round(cartSummary.totalTaxUsd * rates.usd_twd).toLocaleString() }})</span></div>
           </div>
         </div>
 
-        <!-- 🧮 互動式哩程資產拼圖與缺口補齊試算器 -->
-        <div v-if="flightSummary" class="bg-slate-950/70 border border-cyan-500/30 rounded-xl p-3.5 space-y-3 mt-3">
+        <!-- 🧮 互動式哩程資產拼圖與缺口補齊規劃 (全團總需求) -->
+        <div v-if="cartSummary.totalMiles > 0" class="bg-slate-950/70 border border-cyan-500/30 rounded-xl p-3.5 space-y-3 mt-3">
           <div class="flex justify-between items-center border-b border-cyan-500/20 pb-2">
             <span class="text-cyan-400 font-black text-xs">🧩 哩程資產拼圖與缺口補齊規劃</span>
-            <span class="text-[10px] opacity-70">支援 AS / 萬豪階梯轉點 / IHG 住房</span>
+            <span class="text-[10px] opacity-70">全團總需求試算</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             <div>
               <label class="block mb-1 opacity-85">目前手上有多少 AS 哩程？</label>
-              <input type="number" v-model.number="userAssets.asMiles" placeholder="例如: 5000" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold">
+              <input type="number" v-model.number="userAssets.asMiles" placeholder="例如: 10000" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold">
             </div>
             <div class="flex items-end">
               <div class="w-full bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-2 text-center">
-                <span class="opacity-70 text-[10px] block">單人目標需求</span>
-                <span class="text-cyan-400 font-black text-sm">{{ flightSummary.singleTripMiles.toLocaleString() }} 哩</span>
+                <span class="opacity-70 text-[10px] block">全團總哩程需求</span>
+                <span class="text-cyan-400 font-black text-sm">{{ cartSummary.totalMiles.toLocaleString() }} 哩</span>
               </div>
             </div>
           </div>
@@ -286,7 +294,7 @@
           <div v-if="userAssets.asMiles >= 0" class="space-y-2 pt-1">
             <div class="flex justify-between items-center text-xs px-1">
               <span class="font-bold" :class="mileageGap > 0 ? 'text-amber-400' : 'text-emerald-400'">
-                {{ mileageGap > 0 ? `🚨 尚缺哩程缺口：${mileageGap.toLocaleString()} 哩` : '🎉 哩程已完全達標！' }}
+                {{ mileageGap > 0 ? `🚨 尚缺全團哩程缺口：${mileageGap.toLocaleString()} 哩` : '🎉 全團哩程已完全達標！' }}
               </span>
             </div>
 
@@ -353,11 +361,14 @@
 
           <div>
             <label class="text-[11px] opacity-70 font-bold block mb-1">3️⃣ 目的地機場</label>
+            <!-- 🚀 修正：航點探索的目的地選單也採用國家群組化 <optgroup> -->
             <select v-model="selectedDestAirport" :class="currentTheme.inputBg" class="w-full border rounded-xl p-2 text-xs font-bold focus:outline-none">
               <option value="ALL">全部目的地</option>
-              <option v-for="apt in availableExploreDestAirports" :key="apt.code" :value="apt.code">
-                {{ apt.name }} ({{ apt.code }})
-              </option>
+              <optgroup v-for="group in airportGroups" :key="group.country" :label="group.label">
+                <option v-for="apt in group.airports" :key="apt.code" :value="apt.code">
+                  {{ apt.name }} ({{ apt.code }})
+                </option>
+              </optgroup>
             </select>
           </div>
 
@@ -427,39 +438,6 @@
             <a href="https://www.alaskaair.com/planbook/shoppingstart?A=1&D=kix&DD=2024%E5%B9%B4-11%E6%9C%88-19%E6%97%A5&DT=Anytime&FRM=avail&O=tpe&OD=2024%E5%B9%B4-11%E6%9C%88-15%E6%97%A5&OT=Anytime&RT=true&RequestType=Calendar&SITE_PREF=full&ShoppingMethod=onlineaward&UPG=none&beta=true&int=flightresultsmicrosite%3Aviewby-calendar" target="_blank" @click="trackGA('click_as_search')" :class="currentTheme.linkBtn" class="text-center text-cyan-500 font-bold p-2 rounded-lg transition">
               3️⃣ 前往官網兌換機票 ↗
             </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 下方區塊：動態決策比價卡 (精確試算模式) -->
-    <div class="space-y-3" v-if="activeTab === 'calc'">
-      <div v-if="loading" class="text-center py-12 opacity-50 text-sm">
-        正在自 Google Sheet 載入最新數據...
-      </div>
-      
-      <div v-else-if="!flightSummary" class="text-center py-12 opacity-50 text-sm">
-        請在上方「精確試算」選擇出發地與目的地以查看比價方案
-      </div>
-
-      <div v-else class="space-y-3">
-        <!-- 顯示精確試算結果卡片 -->
-        <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-3xl p-4 sm:p-5 shadow-xl space-y-4 transition-colors duration-300">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 gap-3" :class="currentTheme.borderClass">
-            <div>
-              <div class="text-base sm:text-lg font-black">
-                {{ flightSummary.outLabel }}
-              </div>
-            </div>
-            <!-- 航司選擇器 -->
-            <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
-              <span>✨</span>
-              <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
-                <option value="starlux" class="bg-slate-900 text-white">星宇航空 / 夥伴航空</option>
-                <option value="china_airlines" disabled class="bg-slate-900 text-slate-500">中華航空 (Coming Soon)</option>
-                <option value="eva_air" disabled class="bg-slate-900 text-slate-500">長榮航空 (Coming Soon)</option>
-              </select>
-            </div>
           </div>
         </div>
       </div>
@@ -626,6 +604,11 @@
           asMiles: 0
         });
 
+        // 🛒 自由混搭購物車資料
+        const cartItems = ref([]);
+        const selectedCartOptionId = ref('');
+        const tempCartQty = ref(1);
+
         // 🎨 4 種佈景主題設定
         const themes = [
           {
@@ -770,41 +753,13 @@
 
         // 國家群組化結構
         const airportGroups = [
-          {
-            country: 'TW',
-            label: '🇹🇼 台灣 (Taiwan)',
-            airports: allAirports.filter(a => a.country === 'TW')
-          },
-          {
-            country: 'JP',
-            label: '🇯🇵 日本 (Japan)',
-            airports: allAirports.filter(a => a.country === 'JP')
-          },
-          {
-            country: 'TH',
-            label: '🇹🇭 泰國 (Thailand)',
-            airports: allAirports.filter(a => a.country === 'TH')
-          },
-          {
-            country: 'VN',
-            label: '🇻🇳 越南 (Vietnam)',
-            airports: allAirports.filter(a => a.country === 'VN')
-          },
-          {
-            country: 'HK',
-            label: '🇭🇰 香港 (Hong Kong)',
-            airports: allAirports.filter(a => a.country === 'HK')
-          },
-          {
-            country: 'MO',
-            label: '🇲🇴 澳門 (Macau)',
-            airports: allAirports.filter(a => a.country === 'MO')
-          },
-          {
-            country: 'KR',
-            label: '🇰🇷 南韓 (South Korea)',
-            airports: allAirports.filter(a => a.country === 'KR')
-          }
+          { country: 'TW', label: '🇹🇼 台灣 (Taiwan)', airports: allAirports.filter(a => a.country === 'TW') },
+          { country: 'JP', label: '🇯🇵 日本 (Japan)', airports: allAirports.filter(a => a.country === 'JP') },
+          { country: 'TH', label: '🇹🇭 泰國 (Thailand)', airports: allAirports.filter(a => a.country === 'TH') },
+          { country: 'VN', label: '🇻🇳 越南 (Vietnam)', airports: allAirports.filter(a => a.country === 'VN') },
+          { country: 'HK', label: '🇭🇰 香港 (Hong Kong)', airports: allAirports.filter(a => a.country === 'HK') },
+          { country: 'MO', label: '🇲🇴 澳門 (Macau)', airports: allAirports.filter(a => a.country === 'MO') },
+          { country: 'KR', label: '🇰🇷 南韓 (South Korea)', airports: allAirports.filter(a => a.country === 'KR') }
         ];
 
         const secretTricks = [
@@ -838,15 +793,10 @@
 
         const flightSearch = ref({
           tripType: 'oneWay',
-          passengers: 1,
-          outCabin: 'ALL',
-          inCabin: 'ALL',
           outOrigin: '',
           outDest: '',
           inOrigin: '',
-          inDest: '',
-          outboundKey: '',
-          inboundKey: ''
+          inDest: ''
         });
 
         const combinedAllRoutes = computed(() => [...routesData.value, ...secretTricks]);
@@ -901,66 +851,149 @@
           });
         });
 
-        const handleCabinChange = (type) => {
-          if (type === 'out') {
-            const currentOpt = allOptions.value.find(o => o.id === flightSearch.value.outboundKey);
-            if (currentOpt) {
-              const match = filteredOutboundOptions.value.find(
-                o => o.origin === currentOpt.origin && o.dest === currentOpt.dest
-              );
-              flightSearch.value.outboundKey = match ? match.id : (filteredOutboundOptions.value[0]?.id || '');
-            } else {
-              flightSearch.value.outboundKey = filteredOutboundOptions.value[0]?.id || '';
+        // 產生目前航線所有可供混搭加入購物車的選項
+        const availableRouteOptions = computed(() => {
+          let list = [];
+          if (!flightSearch.value.outOrigin || !flightSearch.value.outDest) return list;
+
+          // 找去程
+          const outMatches = combinedAllRoutes.value.filter(
+            r => r.origin === flightSearch.value.outOrigin && r.dest === flightSearch.value.outDest
+          );
+          outMatches.forEach(item => {
+            const cleanOriginName = item.origin_name || allAirports.find(a => a.code === item.origin)?.name || item.origin;
+            const cleanDestName = item.dest_name || allAirports.find(a => a.code === item.dest)?.name || item.dest;
+            const isStopover = item.airline && item.airline.includes('中停');
+            const labelPrefix = isStopover ? `${cleanOriginName}➔台北(中停)➔${cleanDestName}` : `${cleanOriginName}➔${cleanDestName}`;
+
+            if (item.eco_miles) {
+              const cost = calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy');
+              list.push({
+                id: `${item.origin}-${item.dest}_eco_as`,
+                name: `${labelPrefix} 經濟艙 [AS]`,
+                shortLabel: `${item.origin}➔${item.dest} 經濟`,
+                miles: Number(item.eco_miles),
+                taxUsd: Number(item.eco_tax_usd || 44),
+                cost: cost
+              });
             }
-          } else {
-            const currentOpt = allOptions.value.find(o => o.id === flightSearch.value.inboundKey);
-            if (currentOpt) {
-              const match = filteredInboundOptions.value.find(
-                o => o.origin === currentOpt.origin && o.dest === currentOpt.dest
-              );
-              flightSearch.value.inboundKey = match ? match.id : (filteredInboundOptions.value[0]?.id || '');
-            } else {
-              flightSearch.value.inboundKey = filteredInboundOptions.value[0]?.id || '';
+            if (item.biz_miles) {
+              const cost = calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy');
+              list.push({
+                id: `${item.origin}-${item.dest}_biz_as`,
+                name: `${labelPrefix} 商務艙 [AS]`,
+                shortLabel: `${item.origin}➔${item.dest} 商務`,
+                miles: Number(item.biz_miles),
+                taxUsd: Number(item.biz_tax_usd || 44),
+                cost: cost
+              });
             }
+            if (item.ey_eco_miles) {
+              const cost = calcEyCost(item.ey_eco_miles, item.ey_eco_tax_val, item.ey_eco_tax_curr);
+              list.push({
+                id: `${item.origin}-${item.dest}_eco_ey`,
+                name: `${labelPrefix} 經濟艙 [EY]`,
+                shortLabel: `${item.origin}➔${item.dest} 經濟[EY]`,
+                miles: Number(item.ey_eco_miles),
+                taxUsd: Number(item.ey_eco_tax_val || 0) / rates.value.usd_twd,
+                cost: cost
+              });
+            }
+            if (item.ey_biz_miles) {
+              const cost = calcEyCost(item.ey_biz_miles, item.ey_biz_tax_val, item.ey_biz_tax_curr);
+              list.push({
+                id: `${item.origin}-${item.dest}_biz_ey`,
+                name: `${labelPrefix} 商務艙 [EY]`,
+                shortLabel: `${item.origin}➔${item.dest} 商務[EY]`,
+                miles: Number(item.ey_biz_miles),
+                taxUsd: Number(item.ey_biz_tax_val || 0) / rates.value.usd_twd,
+                cost: cost
+              });
+            }
+          });
+
+          // 若為來回，加計回程
+          if (flightSearch.value.tripType === 'round' && flightSearch.value.inOrigin && flightSearch.value.inDest) {
+            const inMatches = combinedAllRoutes.value.filter(
+              r => r.origin === flightSearch.value.inOrigin && r.dest === flightSearch.value.inDest
+            );
+            inMatches.forEach(item => {
+              const cleanOriginName = item.origin_name || allAirports.find(a => a.code === item.origin)?.name || item.origin;
+              const cleanDestName = item.dest_name || allAirports.find(a => a.code === item.dest)?.name || item.dest;
+              if (item.eco_miles) {
+                const cost = calcAsCost(item.eco_miles, item.eco_tax_usd || 44, 'buy');
+                list.push({
+                  id: `in_${item.origin}-${item.dest}_eco_as`,
+                  name: `(回程) ${cleanOriginName}➔${cleanDestName} 經濟 [AS]`,
+                  shortLabel: `(回) ${item.origin}➔${item.dest} 經濟`,
+                  miles: Number(item.eco_miles),
+                  taxUsd: Number(item.eco_tax_usd || 44),
+                  cost: cost
+                });
+              }
+              if (item.biz_miles) {
+                const cost = calcAsCost(item.biz_miles, item.biz_tax_usd || 44, 'buy');
+                list.push({
+                  id: `in_${item.origin}-${item.dest}_biz_as`,
+                  name: `(回程) ${cleanOriginName}➔${cleanDestName} 商務 [AS]`,
+                  shortLabel: `(回) ${item.origin}➔${item.dest} 商務`,
+                  miles: Number(item.biz_miles),
+                  taxUsd: Number(item.biz_tax_usd || 44),
+                  cost: cost
+                });
+              }
+            });
           }
+
+          return list;
+        });
+
+        // 加入購物車動作
+        const addToCart = () => {
+          if (!selectedCartOptionId.value) return;
+          const opt = availableRouteOptions.value.find(o => o.id === selectedCartOptionId.value);
+          if (!opt) return;
+          const qty = Number(tempCartQty.value || 1);
+
+          const existing = cartItems.value.find(i => i.id === opt.id);
+          if (existing) {
+            existing.qty += qty;
+          } else {
+            cartItems.value.push({
+              id: opt.id,
+              name: opt.name,
+              miles: opt.miles,
+              taxUsd: opt.taxUsd,
+              cost: opt.cost,
+              qty: qty
+            });
+          }
+          selectedCartOptionId.value = '';
+          tempCartQty.value = 1;
         };
 
-        const flightSummary = computed(() => {
-          if (!flightSearch.value.outboundKey) return null;
-          const outOpt = allOptions.value.find(o => o.id === flightSearch.value.outboundKey);
-          if (!outOpt) return null;
+        // 購物車總結算
+        const cartSummary = computed(() => {
+          let totalCost = 0;
+          let totalMiles = 0;
+          let totalTaxUsd = 0;
 
-          const pax = flightSearch.value.passengers;
-
-          if (flightSearch.value.tripType === 'oneWay') {
-            return {
-              singleTripMiles: outOpt.miles,
-              totalMiles: outOpt.miles * pax,
-              totalCost: outOpt.cost * pax,
-              totalTaxText: outOpt.taxText,
-              outLabel: outOpt.label,
-              inLabel: ''
-            };
-          }
-
-          if (!flightSearch.value.inboundKey) return null;
-          const inOpt = allOptions.value.find(o => o.id === flightSearch.value.inboundKey);
-          if (!inOpt) return null;
+          cartItems.value.forEach(item => {
+            totalCost += item.cost * item.qty;
+            totalMiles += item.miles * item.qty;
+            totalTaxUsd += item.taxUsd * item.qty;
+          });
 
           return {
-            singleTripMiles: outOpt.miles + inOpt.miles,
-            totalMiles: (outOpt.miles + inOpt.miles) * pax,
-            totalCost: (outOpt.cost + inOpt.cost) * pax,
-            totalTaxText: `${outOpt.taxText} + ${inOpt.taxText}`,
-            outLabel: outOpt.label,
-            inLabel: inOpt.label
+            totalCost,
+            totalMiles,
+            totalTaxUsd
           };
         });
 
-        // 🧮 哩程缺口計算邏輯 (含萬豪階梯轉點防呆)
+        // 🧮 哩程缺口計算邏輯 (全團總需求)
         const mileageGap = computed(() => {
-          if (!flightSummary.value) return 0;
-          const required = flightSummary.value.singleTripMiles * flightSearch.value.passengers;
+          const required = cartSummary.value.totalMiles;
           const owned = Number(userAssets.value.asMiles || 0);
           return Math.max(0, required - owned);
         });
@@ -997,31 +1030,25 @@
           flightSearch.value.tripType = 'oneWay';
           flightSearch.value.outOrigin = origin;
           flightSearch.value.outDest = dest;
-          
-          const match = filteredOutboundOptions.value.find(
-            o => o.origin === origin && o.dest === dest
-          );
-          flightSearch.value.outboundKey = match ? match.id : (filteredOutboundOptions.value[0]?.id || '');
+          cartItems.value = [];
         };
 
         const onOutOriginChange = () => {
           flightSearch.value.outDest = '';
-          flightSearch.value.outboundKey = '';
+          cartItems.value = [];
         };
 
         const onOutPortChange = () => {
-          const match = filteredOutboundOptions.value[0];
-          flightSearch.value.outboundKey = match ? match.id : '';
+          cartItems.value = [];
         };
 
         const onInOriginChange = () => {
           flightSearch.value.inDest = '';
-          flightSearch.value.inboundKey = '';
+          cartItems.value = [];
         };
 
         const onInPortChange = () => {
-          const match = filteredInboundOptions.value[0];
-          flightSearch.value.inboundKey = match ? match.id : '';
+          cartItems.value = [];
         };
 
         const fetchData = async () => {
@@ -1194,24 +1221,6 @@
           return list;
         });
 
-        const filteredOutboundOptions = computed(() => {
-          return allOptions.value.filter(o => {
-            const matchO = !flightSearch.value.outOrigin || o.origin === flightSearch.value.outOrigin;
-            const matchD = !flightSearch.value.outDest || o.dest === flightSearch.value.outDest;
-            const matchC = flightSearch.value.outCabin === 'ALL' || o.cabin === flightSearch.value.outCabin;
-            return matchO && matchD && matchC;
-          });
-        });
-
-        const filteredInboundOptions = computed(() => {
-          return allOptions.value.filter(o => {
-            const matchO = !flightSearch.value.inOrigin || o.origin === flightSearch.value.inOrigin;
-            const matchD = !flightSearch.value.inDest || o.dest === flightSearch.value.inDest;
-            const matchC = flightSearch.value.inCabin === 'ALL' || o.cabin === flightSearch.value.inCabin;
-            return matchO && matchD && matchC;
-          });
-        });
-
         const getCabinMiles = (item, cabin, type) => {
           if (cabin === 'biz') return type === 'as' ? item.biz_miles : item.ey_biz_miles;
           if (cabin === 'prem') return type === 'as' ? item.prem_miles : null;
@@ -1329,9 +1338,6 @@
           airportGroups,
           secretTricks,
           flightSearch,
-          filteredOutboundOptions,
-          filteredInboundOptions,
-          flightSummary,
           availableOutOriginCodes,
           availableOutDestCodes,
           availableInDestCodes,
@@ -1340,6 +1346,12 @@
           requiredMarriottForGap,
           marriottBridgeCost,
           requiredIhgStays,
+          cartItems,
+          selectedCartOptionId,
+          tempCartQty,
+          availableRouteOptions,
+          addToCart,
+          cartSummary,
           onOutOriginChange,
           onOutPortChange,
           onInOriginChange,
@@ -1355,8 +1367,7 @@
           isLowestCost,
           shouldShowCabinCard,
           applyTrick,
-          trackGA,
-          handleCabinChange
+          trackGA
         };
       }
     }).mount('#app');
