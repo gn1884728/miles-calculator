@@ -21,8 +21,8 @@
   <title>常旅客哩程票兌換 | FongArea Points</title>
   <meta name="description" content="多計畫哩程決策聚合引擎，全面比價中信紅利、國泰CUBE、萬豪轉點與各大航空哩程實際成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 11:55 Sheet 遠端航點讀取修復版 -->
-  <link rel="manifest" href="manifest.json?v=20260921_1155_fix_sheet" />
+  <!-- 版本時間戳記：2026-09-21 12:15  Sheet航線與26條中停全家桶完美合併版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1215_ultimate_merged" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -379,11 +379,7 @@
 
     <!-- 航點探索模式下的結果卡片顯示 -->
     <div class="space-y-3" v-if="activeTab === 'explore'">
-      <div v-if="loading" class="text-center py-12 opacity-50 text-sm">
-        正在自 Google Sheet 載入最新數據...
-      </div>
-      
-      <div v-else-if="filteredRoutes.length === 0" class="text-center py-12 opacity-50 text-sm">
+      <div v-if="filteredRoutes.length === 0" class="text-center py-12 opacity-50 text-sm">
         查無符合條件之跨國航點，請調整出發地或艙等
       </div>
 
@@ -475,7 +471,7 @@
       setup() {
         const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnS-WCQ61QK_bymC5mU5_sd6BQrG6hJ72FC4gKO4V5EJKL9tcXcwwhqpyzMKuAWgFU3tZwX4i-bfNPJSuOMBxUt9RAwLGmDBx5WgZEoTbqrSb0aElsU0LVqxzMfZAqivsOzqj9gvWgeC-mFAeDlwb2zLY5Zrdgyms8PKYJ6BDRHlgLs89KQYhrHS1GneZRB357mK5WMEXBn1znOo6sytQ1XzJBIiWL-YQw9cWWdc6xKff7Rx4uA-YbuyUdjk030A_HK275mAE9ef8CMG3JRHoldZ5Lc4qg&lib=MZ5t1y4WJ56YzB-kB-h7mgTBw1kt7JJkM";
 
-        const loading = ref(true);
+        const loading = ref(false);
         const showSettings = ref(false);
         const showTricksBox = ref(false);
         const showGuideModal = ref(false);
@@ -646,7 +642,7 @@
           { origin: 'TPE', dest: 'OKA', origin_name: '台北桃園', dest_name: '沖繩', programTag: 'Etihad Guest', airline: 'EY 兌換星宇', eco_miles: 6000, eco_tax_usd: 44, note: '✨ 阿提哈德神級甜蜜點' }
         ];
 
-        // 💡 最新精準更新之 7,500 哩中停航線全家桶（已移除峴港，加入最新香港出發成田/大阪/釜山，直飛台中名古屋保留於 Google Sheet/主資料庫中）
+        // 💡 完整 24 條 7,500 哩中停航線全家桶（已移除峴港，加入澳門-沖繩、成田/大阪/神戶/名古屋/釜山/香港延伸線）
         const secretTricks = [
           { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, programTag: 'AS', note: '✨ 熊本 ➔ 台北(TPE) (中停) ➔ 澳門' },
           { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 熊本' },
