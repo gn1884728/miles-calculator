@@ -21,8 +21,8 @@
   <title>常旅客哩程票兌換 | FongArea Points</title>
   <meta name="description" content="多計畫哩程決策聚合引擎，全面比價中信紅利、國泰CUBE、萬豪轉點與各大航空哩程實際成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 12:45 阿提哈德稅金精準修正版 -->
-  <link rel="manifest" href="manifest.json?v=20260921_1245_fix_ey_tax" />
+  <!-- 版本時間戳記：2026-09-21 13:05 語法錯誤修復版 (修復括號 SyntaxError) -->
+  <link rel="manifest" href="manifest.json?v=20260921_1305_syntax_fixed" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -45,7 +45,7 @@
 
   <div class="sr-only">
     <h1>常旅客哩程票兌換工具</h1>
-    <p>支援阿提哈德 (EY) 換星宇與雙軌成本對比試算。</p>
+    <p>支援阿拉斯加航空 (AS) 1500哩內免費中停精選航線與雙軌成本對比試算。</p>
   </div>
 
   <div id="app" class="w-full max-w-xl space-y-4">
@@ -193,7 +193,7 @@
               <select v-model="selectedCartOptionId" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold focus:outline-none">
                 <option value="">-- 請選擇航段與方案 --</option>
                 <option v-for="opt in availableRouteOptions" :key="opt.id" :value="opt.id">
-                  [{{ opt.programTag ]] {{ opt.name }} ➔ 來源：{{ opt.sourceDesc }} (NT$ {{ opt.cost }})
+                  [{{ opt.programTag }}] {{ opt.name }} ➔ 來源：{{ opt.sourceDesc }} (NT$ {{ opt.cost }})
                 </option>
               </select>
             </div>
@@ -718,10 +718,9 @@
           return Math.round(cubePointsNeeded * rates.value.cube_rate + taxTwd);
         };
 
-        // 💡 修正阿提哈德（EY）換星宇的專屬計算：強制稅金鎖定在 750 台幣
         const calcEtihadCost = (miles, taxUsd) => {
           if (!miles) return 0;
-          const taxTwd = 750; // 強制鎖定為 750 元台幣
+          const taxTwd = 750; // 強制鎖定真實稅金 750 台幣
           return Math.round(Number(miles) * rates.value.etihad_val + taxTwd);
         };
 
@@ -930,7 +929,7 @@
           const tax = cabin === 'biz' ? (item.biz_tax_usd || 56) : (item.eco_tax_usd || 56);
           const tag = item.programTag || '';
           if (tag === 'Etihad Guest') {
-            return calcEtihadCost(miles, tax); // 阿提哈德單一專屬通道
+            return calcEtihadCost(miles, tax);
           }
           if (type === 'ctbc') return calcFlyingBlueCtbcCost(miles, tax);
           if (type === 'cube') return calcFlyingBlueCubeCost(miles, tax);
@@ -955,7 +954,6 @@
 
         const filteredRoutes = computed(() => {
           let list = combinedAllRoutes.value.filter(item => {
-            // 💡 修正：支援「選擇全部國家」或「精準對應出發機場/到達機場代碼」的篩選邏輯
             if (selectedCountry.value !== 'ALL') {
               const matchedOrigin = allAirports.find(a => a.code === item.origin);
               if (!matchedOrigin || matchedOrigin.country !== selectedCountry.value) return false;
