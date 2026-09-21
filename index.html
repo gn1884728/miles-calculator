@@ -19,10 +19,10 @@
   </script>
   
   <title>常旅客哩程票兌換 | FongArea Points</title>
-  <meta name="description" content="多計畫哩程決策聚合引擎，全面比價阿提哈德與阿拉斯加最佳化兌換成本。" />
+  <meta name="description" content="多計畫哩程決策聚合引擎，全面比價中信紅利、國泰CUBE、萬豪與阿拉斯加最佳化成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 15:45 語法絕對修正版 -->
-  <link rel="manifest" href="manifest.json?v=20260921_1545_syntax_fixed" />
+  <!-- 版本時間戳記：2026-09-21 16:00 中信5400轉3000與方案明確標註版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1600_final" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -45,7 +45,7 @@
 
   <div class="sr-only">
     <h1>常旅客哩程票兌換工具</h1>
-    <p>支援阿提哈德與阿拉斯加黃金通道成本對比試算。</p>
+    <p>支援中信紅利、國泰CUBE、萬豪與阿拉斯加黃金通道成本對比試算。</p>
   </div>
 
   <div id="app" class="w-full max-w-xl space-y-4">
@@ -75,7 +75,7 @@
       <!-- 設定抽屜 -->
       <div v-if="showSettings" :class="[currentTheme.drawerBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 text-sm">
         <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
-          <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數 (2026-09-21 15:45)</span>
+          <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數 (2026-09-21 16:00)</span>
           <span class="text-[10px] opacity-70">💡 自動儲存於瀏覽器</span>
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -105,7 +105,7 @@
             <span class="text-xs font-black text-cyan-400">✈️ 旅程規劃試算</span>
             <span v-if="activeTab === 'calc'" class="text-[9px] bg-cyan-500 text-slate-950 px-2 py-0.5 rounded-full font-black">使用中</span>
           </div>
-          <div class="text-[11px] opacity-70 leading-tight">自定人數與最佳化通道比價，精算總成本</div>
+          <div class="text-[11px] opacity-70 leading-tight">自定人數與黃金通道比價，精算總成本</div>
         </div>
 
         <div @click="activeTab = 'explore'" :class="activeTab === 'explore' ? 'border-purple-500 bg-purple-500/10' : currentTheme.tabBorder" class="border rounded-2xl p-3.5 cursor-pointer transition flex flex-col justify-between">
@@ -175,17 +175,17 @@
         <!-- 🛒 自由混搭購物車 -->
         <div v-if="availableRouteOptions.length > 0" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3.5 space-y-3">
           <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
-            <span class="text-xs font-black text-cyan-400">🛒 自由搭配購物車（支援黃金通道方案選擇）</span>
+            <span class="text-xs font-black text-cyan-400">🛒 自由搭配購物車（方案清楚標註）</span>
             <button @click="cartItems = []" class="text-[10px] opacity-70 hover:underline">清空購物車</button>
           </div>
 
           <div class="space-y-2 text-xs">
             <div>
-              <label class="block mb-1 opacity-70">選擇兌換方案 (含最佳化取得來源說明)</label>
+              <label class="block mb-1 opacity-70">選擇兌換方案 (含詳細取得來源與計價方式)</label>
               <select v-model="selectedCartOptionId" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold focus:outline-none">
                 <option value="">-- 請選擇航段與方案 --</option>
                 <option v-for="opt in availableRouteOptions" :key="opt.id" :value="opt.id">
-                  [{{ opt.programTag }}] {{ opt.name }} ➔ 來源：{{ opt.sourceDesc }} (NT$ {{ opt.cost }})
+                  [{{ opt.programTag ]] {{ opt.name }} ➔ 來源：{{ opt.sourceDesc }} (NT$ {{ opt.cost }})
                 </option>
               </select>
             </div>
@@ -286,7 +286,7 @@
       <!-- 模式 B 畫面 (航點探索) -->
       <div v-if="activeTab === 'explore'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-500 flex items-center justify-between">
-          <span>🌏 【航點探索】 (2026-09-21 15:45 四通道黃金版)</span>
+          <span>🌏 【航點探索】 (2026-09-21 16:00 方案標註版)</span>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
@@ -371,7 +371,7 @@
     <!-- 航點探索模式下的結果卡片顯示 -->
     <div class="space-y-3" v-if="activeTab === 'explore'">
       <div v-if="uniqueAggregatedRoutes.length === 0" class="text-center py-12 opacity-50 text-sm">
-        查無符合條件之跨國航點，請調整出發地或艙等
+        查無符合條件之航點，請調整出發地或艙等
       </div>
 
       <div v-else v-for="(routeItem, idx) in uniqueAggregatedRoutes" :key="idx" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-3xl p-4 sm:p-5 shadow-xl space-y-4 transition-colors duration-300">
@@ -382,7 +382,7 @@
               {{ routeItem.originName }} ({{ routeItem.origin }}) ➔ {{ routeItem.destName }} ({{ routeItem.dest }})
             </div>
             <div class="text-xs opacity-70 mt-1 flex items-center gap-2">
-              <span class="font-bold text-cyan-400">四通道黃金比例聚合比價</span>
+              <span class="font-bold text-cyan-400">阿提哈德與阿拉斯加黃金通道聚合比價</span>
             </div>
           </div>
 
@@ -404,11 +404,11 @@
             <div class="text-xs font-extrabold text-amber-500 flex items-center justify-between border-b pb-2" :class="currentTheme.borderClass">
               <span>{{ cabinKey === 'biz' ? '👑 商務艙 (Business)' : '✈️ 經濟艙 (Economy)' }}</span>
               <span class="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 px-2 py-0.5 rounded font-black text-[10px] uppercase">
-                4-Channel Aggregate
+                Optimized Aggregate
               </span>
             </div>
 
-            <!-- 方案並列清單 -->
+            <!-- 方案並列清單 (方案標註清晰) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div v-for="(opt, oIdx) in routeItem.options[cabinKey]" :key="oIdx" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-2 border-slate-700 bg-slate-950/30">
                 <div class="flex justify-between items-start">
@@ -666,7 +666,7 @@
           return codes;
         });
 
-        // 💡 4大通道精準計價函式
+        // 💡 4大通道精準計價函式（中信5400轉3000 = 0.27；CUBE = 0.42）
         const calcEtihadCubeCost = (miles) => {
           if (!miles) return 0;
           return Math.round(Number(miles) * 0.42 + 750);
@@ -690,7 +690,7 @@
           return Math.round(marriottPoints * rates.value.marriott_val + taxTwd);
         };
 
-        // ✨ 聚合航線去重與四通道排序（計畫優先：阿提哈德優先於阿拉斯加，內部由低到高）
+        // ✨ 聚合航線去重與四通道排序（阿提哈德優先，內部由低到高）
         const uniqueAggregatedRoutes = computed(() => {
           let map = {};
 
@@ -715,7 +715,7 @@
               };
             }
 
-            // 處理經濟艙方案 (嚴格揭露四通道)
+            // 處理經濟艙方案
             const ecoMiles = item.eco_miles;
             const ecoTax = item.eco_tax_usd || 44;
             if (ecoMiles) {
@@ -731,7 +731,7 @@
                   programLabel: '阿提哈德 - 中信紅利轉點通道 (0.27)',
                   miles: ecoMiles,
                   cost: calcEtihadCtbcCost(ecoMiles),
-                  subDesc: '6,000 哩 × 0.27 (中信0.15轉點) ＋ 750元真實稅',
+                  subDesc: '6,000 哩 × 0.27 (5400點換3000點) ＋ 750元真實稅',
                   priority: 2
                 });
               }
@@ -773,7 +773,7 @@
             }
           });
 
-          // 內部排序：依計畫優先級，若同計畫則由低到高
+          // 內部排序
           Object.values(map).forEach(route => {
             ['eco', 'biz'].forEach(cabin => {
               route.options[cabin].sort((a, b) => {
