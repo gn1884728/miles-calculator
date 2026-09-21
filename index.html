@@ -21,8 +21,8 @@
   <title>常旅客哩程票兌換 | FongArea Points</title>
   <meta name="description" content="多計畫哩程決策聚合引擎，全面比價中信紅利、國泰CUBE、萬豪轉點與各大航空哩程實際成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 10:10 完整中停十幾條航線炫耀版 -->
-  <link rel="manifest" href="manifest.json?v=20260921_1010_full_stopover_showcase" />
+  <!-- 版本時間戳記：2026-09-21 10:48 完整中停航線精準備存版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1048_perfect_backup" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -45,7 +45,7 @@
 
   <div class="sr-only">
     <h1>常旅客哩程票兌換工具</h1>
-    <p>支援阿拉斯加航空 (AS) 1500哩內免費中停十幾條經典航線與雙軌成本對比試算。</p>
+    <p>支援阿拉斯加航空 (AS) 1500哩內免費中停精選航線與雙軌成本對比試算。</p>
   </div>
 
   <div id="app" class="w-full max-w-xl space-y-4">
@@ -132,13 +132,13 @@
           <button @click="showTricksBox = !showTricksBox" class="text-[11px] text-cyan-500 underline">✨ {{ showTricksBox ? '收合中停密技' : '展開中停密技' }}</button>
         </div>
 
-        <!-- 💡 完整收錄十幾條 7500 哩精選中停航線清單 -->
+        <!-- 💡 完整收錄 7500 哩精選中停航線清單（含您指定的新增航線與雙向稅金） -->
         <div v-if="showTricksBox" class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-3 space-y-2">
           <div class="text-[11px] text-cyan-500 font-bold">🚀 阿拉斯加 1500哩內免費中停「精選航點」（點擊直接代入）</div>
           <div class="max-h-52 overflow-y-auto space-y-1.5 pr-1">
             <div v-for="(trick, tIdx) in secretTricks" :key="tIdx" @click="applyTrick(trick.origin, trick.dest)" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-lg p-2 cursor-pointer text-xs flex justify-between items-center transition hover:border-cyan-500">
               <span class="font-bold">{{ trick.origin_name }} ({{ trick.origin }}) ➔ 台北(TPE) (中停) ➔ {{ trick.dest_name }} ({{ trick.dest }})</span>
-              <span class="text-amber-500 font-bold shrink-0">{{ trick.eco_miles }}哩</span>
+              <span class="text-amber-500 font-bold shrink-0">{{ trick.eco_miles }}哩 (${{ trick.eco_tax_usd }})</span>
             </div>
           </div>
         </div>
@@ -378,7 +378,7 @@
       </div>
     </div>
 
-    <!-- 航點探索模式下的結果卡片顯示 (💡 智慧航司下拉選單：無資料自動反灰 disabled) -->
+    <!-- 航點探索模式下的結果卡片顯示 -->
     <div class="space-y-3" v-if="activeTab === 'explore'">
       <div v-if="loading" class="text-center py-12 opacity-50 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -401,7 +401,7 @@
             </div>
           </div>
 
-          <!-- 💡 智慧航司選擇器：依該航段是否支援自動反灰不給選 -->
+          <!-- 智慧航司選擇器 -->
           <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
             <span>✨</span>
             <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
@@ -647,18 +647,29 @@
           { origin: 'TPE', dest: 'OKA', origin_name: '台北桃園', dest_name: '沖繩', programTag: 'Etihad Guest', airline: 'EY 兌換星宇', eco_miles: 6000, eco_tax_usd: 44, note: '✨ 阿提哈德神級甜蜜點' }
         ];
 
-        // 💡 完整十幾條 7,500 哩阿拉斯加免費中停經典航線矩陣
+        // 💡 精準整合您指定的完整 7,500 哩中停航線清單（含雙向稅金）
         const secretTricks = [
           { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, programTag: 'AS', note: '✨ 熊本 ➔ 台北(TPE) (中停) ➔ 澳門' },
           { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 熊本' },
-          { origin: 'NRT', dest: 'HKG', origin_name: '東京成田', dest_name: '香港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 75, biz_miles: 15000, biz_tax_usd: 75, programTag: 'AS', note: '✨ 東京 ➔ 台北(TPE) (中停) ➔ 香港' },
-          { origin: 'HKG', dest: 'NRT', origin_name: '香港', dest_name: '東京成田', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 70, biz_miles: 15000, biz_tax_usd: 70, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 東京' },
-          { origin: 'KIX', dest: 'MFM', origin_name: '大阪關西', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 78, biz_miles: 15000, biz_tax_usd: 78, programTag: 'AS', note: '✨ 大阪 ➔ 台北(TPE) (中停) ➔ 澳門' },
-          { origin: 'MFM', dest: 'KIX', origin_name: '澳門', dest_name: '大阪關西', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 65, biz_miles: 15000, biz_tax_usd: 65, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 大阪' },
-          { origin: 'FUK', dest: 'HKG', origin_name: '福岡', dest_name: '香港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 72, biz_miles: 15000, biz_tax_usd: 72, programTag: 'AS', note: '✨ 福岡 ➔ 台北(TPE) (中停) ➔ 香港' },
-          { origin: 'HKG', dest: 'FUK', origin_name: '香港', dest_name: '福岡', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 68, biz_miles: 15000, biz_tax_usd: 68, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 福岡' },
-          { origin: 'NGO', dest: 'MFM', origin_name: '名古屋', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 80, biz_miles: 15000, biz_tax_usd: 80, programTag: 'AS', note: '✨ 名古屋 ➔ 台北(TPE) (中停) ➔ 澳門' },
-          { origin: 'OKA', dest: 'HKG', origin_name: '沖繩', dest_name: '香港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 70, biz_miles: 15000, biz_tax_usd: 70, programTag: 'AS', note: '✨ 沖繩 ➔ 台北(TPE) (中停) ➔ 香港' }
+          { origin: 'FUK', dest: 'MFM', origin_name: '福岡', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 87, biz_miles: 15000, biz_tax_usd: 87, programTag: 'AS', note: '✨ 福岡 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'MFM', dest: 'FUK', origin_name: '澳門', dest_name: '福岡', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 福岡' },
+          { origin: 'DAD', dest: 'OKA', origin_name: '峴港', dest_name: '沖繩', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 71, biz_miles: 15000, biz_tax_usd: 71, programTag: 'AS', note: '✨ 峴港 ➔ 台北(TPE) (中停) ➔ 沖繩' },
+          { origin: 'OKA', dest: 'DAD', origin_name: '沖繩', dest_name: '峴港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 79, biz_miles: 15000, biz_tax_usd: 79, programTag: 'AS', note: '✨ 沖繩 ➔ 台北(TPE) (中停) ➔ 峴港' },
+          { origin: 'HAN', dest: 'OKA', origin_name: '河內', dest_name: '沖繩', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 71, biz_miles: 15000, biz_tax_usd: 71, programTag: 'AS', note: '✨ 河內 ➔ 台北(TPE) (中停) ➔ 沖繩' },
+          { origin: 'OKA', dest: 'HAN', origin_name: '沖繩', dest_name: '河內', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 79, biz_miles: 15000, biz_tax_usd: 79, programTag: 'AS', note: '✨ 沖繩 ➔ 台北(TPE) (中停) ➔ 河內' },
+          { origin: 'OKA', dest: 'MFM', origin_name: '沖繩', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 70, biz_miles: 15000, biz_tax_usd: 70, programTag: 'AS', note: '✨ 沖繩 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'PUS', dest: 'OKA', origin_name: '釜山', dest_name: '沖繩', airline: 'AS (2026新航線)', eco_miles: 7500, eco_tax_usd: 58, biz_miles: 15000, biz_tax_usd: 58, programTag: 'AS', note: '✨ 釜山 ➔ 台北(TPE) (中停) ➔ 沖繩' },
+          { origin: 'OKA', dest: 'PUS', origin_name: '沖繩', dest_name: '釜山', airline: 'AS (2026新航線)', eco_miles: 7500, eco_tax_usd: 79, biz_miles: 15000, biz_tax_usd: 79, programTag: 'AS', note: '✨ 沖繩 ➔ 台北(TPE) (中停) ➔ 釜山' },
+          { origin: 'SHI', dest: 'HAN', origin_name: '宮古島', dest_name: '河內', airline: 'AS (2026新航線)', eco_miles: 7500, eco_tax_usd: 85, biz_miles: 15000, biz_tax_usd: 85, programTag: 'AS', note: '✨ 宮古島 ➔ 台北(TPE) (中停) ➔ 河內' },
+          { origin: 'HAN', dest: 'SHI', origin_name: '河內', dest_name: '宮古島', airline: 'AS (2026新航線)', eco_miles: 7500, eco_tax_usd: 71, biz_miles: 15000, biz_tax_usd: 71, programTag: 'AS', note: '✨ 河內 ➔ 台北(TPE) (中停) ➔ 宮古島' },
+          { origin: 'SHI', dest: 'MFM', origin_name: '宮古島', dest_name: '澳門', airline: 'AS (2026新航線)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 宮古島 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'MFM', dest: 'SHI', origin_name: '澳門', dest_name: '宮古島', airline: 'AS (2026新航線)', eco_miles: 7500, eco_tax_usd: 85, biz_miles: 15000, biz_tax_usd: 85, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 宮古島' },
+          { origin: 'HKG', dest: 'NRT', origin_name: '香港', dest_name: '東京成田', airline: 'AS (經典Bug線)', eco_miles: 7500, eco_tax_usd: 75, biz_miles: 15000, biz_tax_usd: 75, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 東京' },
+          { origin: 'HKG', dest: 'KIX', origin_name: '香港', dest_name: '大阪關西', airline: 'AS (經典Bug線)', eco_miles: 7500, eco_tax_usd: 72, biz_miles: 15000, biz_tax_usd: 72, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 大阪' },
+          { origin: 'HKG', dest: 'KMJ', origin_name: '香港', dest_name: '熊本', airline: 'AS (2026更新)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 熊本' },
+          { origin: 'KMJ', dest: 'HKG', origin_name: '熊本', dest_name: '香港', airline: 'AS (2026更新)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, programTag: 'AS', note: '✨ 熊本 ➔ 台北(TPE) (中停) ➔ 香港' },
+          { origin: 'HKG', dest: 'OKA', origin_name: '香港', dest_name: '沖繩', airline: 'AS (2026更新)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 沖繩' },
+          { origin: 'OKA', dest: 'HKG', origin_name: '沖繩', dest_name: '香港', airline: 'AS (2026更新)', eco_miles: 7500, eco_tax_usd: 70, biz_miles: 15000, biz_tax_usd: 70, programTag: 'AS', note: '✨ 沖繩 ➔ 台北(TPE) (中停) ➔ 香港' }
         ];
 
         const flightSearch = ref({ tripType: 'oneWay', outOrigin: '', outDest: '', inOrigin: '', inDest: '' });
