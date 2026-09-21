@@ -21,8 +21,8 @@
   <title>常旅客里程兌換 | FongArea Points</title>
   <meta name="description" content="多計畫哩程決策聚合引擎，全面比價中信紅利、國泰CUBE、滙豐旅人卡、萬豪、阿提哈德與阿拉斯加最佳化成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 18:00 沖繩雙向阿提哈德商務經濟全納入版 -->
-  <link rel="manifest" href="manifest.json?v=20260921_1800_oka_both_ways" />
+  <!-- 版本時間戳記：2026-09-21 18:30 執飛航司顯性標註版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1830_airline_display" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -75,7 +75,7 @@
       <!-- 設定抽屜 -->
       <div v-if="showSettings" :class="[currentTheme.drawerBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 text-sm">
         <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
-          <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數 (2026-09-21 18:00)</span>
+          <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數 (2026-09-21 18:30)</span>
           <span class="text-[10px] opacity-70">💡 自動儲存於瀏覽器</span>
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -194,7 +194,7 @@
           </div>
         </div>
 
-        <!-- 🛒 兌換方案選擇 (沖繩雙向完整支援阿提哈德經濟與商務艙) -->
+        <!-- 🛒 兌換方案選擇 -->
         <div v-if="availableRouteOptions.length > 0" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3.5 space-y-3">
           <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
             <span class="text-xs font-black text-cyan-400">🛒 兌換方案選擇</span>
@@ -203,11 +203,11 @@
 
           <div class="space-y-2 text-xs">
             <div>
-              <label class="block mb-1 opacity-70">選擇方案 (依最優通道排序)</label>
+              <label class="block mb-1 opacity-70">選擇方案 (含執飛航司標註)</label>
               <select v-model="selectedCartOptionId" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold focus:outline-none">
                 <option value="">-- 請選擇方案 --</option>
                 <option v-for="opt in availableRouteOptions" :key="opt.id" :value="opt.id">
-                  [{{ opt.programTag }}] {{ opt.name }} ➔ {{ opt.sourceDesc }} (NT$ {{ opt.cost.toLocaleString() }})
+                  [{{ opt.programTag }}] {{ opt.name }} 【{{ opt.operatingAirline }}執飛】 ➔ {{ opt.sourceDesc }} (NT$ {{ opt.cost.toLocaleString() }})
                 </option>
               </select>
             </div>
@@ -223,15 +223,18 @@
             </div>
           </div>
 
-          <!-- 已加入購物車清單 (去程與回程皆完整保留並存) -->
+          <!-- 已加入購物車清單 (清楚標註執飛航司) -->
           <div v-if="cartItems.length > 0" class="space-y-2 pt-2 border-t" :class="currentTheme.borderClass">
             <div v-for="(item, cIdx) in cartItems" :key="cIdx" class="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs bg-slate-950/40 p-2.5 rounded-lg border border-slate-800 gap-2">
               <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <span class="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 px-2 py-0.5 rounded font-black text-[10px] uppercase tracking-wider">
                     {{ item.programTag }}
                   </span>
                   <span class="font-bold text-amber-400">{{ item.name }}</span>
+                  <span class="bg-amber-500/10 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-bold text-[10px]">
+                    ✈️ {{ item.operatingAirline }}執飛
+                  </span>
                 </div>
                 <span class="text-[10px] text-slate-400">💡 {{ item.sourceDesc }}</span>
               </div>
@@ -248,7 +251,7 @@
           </div>
         </div>
 
-        <!-- 試算結果與極大化總結算金額面板 (成本徹底鎖定) -->
+        <!-- 試算結果面板 (✨ 醒目標註執飛航司，讓甜甜價極具說服力！) -->
         <div v-if="cartSummary.totalCost > 0" class="bg-gradient-to-r from-amber-500/20 to-cyan-500/20 border-2 border-amber-500/60 rounded-2xl p-4 space-y-3 text-sm shadow-lg">
           <div class="flex flex-col items-center justify-center border-b border-amber-500/30 pb-3 text-center">
             <span class="text-xs uppercase tracking-widest text-amber-400 font-black mb-1">
@@ -256,6 +259,11 @@
             </span>
             <div class="text-3xl sm:text-4xl font-black text-amber-300 tracking-tight">
               NT$ {{ cartSummary.totalCost.toLocaleString() }}
+            </div>
+            <!-- 尊榮執飛航司徽章 -->
+            <div class="mt-2 inline-flex items-center gap-1.5 bg-slate-950/80 border border-amber-400/40 px-3 py-1 rounded-full text-xs font-black text-amber-300 shadow">
+              <span>✈️ 執飛航司：</span>
+              <span class="text-cyan-400">{{ cartSummary.distinctAirlines }}</span>
             </div>
           </div>
           
@@ -356,7 +364,7 @@
       <!-- 模式 B 畫面 (航點探索) -->
       <div v-if="activeTab === 'explore'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-500 flex items-center justify-between">
-          <span>🌏 【航點探索】 (2026-09-21 18:00 沖繩雙向完整版)</span>
+          <span>🌏 【航點探索】 (2026-09-21 18:30 版)</span>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
@@ -433,7 +441,7 @@
         <div class="space-y-3 text-xs opacity-90">
           <div :class="currentTheme.subBoxBg" class="p-3 rounded-xl space-y-1">
             <div class="font-bold text-amber-500">1️⃣ 沖繩來回阿提哈德極致玩法</div>
-            <p>台北 ⇄ 沖繩雙向皆支援！經濟艙 6,000 哩、商務艙 20,000 哩，中信紅利 5,400 換 3,000 哩（成本 0.27 元/哩），台幣單向僅需 NT$ 2,370 元（含稅）！</p>
+            <p>台北 ⇄ 沖繩由 JX 星宇航空執飛！經濟艙 6,000 哩、商務艙 20,000 哩，中信紅利 5,400 換 3,000 哩（成本 0.27 元/哩），台幣單向僅需 NT$ 2,370 元（含稅）！</p>
           </div>
           <div :class="currentTheme.subBoxBg" class="p-3 rounded-xl space-y-1">
             <div class="font-bold text-blue-400">2️⃣ Flying Blue 藍天飛行 5 大取得通道</div>
@@ -670,7 +678,7 @@
           { country: 'ID', label: '🇮🇩 印尼 (Indonesia)', airports: allAirports.filter(a => a.country === 'ID') }
         ];
 
-        // 內建完整資料庫 (沖繩雙向完整支援)
+        // 💡 內建完整資料庫 (E欄執飛航司明確定義)
         const defaultSheetRoutes = [
           { origin: 'TSA', dest: 'SHA', origin_name: '台北松山', dest_name: '上海虹橋', airline: 'CI中華航空', eco_miles: 5000, eco_tax_usd: 56, biz_miles: 15000, biz_tax_usd: 56, programTag: 'Flying Blue' },
           { origin: 'SHA', dest: 'TSA', origin_name: '上海虹橋', dest_name: '台北松山', airline: 'CI中華航空', eco_miles: 5000, eco_tax_usd: 56, biz_miles: 15000, biz_tax_usd: 56, programTag: 'Flying Blue' },
@@ -679,7 +687,7 @@
           { origin: 'TPE', dest: 'PVG', origin_name: '台北桃園', dest_name: '上海浦東', airline: 'CI中華航空', eco_miles: 5000, eco_tax_usd: 56, biz_miles: 15000, biz_tax_usd: 56, programTag: 'Flying Blue' },
           { origin: 'PVG', dest: 'TPE', origin_name: '上海浦東', dest_name: '台北桃園', airline: 'CI中華航空', eco_miles: 5000, eco_tax_usd: 56, biz_miles: 15000, biz_tax_usd: 56, programTag: 'Flying Blue' },
 
-          // 沖繩雙向星宇航線 (支援阿提哈德與阿拉斯加)
+          // 沖繩雙向星宇航線
           { origin: 'TPE', dest: 'OKA', origin_name: '台北桃園', dest_name: '沖繩', airline: 'JX星宇航空', eco_miles: 6000, eco_tax_usd: 44, biz_miles: 20000, biz_tax_usd: 44, programTag: 'Etihad Guest' },
           { origin: 'OKA', dest: 'TPE', origin_name: '沖繩', dest_name: '台北桃園', airline: 'JX星宇航空', eco_miles: 6000, eco_tax_usd: 50, biz_miles: 20000, biz_tax_usd: 50, programTag: 'Etihad Guest' },
 
@@ -703,32 +711,32 @@
         const routesData = ref(defaultSheetRoutes);
 
         const secretTricks = [
-          { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, programTag: 'AS', note: '✨ 熊本 ➔ 台北(TPE) (中停) ➔ 澳門' },
-          { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 熊本' },
-          { origin: 'FUK', dest: 'MFM', origin_name: '福岡', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 87, biz_miles: 15000, biz_tax_usd: 87, programTag: 'AS', note: '✨ 福岡 ➔ 台北(TPE) (中停) ➔ 澳門' },
-          { origin: 'MFM', dest: 'FUK', origin_name: '澳門', dest_name: '福岡', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 福岡' },
-          { origin: 'MFM', dest: 'OKA', origin_name: '澳門', dest_name: '沖繩', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 沖繩' },
-          { origin: 'OKA', dest: 'MFM', origin_name: '沖繩', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 70, biz_miles: 15000, biz_tax_usd: 70, programTag: 'AS', note: '✨ 沖繩 ➔ 台北(TPE) (中停) ➔ 澳門' },
-          { origin: 'NRT', dest: 'HKG', origin_name: '東京成田', dest_name: '香港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 91, biz_miles: 15000, biz_tax_usd: 91, programTag: 'AS', note: '✨ 成田 ➔ 台北(TPE) (中停) ➔ 香港' },
-          { origin: 'KIX', dest: 'HKG', origin_name: '大阪關西', dest_name: '香港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 94, biz_miles: 15000, biz_tax_usd: 94, programTag: 'AS', note: '✨ 大阪 ➔ 台北(TPE) (中停) ➔ 香港' },
-          { origin: 'KIX', dest: 'MFM', origin_name: '大阪關西', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 94, biz_miles: 15000, biz_tax_usd: 94, programTag: 'AS', note: '✨ 大阪 ➔ 台北(TPE) (中停) ➔ 澳門' },
-          { origin: 'MFM', dest: 'KIX', origin_name: '澳門', dest_name: '大阪關西', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 大阪' },
-          { origin: 'NRT', dest: 'MFM', origin_name: '東京成田', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 94, biz_miles: 15000, biz_tax_usd: 94, programTag: 'AS', note: '✨ 成田 ➔ 台北(TPE) (中停) ➔ 澳門' },
-          { origin: 'MFM', dest: 'NRT', origin_name: '澳門', dest_name: '東京成田', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 成田' },
-          { origin: 'MFM', dest: 'PUS', origin_name: '澳門', dest_name: '釜山', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 釜山' },
-          { origin: 'PUS', dest: 'MFM', origin_name: '釜山', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 58, biz_miles: 15000, biz_tax_usd: 58, programTag: 'AS', note: '✨ 釜山 ➔ 台北(TPE) (中停) ➔ 澳門' },
-          { origin: 'UKB', dest: 'MFM', origin_name: '神戶', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 神戶 ➔ 台北(TPE) (中停) ➔ 澳門' },
-          { origin: 'MFM', dest: 'UKB', origin_name: '澳門', dest_name: '神戶', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 神戶' },
-          { origin: 'UKB', dest: 'HKG', origin_name: '神戶', dest_name: '香港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 神戶 ➔ 台北(TPE) (中停) ➔ 香港' },
-          { origin: 'HKG', dest: 'UKB', origin_name: '香港', dest_name: '神戶', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 神戶' },
-          { origin: 'HKG', dest: 'NGO', origin_name: '香港', dest_name: '名古屋', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 名古屋' },
-          { origin: 'NGO', dest: 'HKG', origin_name: '名古屋', dest_name: '香港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 94, biz_miles: 15000, biz_tax_usd: 94, programTag: 'AS', note: '✨ 名古屋 ➔ 台北(TPE) (中停) ➔ 香港' },
-          { origin: 'MFM', dest: 'NGO', origin_name: '澳門', dest_name: '名古屋', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 名古屋' },
-          { origin: 'NGO', dest: 'MFM', origin_name: '名古屋', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 94, biz_miles: 15000, biz_tax_usd: 94, programTag: 'AS', note: '✨ 名古屋 ➔ 台北(TPE) (中停) ➔ 澳門' },
-          { origin: 'HKG', dest: 'KIX', origin_name: '香港', dest_name: '大阪關西', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 大阪' },
-          { origin: 'HKG', dest: 'NRT', origin_name: '香港', dest_name: '東京成田', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 成田' },
-          { origin: 'HKG', dest: 'PUS', origin_name: '香港', dest_name: '釜山', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 釜山' },
-          { origin: 'PUS', dest: 'HKG', origin_name: '釜山', dest_name: '香港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 58, biz_miles: 15000, biz_tax_usd: 58, programTag: 'AS', note: '✨ 釜山 ➔ 台北(TPE) (中停) ➔ 香港' }
+          { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, programTag: 'AS', note: '✨ 熊本 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 熊本' },
+          { origin: 'FUK', dest: 'MFM', origin_name: '福岡', dest_name: '澳門', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 87, biz_miles: 15000, biz_tax_usd: 87, programTag: 'AS', note: '✨ 福岡 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'MFM', dest: 'FUK', origin_name: '澳門', dest_name: '福岡', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 福岡' },
+          { origin: 'MFM', dest: 'OKA', origin_name: '澳門', dest_name: '沖繩', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 沖繩' },
+          { origin: 'OKA', dest: 'MFM', origin_name: '沖繩', dest_name: '澳門', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 70, biz_miles: 15000, biz_tax_usd: 70, programTag: 'AS', note: '✨ 沖繩 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'NRT', dest: 'HKG', origin_name: '東京成田', dest_name: '香港', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 91, biz_miles: 15000, biz_tax_usd: 91, programTag: 'AS', note: '✨ 成田 ➔ 台北(TPE) (中停) ➔ 香港' },
+          { origin: 'KIX', dest: 'HKG', origin_name: '大阪關西', dest_name: '香港', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 94, biz_miles: 15000, biz_tax_usd: 94, programTag: 'AS', note: '✨ 大阪 ➔ 台北(TPE) (中停) ➔ 香港' },
+          { origin: 'KIX', dest: 'MFM', origin_name: '大阪關西', dest_name: '澳門', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 94, biz_miles: 15000, biz_tax_usd: 94, programTag: 'AS', note: '✨ 大阪 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'MFM', dest: 'KIX', origin_name: '澳門', dest_name: '大阪關西', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 大阪' },
+          { origin: 'NRT', dest: 'MFM', origin_name: '東京成田', dest_name: '澳門', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 94, biz_miles: 15000, biz_tax_usd: 94, programTag: 'AS', note: '✨ 成田 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'MFM', dest: 'NRT', origin_name: '澳門', dest_name: '東京成田', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 成田' },
+          { origin: 'MFM', dest: 'PUS', origin_name: '澳門', dest_name: '釜山', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 釜山' },
+          { origin: 'PUS', dest: 'MFM', origin_name: '釜山', dest_name: '澳門', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 58, biz_miles: 15000, biz_tax_usd: 58, programTag: 'AS', note: '✨ 釜山 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'UKB', dest: 'MFM', origin_name: '神戶', dest_name: '澳門', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 神戶 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'MFM', dest: 'UKB', origin_name: '澳門', dest_name: '神戶', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 神戶' },
+          { origin: 'UKB', dest: 'HKG', origin_name: '神戶', dest_name: '香港', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 神戶 ➔ 台北(TPE) (中停) ➔ 香港' },
+          { origin: 'HKG', dest: 'UKB', origin_name: '香港', dest_name: '神戶', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 神戶' },
+          { origin: 'HKG', dest: 'NGO', origin_name: '香港', dest_name: '名古屋', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 名古屋' },
+          { origin: 'NGO', dest: 'HKG', origin_name: '名古屋', dest_name: '香港', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 94, biz_miles: 15000, biz_tax_usd: 94, programTag: 'AS', note: '✨ 名古屋 ➔ 台北(TPE) (中停) ➔ 香港' },
+          { origin: 'MFM', dest: 'NGO', origin_name: '澳門', dest_name: '名古屋', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 名古屋' },
+          { origin: 'NGO', dest: 'MFM', origin_name: '名古屋', dest_name: '澳門', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 94, biz_miles: 15000, biz_tax_usd: 94, programTag: 'AS', note: '✨ 名古屋 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'HKG', dest: 'KIX', origin_name: '香港', dest_name: '大阪關西', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 大阪' },
+          { origin: 'HKG', dest: 'NRT', origin_name: '香港', dest_name: '東京成田', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 成田' },
+          { origin: 'HKG', dest: 'PUS', origin_name: '香港', dest_name: '釜山', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 89, biz_miles: 15000, biz_tax_usd: 89, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 釜山' },
+          { origin: 'PUS', dest: 'HKG', origin_name: '釜山', dest_name: '香港', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 58, biz_miles: 15000, biz_tax_usd: 58, programTag: 'AS', note: '✨ 釜山 ➔ 台北(TPE) (中停) ➔ 香港' }
         ];
 
         const flightSearch = ref({ tripType: 'oneWay', cabin: 'eco', outOrigin: '', outDest: '' });
@@ -748,7 +756,6 @@
           return codes;
         });
 
-        // 💡 雙向快速對調 (保持購物車完整)
         const swapPorts = () => {
           const temp = flightSearch.value.outOrigin;
           flightSearch.value.outOrigin = flightSearch.value.outDest;
@@ -756,17 +763,15 @@
           selectedCartOptionId.value = '';
         };
 
-        // 💡 輔助函式：判斷是否為沖繩 ⇄ 台北航線 (支援阿提哈德)
         const isEyRouteHelper = (origin, dest) => {
           return (origin === 'TPE' && dest === 'OKA') || (origin === 'OKA' && dest === 'TPE');
         };
 
-        // 💡 輔助函式：取得阿提哈德真實稅金 (去程750台幣，回程4230日圓依匯率折算)
         const getEyTaxTwd = (origin, dest) => {
           if (origin === 'OKA' && dest === 'TPE') {
-            return Math.round(4230 * rates.value.jpy_twd); // 4230 JPY * 0.21 ≈ 888 TWD
+            return Math.round(4230 * rates.value.jpy_twd);
           }
-          return 750; // TPE -> OKA
+          return 750;
         };
 
         // 計價函式
@@ -782,7 +787,7 @@
         const calcFbHsbcCost = (miles, taxUsd) => Math.round(Number(miles) * 0.40 + (Number(taxUsd || 56) * rates.value.usd_twd));
         const calcFbMarriottCost = (miles, taxUsd) => Math.round(Number(miles) * 0.576 + (Number(taxUsd || 56) * rates.value.usd_twd));
 
-        // 航點探索聚合運算 (沖繩雙向完整支援)
+        // 航點探索聚合運算
         const uniqueAggregatedRoutes = computed(() => {
           let map = {};
 
@@ -815,7 +820,6 @@
             const ecoMiles = item.eco_miles;
             const ecoTax = item.eco_tax_usd || 44;
 
-            // 經濟艙方案處理
             if (ecoMiles) {
               if (isFb) {
                 map[key].options.eco.push({
@@ -854,19 +858,18 @@
                   priority: 5
                 });
               } else if (isEy) {
-                // 💡 沖繩雙向 (去回程) 經濟艙阿提哈德與阿拉斯加
                 map[key].options.eco.push({
                   programLabel: '阿提哈德 - 中信紅利轉點 (0.27)',
                   miles: 6000,
                   cost: calcEtihadCtbcCost(6000, eyTaxTwd),
-                  subDesc: `需中信紅利 10,800 點 (5400換3000) ＋ 稅金 NT$ ${eyTaxTwd}`,
+                  subDesc: `需中信紅利 10,800 點 ＋ 稅金 NT$ ${eyTaxTwd}`,
                   priority: 1
                 });
                 map[key].options.eco.push({
                   programLabel: '阿提哈德 - 國泰CUBE通道 (0.42)',
                   miles: 6000,
                   cost: calcEtihadCubeCost(6000, eyTaxTwd),
-                  subDesc: `需小樹點 2,520 點 (420換1000) ＋ 稅金 NT$ ${eyTaxTwd}`,
+                  subDesc: `需小樹點 2,520 點 ＋ 稅金 NT$ ${eyTaxTwd}`,
                   priority: 2
                 });
                 map[key].options.eco.push({
@@ -901,7 +904,6 @@
               }
             }
 
-            // 商務艙方案處理
             const bizMiles = item.biz_miles || (isEy ? 20000 : 15000);
             const bizTax = item.biz_tax_usd || 44;
             if (bizMiles) {
@@ -942,7 +944,6 @@
                   priority: 5
                 });
               } else if (isEy) {
-                // 💡 沖繩雙向 (去回程) 商務艙阿提哈德與阿拉斯加
                 map[key].options.biz.push({
                   programLabel: '阿提哈德 - 中信紅利轉點 (0.27)',
                   miles: 20000,
@@ -990,7 +991,6 @@
             }
           });
 
-          // 排序過濾
           Object.values(map).forEach(route => {
             ['eco', 'biz'].forEach(cabin => {
               route.options[cabin].sort((a, b) => a.priority - b.priority);
@@ -1004,7 +1004,7 @@
           return results;
         });
 
-        // 購物車可用選項 (沖繩雙向去回程完整輸出)
+        // 購物車可用選項 (💡 清楚標註執飛航司)
         const availableRouteOptions = computed(() => {
           let list = [];
           if (!flightSearch.value.outOrigin || !flightSearch.value.outDest) return list;
@@ -1020,10 +1020,11 @@
           const isFb = item.programTag === 'Flying Blue' || (item.airline && (item.airline.includes('CI') || item.airline.includes('華航')));
           const isEySupported = isEyRouteHelper(item.origin, item.dest) || item.programTag === 'Etihad Guest';
           const eyTaxTwd = getEyTaxTwd(item.origin, item.dest);
+          const operatingAirline = item.airline || (isFb ? 'CI中華航空' : isEySupported ? 'JX星宇航空' : 'JX星宇航空');
 
           const targetCabin = flightSearch.value.cabin;
 
-          // 1. 經濟艙選項
+          // 1. 經濟艙
           if (targetCabin === 'eco' && item.eco_miles) {
             const ecoMiles = item.eco_miles;
             const ecoTax = item.eco_tax_usd || 44;
@@ -1034,6 +1035,7 @@
                 programTag: 'FB (中信紅利)',
                 sourceDesc: '中信紅利 4300換3000 (0.215元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 經濟艙`,
+                operatingAirline: operatingAirline,
                 miles: ecoMiles,
                 programType: 'fb',
                 taxTwd: Number(ecoTax) * rates.value.usd_twd,
@@ -1044,6 +1046,7 @@
                 programTag: 'FB (國泰CUBE)',
                 sourceDesc: '小樹點 340換1000 (0.34元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 經濟艙`,
+                operatingAirline: operatingAirline,
                 miles: ecoMiles,
                 programType: 'fb',
                 taxTwd: Number(ecoTax) * rates.value.usd_twd,
@@ -1054,6 +1057,7 @@
                 programTag: 'FB (官方買點)',
                 sourceDesc: '官方特價促銷買點 (0.34元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 經濟艙`,
+                operatingAirline: operatingAirline,
                 miles: ecoMiles,
                 programType: 'fb',
                 taxTwd: Number(ecoTax) * rates.value.usd_twd,
@@ -1064,6 +1068,7 @@
                 programTag: 'FB (滙豐旅人卡)',
                 sourceDesc: '旅人積分 1:1 兌換 (估值0.40元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 經濟艙`,
+                operatingAirline: operatingAirline,
                 miles: ecoMiles,
                 programType: 'fb',
                 taxTwd: Number(ecoTax) * rates.value.usd_twd,
@@ -1074,6 +1079,7 @@
                 programTag: 'FB (萬豪轉點)',
                 sourceDesc: '萬豪轉點換算 (0.576元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 經濟艙`,
+                operatingAirline: operatingAirline,
                 miles: ecoMiles,
                 programType: 'fb',
                 taxTwd: Number(ecoTax) * rates.value.usd_twd,
@@ -1085,6 +1091,7 @@
                 programTag: '阿提哈德 (中信紅利)',
                 sourceDesc: `中信紅利 5400換3000 (0.27元/哩) ＋ 稅金 NT$ ${eyTaxTwd}`,
                 name: `${cleanOriginName}➔${cleanDestName} 經濟艙`,
+                operatingAirline: operatingAirline,
                 miles: 6000,
                 programType: 'etihad',
                 taxTwd: eyTaxTwd,
@@ -1095,6 +1102,7 @@
                 programTag: '阿提哈德 (國泰CUBE)',
                 sourceDesc: `小樹點 420換1000 (0.42元/哩) ＋ 稅金 NT$ ${eyTaxTwd}`,
                 name: `${cleanOriginName}➔${cleanDestName} 經濟艙`,
+                operatingAirline: operatingAirline,
                 miles: 6000,
                 programType: 'etihad',
                 taxTwd: eyTaxTwd,
@@ -1105,6 +1113,7 @@
                 programTag: '阿拉斯加 (萬豪轉點)',
                 sourceDesc: '萬豪轉點換算 (0.576元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 經濟艙`,
+                operatingAirline: operatingAirline,
                 miles: 7500,
                 programType: 'as',
                 taxTwd: Number(ecoTax) * rates.value.usd_twd,
@@ -1115,6 +1124,7 @@
                 programTag: '阿拉斯加 (官網買哩)',
                 sourceDesc: 'AS 官方買哩 (0.60元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 經濟艙`,
+                operatingAirline: operatingAirline,
                 miles: 7500,
                 programType: 'as',
                 taxTwd: Number(ecoTax) * rates.value.usd_twd,
@@ -1126,6 +1136,7 @@
                 programTag: '阿拉斯加 (萬豪轉點)',
                 sourceDesc: '萬豪轉點換算 (0.576元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 經濟艙`,
+                operatingAirline: operatingAirline,
                 miles: ecoMiles,
                 programType: 'as',
                 taxTwd: Number(ecoTax) * rates.value.usd_twd,
@@ -1136,6 +1147,7 @@
                 programTag: '阿拉斯加 (官網買哩)',
                 sourceDesc: 'AS 官方買哩 (0.60元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 經濟艙`,
+                operatingAirline: operatingAirline,
                 miles: ecoMiles,
                 programType: 'as',
                 taxTwd: Number(ecoTax) * rates.value.usd_twd,
@@ -1144,7 +1156,7 @@
             }
           }
 
-          // 2. 商務艙選項 (沖繩雙向完整支援阿提哈德 20,000 哩)
+          // 2. 商務艙
           if (targetCabin === 'biz') {
             const bizMiles = item.biz_miles || (isEySupported ? 20000 : 15000);
             const bizTax = item.biz_tax_usd || 44;
@@ -1155,6 +1167,7 @@
                 programTag: 'FB (中信紅利)',
                 sourceDesc: '中信紅利 4300換3000 (0.215元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 商務艙`,
+                operatingAirline: operatingAirline,
                 miles: bizMiles,
                 programType: 'fb',
                 taxTwd: Number(bizTax) * rates.value.usd_twd,
@@ -1165,6 +1178,7 @@
                 programTag: 'FB (國泰CUBE)',
                 sourceDesc: '小樹點 340換1000 (0.34元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 商務艙`,
+                operatingAirline: operatingAirline,
                 miles: bizMiles,
                 programType: 'fb',
                 taxTwd: Number(bizTax) * rates.value.usd_twd,
@@ -1175,6 +1189,7 @@
                 programTag: 'FB (官方買點)',
                 sourceDesc: '官方特價促銷買點 (0.34元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 商務艙`,
+                operatingAirline: operatingAirline,
                 miles: bizMiles,
                 programType: 'fb',
                 taxTwd: Number(bizTax) * rates.value.usd_twd,
@@ -1185,6 +1200,7 @@
                 programTag: 'FB (滙豐旅人卡)',
                 sourceDesc: '旅人積分 1:1 兌換 (估值0.40元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 商務艙`,
+                operatingAirline: operatingAirline,
                 miles: bizMiles,
                 programType: 'fb',
                 taxTwd: Number(bizTax) * rates.value.usd_twd,
@@ -1195,6 +1211,7 @@
                 programTag: 'FB (萬豪轉點)',
                 sourceDesc: '萬豪轉點換算 (0.576元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 商務艙`,
+                operatingAirline: operatingAirline,
                 miles: bizMiles,
                 programType: 'fb',
                 taxTwd: Number(bizTax) * rates.value.usd_twd,
@@ -1206,6 +1223,7 @@
                 programTag: '阿提哈德 (中信紅利)',
                 sourceDesc: `中信紅利 5400換3000 (0.27元/哩) ＋ 稅金 NT$ ${eyTaxTwd}`,
                 name: `${cleanOriginName}➔${cleanDestName} 商務艙`,
+                operatingAirline: operatingAirline,
                 miles: 20000,
                 programType: 'etihad',
                 taxTwd: eyTaxTwd,
@@ -1216,6 +1234,7 @@
                 programTag: '阿提哈德 (國泰CUBE)',
                 sourceDesc: `小樹點 420換1000 (0.42元/哩) ＋ 稅金 NT$ ${eyTaxTwd}`,
                 name: `${cleanOriginName}➔${cleanDestName} 商務艙`,
+                operatingAirline: operatingAirline,
                 miles: 20000,
                 programType: 'etihad',
                 taxTwd: eyTaxTwd,
@@ -1226,6 +1245,7 @@
                 programTag: '阿拉斯加 (萬豪轉點)',
                 sourceDesc: '萬豪轉點換算 (0.576元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 商務艙`,
+                operatingAirline: operatingAirline,
                 miles: 15000,
                 programType: 'as',
                 taxTwd: Number(bizTax) * rates.value.usd_twd,
@@ -1236,6 +1256,7 @@
                 programTag: '阿拉斯加 (官網買哩)',
                 sourceDesc: 'AS 官方買哩 (0.60元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 商務艙`,
+                operatingAirline: operatingAirline,
                 miles: 15000,
                 programType: 'as',
                 taxTwd: Number(bizTax) * rates.value.usd_twd,
@@ -1247,6 +1268,7 @@
                 programTag: '阿拉斯加 (萬豪轉點)',
                 sourceDesc: '萬豪轉點換算 (0.576元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 商務艙`,
+                operatingAirline: operatingAirline,
                 miles: bizMiles,
                 programType: 'as',
                 taxTwd: Number(bizTax) * rates.value.usd_twd,
@@ -1257,6 +1279,7 @@
                 programTag: '阿拉斯加 (官網買哩)',
                 sourceDesc: 'AS 官方買哩 (0.60元/哩)',
                 name: `${cleanOriginName}➔${cleanDestName} 商務艙`,
+                operatingAirline: operatingAirline,
                 miles: bizMiles,
                 programType: 'as',
                 taxTwd: Number(bizTax) * rates.value.usd_twd,
@@ -1283,6 +1306,7 @@
               programTag: opt.programTag,
               sourceDesc: opt.sourceDesc,
               name: opt.name,
+              operatingAirline: opt.operatingAirline,
               miles: opt.miles,
               programType: opt.programType,
               taxTwd: opt.taxTwd,
@@ -1294,13 +1318,14 @@
           tempCartQty.value = 1;
         };
 
-        // 購物車總結算 (金額與人數鎖定)
+        // 購物車總結算 (金額鎖定，並自動匯總執飛航司名稱)
         const cartSummary = computed(() => {
           let totalCost = 0;
           let totalTaxTwd = 0;
           let totalMiles = 0;
           let totalTickets = 0;
           let dominantProgram = 'as';
+          let airlinesSet = new Set();
 
           cartItems.value.forEach(item => {
             totalCost += item.cost * item.qty;
@@ -1308,9 +1333,12 @@
             totalMiles += item.miles * item.qty;
             totalTickets += item.qty;
             if (item.programType) dominantProgram = item.programType;
+            if (item.operatingAirline) airlinesSet.add(item.operatingAirline);
           });
 
-          return { totalCost, totalTaxTwd, totalMiles, totalTickets, dominantProgram };
+          const distinctAirlines = airlinesSet.size > 0 ? Array.from(airlinesSet).join(' / ') : '星宇航空 / 華航';
+
+          return { totalCost, totalTaxTwd, totalMiles, totalTickets, dominantProgram, distinctAirlines };
         });
 
         const mileageGap = computed(() => {
