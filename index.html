@@ -21,8 +21,8 @@
   <title>常旅客哩程票兌換 | FongArea Points</title>
   <meta name="description" content="多計畫哩程決策聚合引擎，全面比價中信紅利、國泰CUBE、萬豪轉點與各大航空哩程實際成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 11:45 最終完美同步版 (新增香港-大阪/成田/釜山中停，分離直飛航線) -->
-  <link rel="manifest" href="manifest.json?v=20260921_1145_final_sync" />
+  <!-- 版本時間戳記：2026-09-21 11:55 Sheet 遠端航點讀取修復版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1155_fix_sheet" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -132,12 +132,11 @@
           <button @click="showTricksBox = !showTricksBox" class="text-[11px] text-cyan-500 underline">✨ {{ showTricksBox ? '收合中停密技' : '展開中停密技' }}</button>
         </div>
 
-        <!-- 💡 完整收錄最新更新的 7500 哩精選中停航線清單 -->
         <div v-if="showTricksBox" class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-3 space-y-2">
           <div class="text-[11px] text-cyan-500 font-bold">🚀 阿拉斯加 1500哩內免費中停「精選航點」（點擊直接代入）</div>
           <div class="max-h-52 overflow-y-auto space-y-1.5 pr-1">
             <div v-for="(trick, tIdx) in secretTricks" :key="tIdx" @click="applyTrick(trick.origin, trick.dest)" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-lg p-2 cursor-pointer text-xs flex justify-between items-center transition hover:border-cyan-500">
-              <span class="font-bold">{{ trick.origin_name }} ({{ trick.origin }}) ➔ 台北(TPE) (中停) ➔ {{ trick.dest_name }} ({{ trick.dest }})</span>
+              <span class="font-bold">{{ trick.origin_name }} ({{ trick.origin }}) ➔ 台北(TPE/RMQ) (中停) ➔ {{ trick.dest_name }} ({{ trick.dest }})</span>
               <span class="text-amber-500 font-bold shrink-0">{{ trick.eco_miles }}哩 (${{ trick.eco_tax_usd }})</span>
             </div>
           </div>
@@ -393,7 +392,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 gap-3" :class="currentTheme.borderClass">
           <div>
             <div class="text-base sm:text-lg font-black">
-              {{ item.origin_name }} ({{ item.origin }}) ➔ {{ item.airline && item.airline.includes('中停') ? '台北(TPE) (中停) ➔ ' : '' }}{{ item.dest_name }} ({{ item.dest }})
+              {{ item.origin_name }} ({{ item.origin }}) ➔ {{ item.airline && item.airline.includes('中停') ? '台北(TPE/RMQ) (中停) ➔ ' : '' }}{{ item.dest_name }} ({{ item.dest }})
             </div>
             <div class="text-xs opacity-70 mt-1 flex items-center gap-2">
               <span class="font-bold">{{ item.airline }}</span>
