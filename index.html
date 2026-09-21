@@ -21,8 +21,8 @@
   <title>常旅客哩程票兌換 | FongArea Points</title>
   <meta name="description" content="多計畫哩程決策聚合引擎，全面比價中信紅利、國泰CUBE、萬豪轉點與各大航空哩程實際成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 12:15  Sheet航線與26條中停全家桶完美合併版 -->
-  <link rel="manifest" href="manifest.json?v=20260921_1215_ultimate_merged" />
+  <!-- 版本時間戳記：2026-09-21 12:30 航點探索篩選與航司選單修正版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1230_fix_explore_filter" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -396,10 +396,11 @@
             </div>
           </div>
 
-          <!-- 智慧航司選擇器 -->
+          <!-- 💡 優化後的航司選擇器（新增「✨ 全部航司」選項，避免全部反灰） -->
           <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
             <span>✨</span>
             <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
+              <option value="ALL" class="bg-slate-900 text-white font-bold">✨ 全部航司 / 依計畫而定</option>
               <option value="ci" :disabled="!isAirlineSupported(item, 'ci')" :class="!isAirlineSupported(item, 'ci') ? 'text-slate-600 bg-slate-950' : 'bg-slate-900 text-white'">
                 CI 中華航空 {{ isAirlineSupported(item, 'ci') ? '' : '(無此航段)' }}
               </option>
@@ -476,7 +477,7 @@
         const showTricksBox = ref(false);
         const showGuideModal = ref(false);
         const activeTab = ref('calc');
-        const selectedAirline = ref('ci');
+        const selectedAirline = ref('ALL'); // 預設改為全部航司
 
         const userAssets = ref({ asMiles: 0 });
         const cartItems = ref([]);
@@ -642,7 +643,7 @@
           { origin: 'TPE', dest: 'OKA', origin_name: '台北桃園', dest_name: '沖繩', programTag: 'Etihad Guest', airline: 'EY 兌換星宇', eco_miles: 6000, eco_tax_usd: 44, note: '✨ 阿提哈德神級甜蜜點' }
         ];
 
-        // 💡 完整 24 條 7,500 哩中停航線全家桶（已移除峴港，加入澳門-沖繩、成田/大阪/神戶/名古屋/釜山/香港延伸線）
+        // 💡 完整 24 條 7,500 哩中停航線全家桶
         const secretTricks = [
           { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, programTag: 'AS', note: '✨ 熊本 ➔ 台北(TPE) (中停) ➔ 澳門' },
           { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 熊本' },
@@ -874,7 +875,6 @@
         const onInPortChange = () => { cartItems.value = []; };
 
         const fetchData = async () => {
-          loading.value = true;
           try {
             const res = await fetch(API_URL + "&t=" + new Date().getTime());
             const data = await res.json();
@@ -884,8 +884,6 @@
             if (data.routes) routesData.value = data.routes;
           } catch (err) {
             console.error(err);
-          } finally {
-            loading.value = false;
           }
         };
 
@@ -956,7 +954,7 @@
             if (selectedCabin.value === 'biz' && !item.biz_miles) return false;
             if (selectedCabin.value === 'eco' && !item.eco_miles) return false;
 
-            if (selectedAirline.value && !isAirlineSupported(item, selectedAirline.value)) {
+            if (selectedAirline.value !== 'ALL' && !isAirlineSupported(item, selectedAirline.value)) {
               return false;
             }
 
