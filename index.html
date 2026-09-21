@@ -21,15 +21,14 @@
   <title>常旅客哩程票兌換 | FongArea Points</title>
   <meta name="description" content="多計畫哩程決策聚合引擎，全面比價中信紅利、國泰CUBE、萬豪轉點與各大航空哩程實際成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 00:58 終極炫耀版 (修正中停航線、智慧聯動下拉選單與雙軌比價) -->
-  <link rel="manifest" href="manifest.json?v=20260921_0058_ultimate_showcase" />
+  <!-- 版本時間戳記：2026-09-21 10:10 完整中停十幾條航線炫耀版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1010_full_stopover_showcase" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <style>
-    /* 強制鎖死頁面根目錄與滾動底色，徹底根治手機版四周與底部白邊 */
     html, body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
@@ -46,7 +45,7 @@
 
   <div class="sr-only">
     <h1>常旅客哩程票兌換工具</h1>
-    <p>支援阿拉斯加航空 (AS)、阿提哈德航空 (EY)、法航荷航藍天飛行 (Flying Blue) 雙軌成本對比試算。</p>
+    <p>支援阿拉斯加航空 (AS) 1500哩內免費中停十幾條經典航線與雙軌成本對比試算。</p>
   </div>
 
   <div id="app" class="w-full max-w-xl space-y-4">
@@ -133,13 +132,13 @@
           <button @click="showTricksBox = !showTricksBox" class="text-[11px] text-cyan-500 underline">✨ {{ showTricksBox ? '收合中停密技' : '展開中停密技' }}</button>
         </div>
 
-        <!-- 💡 完整保留並修復中停航線點擊直接代入 -->
+        <!-- 💡 完整收錄十幾條 7500 哩精選中停航線清單 -->
         <div v-if="showTricksBox" class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-3 space-y-2">
-          <div class="text-[11px] text-cyan-500 font-bold">🚀 阿拉斯加 1500哩內中停「精選航點」</div>
-          <div class="max-h-40 overflow-y-auto space-y-1.5 pr-1">
-            <div v-for="(trick, tIdx) in secretTricks" :key="tIdx" @click="applyTrick(trick.origin, trick.dest)" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-lg p-2 cursor-pointer text-xs flex justify-between items-center transition">
+          <div class="text-[11px] text-cyan-500 font-bold">🚀 阿拉斯加 1500哩內免費中停「精選航點」（點擊直接代入）</div>
+          <div class="max-h-52 overflow-y-auto space-y-1.5 pr-1">
+            <div v-for="(trick, tIdx) in secretTricks" :key="tIdx" @click="applyTrick(trick.origin, trick.dest)" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-lg p-2 cursor-pointer text-xs flex justify-between items-center transition hover:border-cyan-500">
               <span class="font-bold">{{ trick.origin_name }} ({{ trick.origin }}) ➔ 台北(TPE) (中停) ➔ {{ trick.dest_name }} ({{ trick.dest }})</span>
-              <span class="text-amber-500 text-[11px]">{{ trick.eco_miles }}哩</span>
+              <span class="text-amber-500 font-bold shrink-0">{{ trick.eco_miles }}哩</span>
             </div>
           </div>
         </div>
@@ -648,10 +647,18 @@
           { origin: 'TPE', dest: 'OKA', origin_name: '台北桃園', dest_name: '沖繩', programTag: 'Etihad Guest', airline: 'EY 兌換星宇', eco_miles: 6000, eco_tax_usd: 44, note: '✨ 阿提哈德神級甜蜜點' }
         ];
 
-        // 💡 完整保留並確保中停航線不遺漏
+        // 💡 完整十幾條 7,500 哩阿拉斯加免費中停經典航線矩陣
         const secretTricks = [
-          { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, programTag: 'AS', note: '✨ 熊本 ➔ 台北(TPE) (中停14天) ➔ 澳門' },
-          { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停14天) ➔ 熊本' }
+          { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, programTag: 'AS', note: '✨ 熊本 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 熊本' },
+          { origin: 'NRT', dest: 'HKG', origin_name: '東京成田', dest_name: '香港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 75, biz_miles: 15000, biz_tax_usd: 75, programTag: 'AS', note: '✨ 東京 ➔ 台北(TPE) (中停) ➔ 香港' },
+          { origin: 'HKG', dest: 'NRT', origin_name: '香港', dest_name: '東京成田', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 70, biz_miles: 15000, biz_tax_usd: 70, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 東京' },
+          { origin: 'KIX', dest: 'MFM', origin_name: '大阪關西', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 78, biz_miles: 15000, biz_tax_usd: 78, programTag: 'AS', note: '✨ 大阪 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'MFM', dest: 'KIX', origin_name: '澳門', dest_name: '大阪關西', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 65, biz_miles: 15000, biz_tax_usd: 65, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停) ➔ 大阪' },
+          { origin: 'FUK', dest: 'HKG', origin_name: '福岡', dest_name: '香港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 72, biz_miles: 15000, biz_tax_usd: 72, programTag: 'AS', note: '✨ 福岡 ➔ 台北(TPE) (中停) ➔ 香港' },
+          { origin: 'HKG', dest: 'FUK', origin_name: '香港', dest_name: '福岡', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 68, biz_miles: 15000, biz_tax_usd: 68, programTag: 'AS', note: '✨ 香港 ➔ 台北(TPE) (中停) ➔ 福岡' },
+          { origin: 'NGO', dest: 'MFM', origin_name: '名古屋', dest_name: '澳門', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 80, biz_miles: 15000, biz_tax_usd: 80, programTag: 'AS', note: '✨ 名古屋 ➔ 台北(TPE) (中停) ➔ 澳門' },
+          { origin: 'OKA', dest: 'HKG', origin_name: '沖繩', dest_name: '香港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 70, biz_miles: 15000, biz_tax_usd: 70, programTag: 'AS', note: '✨ 沖繩 ➔ 台北(TPE) (中停) ➔ 香港' }
         ];
 
         const flightSearch = ref({ tripType: 'oneWay', outOrigin: '', outDest: '', inOrigin: '', inDest: '' });
@@ -919,7 +926,6 @@
           return false;
         };
 
-        // 💡 智慧航司支援度判定函式（如果該航段資料庫無此航司，下拉選單將自動反灰）
         const isAirlineSupported = (item, airlineKey) => {
           const airlineStr = (item.airline || '').toLowerCase();
           if (airlineKey === 'ci') return airlineStr.includes('ci') || airlineStr.includes('華航') || airlineStr.includes('flying blue');
@@ -939,7 +945,6 @@
             if (selectedCabin.value === 'biz' && !item.biz_miles) return false;
             if (selectedCabin.value === 'eco' && !item.eco_miles) return false;
 
-            // 💡 確保如果選了特定航司但該航段不支援，則自動過濾掉該卡片
             if (selectedAirline.value && !isAirlineSupported(item, selectedAirline.value)) {
               return false;
             }
