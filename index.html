@@ -19,10 +19,10 @@
   </script>
   
   <title>常旅客哩程票兌換 | FongArea Points</title>
-  <meta name="description" content="多計畫哩程決策聚合引擎，全面比價阿拉斯加、阿提哈德與國內信用卡通道實際成本。" />
+  <meta name="description" content="多計畫哩程決策聚合引擎，全面比價阿提哈德與阿拉斯加多通道實際成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 14:40 終極修復與時間標註版 -->
-  <link rel="manifest" href="manifest.json?v=20260921_1440_perfect" />
+  <!-- 版本時間戳記：2026-09-21 15:10 四通道精準排序與搜尋修復版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1510_four_channels" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -45,7 +45,7 @@
 
   <div class="sr-only">
     <h1>常旅客哩程票兌換工具</h1>
-    <p>支援阿拉斯加航空 (AS) 與阿提哈德 (EY) 換星宇等多通道成本對比試算。</p>
+    <p>支援阿提哈德與阿拉斯加多通道成本對比試算。</p>
   </div>
 
   <div id="app" class="w-full max-w-xl space-y-4">
@@ -75,7 +75,7 @@
       <!-- 設定抽屜 -->
       <div v-if="showSettings" :class="[currentTheme.drawerBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 text-sm">
         <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
-          <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數 (2026-09-21 14:40)</span>
+          <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數 (2026-09-21 15:10)</span>
           <span class="text-[10px] opacity-70">💡 自動儲存於瀏覽器</span>
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -109,7 +109,7 @@
             <span class="text-xs font-black text-cyan-400">✈️ 旅程規劃試算</span>
             <span v-if="activeTab === 'calc'" class="text-[9px] bg-cyan-500 text-slate-950 px-2 py-0.5 rounded-full font-black">使用中</span>
           </div>
-          <div class="text-[11px] opacity-70 leading-tight">自定人數與雙軌方案比價，精算總成本</div>
+          <div class="text-[11px] opacity-70 leading-tight">自定人數與多通道方案比價，精算總成本</div>
         </div>
 
         <div @click="activeTab = 'explore'" :class="activeTab === 'explore' ? 'border-purple-500 bg-purple-500/10' : currentTheme.tabBorder" class="border rounded-2xl p-3.5 cursor-pointer transition flex flex-col justify-between">
@@ -179,17 +179,17 @@
         <!-- 🛒 自由混搭購物車 -->
         <div v-if="availableRouteOptions.length > 0" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3.5 space-y-3">
           <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
-            <span class="text-xs font-black text-cyan-400">🛒 自由搭配購物車（支援多通道方案選擇）</span>
+            <span class="text-xs font-black text-cyan-400">🛒 自由搭配購物車（支援四通道方案選擇）</span>
             <button @click="cartItems = []" class="text-[10px] opacity-70 hover:underline">清空購物車</button>
           </div>
 
           <div class="space-y-2 text-xs">
             <div>
-              <label class="block mb-1 opacity-70">選擇兌換方案 (含多通道取得來源說明)</label>
+              <label class="block mb-1 opacity-70">選擇兌換方案 (含四通道取得來源說明)</label>
               <select v-model="selectedCartOptionId" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold focus:outline-none">
                 <option value="">-- 請選擇航段與方案 --</option>
                 <option v-for="opt in availableRouteOptions" :key="opt.id" :value="opt.id">
-                  [{{ opt.programTag }}] {{ opt.name }} ➔ 來源：{{ opt.sourceDesc }} (NT$ {{ opt.cost }})
+                  [{{ opt.programTag ]] {{ opt.name }} ➔ 來源：{{ opt.sourceDesc }} (NT$ {{ opt.cost }})
                 </option>
               </select>
             </div>
@@ -290,7 +290,7 @@
       <!-- 模式 B 畫面 (航點探索) -->
       <div v-if="activeTab === 'explore'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-500 flex items-center justify-between">
-          <span>🌏 【航點探索】 (2026-09-21 14:40 更新)</span>
+          <span>🌏 【航點探索】 (2026-09-21 15:10 四通道版)</span>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
@@ -372,7 +372,7 @@
       </div>
     </div>
 
-    <!-- 航點探索模式下的結果卡片顯示 (✨ 嚴格過濾、方案標註清晰) -->
+    <!-- 航點探索模式下的結果卡片顯示 (✨ 四通道依計劃優先排序、嚴格艙等隔離) -->
     <div class="space-y-3" v-if="activeTab === 'explore'">
       <div v-if="uniqueAggregatedRoutes.length === 0" class="text-center py-12 opacity-50 text-sm">
         查無符合條件之跨國航點，請調整出發地或艙等
@@ -386,7 +386,7 @@
               {{ routeItem.originName }} ({{ routeItem.origin }}) ➔ {{ routeItem.destName }} ({{ routeItem.dest }})
             </div>
             <div class="text-xs opacity-70 mt-1 flex items-center gap-2">
-              <span class="font-bold text-cyan-400">多計畫哩程通道聚合比價</span>
+              <span class="font-bold text-cyan-400">阿提哈德與阿拉斯加四通道聚合比價</span>
             </div>
           </div>
 
@@ -402,17 +402,17 @@
           </div>
         </div>
 
-        <!-- 艙等總覽：嚴格依照選定的艙等渲染 -->
+        <!-- 艙等總覽：嚴格過濾 -->
         <div v-for="cabinKey in (selectedCabin.value === 'ALL' ? ['biz', 'eco'] : [selectedCabin.value])" :key="cabinKey">
           <div v-if="routeItem.options[cabinKey] && routeItem.options[cabinKey].length > 0" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-3.5 space-y-3 mt-2">
             <div class="text-xs font-extrabold text-amber-500 flex items-center justify-between border-b pb-2" :class="currentTheme.borderClass">
               <span>{{ cabinKey === 'biz' ? '👑 商務艙 (Business)' : '✈️ 經濟艙 (Economy)' }}</span>
               <span class="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 px-2 py-0.5 rounded font-black text-[10px] uppercase">
-                Multi-Program Aggregate
+                4-Channel Aggregate
               </span>
             </div>
 
-            <!-- 方案並列清單 -->
+            <!-- 四通道方案並列清單 (已依計畫優先排序：阿提哈德優先，內部由低到高) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div v-for="(opt, oIdx) in routeItem.options[cabinKey]" :key="oIdx" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-2 border-slate-700 bg-slate-950/30">
                 <div class="flex justify-between items-start">
@@ -673,18 +673,27 @@
           return codes;
         });
 
-        const calcEtihadCost = (miles) => {
+        // 💡 4種核心計價函式精準對應
+        // 1. 阿提哈德方案一：國泰 CUBE 0.42 換算 (哩程 * 0.42 + 750元真實稅)
+        const calcEtihadCubeCost = (miles) => {
           if (!miles) return 0;
-          return Math.round(Number(miles) * rates.value.etihad_val + 750);
+          return Math.round(Number(miles) * 0.42 + 750);
         };
 
+        // 2. 阿提哈德方案二：中信紅利 0.15 轉點到阿提哈德以 0.27 換算 (哩程 * 0.27 + 750元真實稅)
+        const calcEtihadCtbcCost = (miles) => {
+          if (!miles) return 0;
+          return Math.round(Number(miles) * 0.27 + 750);
+        };
+
+        // 3. 阿拉斯加方案一：官方買哩 0.60 + 真實稅金
         const calcAsBuyCost = (miles, taxUsd) => {
           if (!miles) return 0;
           const taxTwd = Number(taxUsd || 44) * rates.value.usd_twd;
           return Math.round(Number(miles) * rates.value.as_buy_val + taxTwd);
         };
 
-        // 💡 萬豪轉點正確公式：隱含價值 0.24 換算 (3:1 或 2.4:1)
+        // 4. 阿拉斯加方案二：萬豪轉AS (隱含成本 0.576 = 萬豪點數價值 0.24 * 2.4 或 3) + 真實稅金
         const calcMarriottToAsCost = (miles, taxUsd) => {
           if (!miles) return 0;
           const taxTwd = Number(taxUsd || 44) * rates.value.usd_twd;
@@ -692,7 +701,7 @@
           return Math.round(marriottPoints * rates.value.marriott_val + taxTwd);
         };
 
-        // ✨ 聚合航線去重與精準過濾（修復搜尋結果不出現的 Bug）
+        // ✨ 聚合航線去重與四通道優先排序（阿提哈德優先，內部由低到高排序）
         const uniqueAggregatedRoutes = computed(() => {
           let map = {};
 
@@ -717,31 +726,43 @@
               };
             }
 
-            // 處理經濟艙方案
+            // 處理經濟艙方案 (嚴格揭露 4 種通道)
             const ecoMiles = item.eco_miles;
             const ecoTax = item.eco_tax_usd || 44;
             if (ecoMiles) {
-              if (item.programTag === 'Etihad Guest') {
+              if (item.programTag === 'Etihad Guest' || (item.origin === 'TPE' && item.dest === 'OKA')) {
+                // 阿提哈德 2 種通道
                 map[key].options.eco.push({
-                  programLabel: '阿提哈德換星宇 (0.42)',
+                  programLabel: '阿提哈德 - 國泰CUBE通道 (0.42)',
                   miles: ecoMiles,
-                  cost: calcEtihadCost(ecoMiles),
-                  subDesc: '6,000 哩 × 0.42 ＋ 750元真實稅'
-                });
-              } else {
-                map[key].options.eco.push({
-                  programLabel: '阿拉斯加買哩通道 (0.60)',
-                  miles: ecoMiles,
-                  cost: calcAsBuyCost(ecoMiles, ecoTax),
-                  subDesc: `${ecoMiles.toLocaleString()} 哩 × 0.6元 ＋ 真實稅金`
+                  cost: calcEtihadCubeCost(ecoMiles),
+                  subDesc: '6,000 哩 × 0.42 ＋ 750元真實稅',
+                  priority: 1
                 });
                 map[key].options.eco.push({
-                  programLabel: '萬豪轉點阿拉斯加通道',
+                  programLabel: '阿提哈德 - 中信紅利轉點通道 (0.27)',
                   miles: ecoMiles,
-                  cost: calcMarriottToAsCost(ecoMiles, ecoTax),
-                  subDesc: `萬豪轉點換算 (點數價值 ${rates.value.marriott_val}元) ＋ 真實稅金`
+                  cost: calcEtihadCtbcCost(ecoMiles),
+                  subDesc: '6,000 哩 × 0.27 (中信0.15轉點) ＋ 750元真實稅',
+                  priority: 2
                 });
               }
+
+              // 阿拉斯加 2 種通道
+              map[key].options.eco.push({
+                programLabel: '阿拉斯加 - 官方買哩通道 (0.60)',
+                miles: ecoMiles,
+                cost: calcAsBuyCost(ecoMiles, ecoTax),
+                subDesc: `${ecoMiles.toLocaleString()} 哩 × 0.6元 ＋ 真實稅金`,
+                priority: 3
+              });
+              map[key].options.eco.push({
+                programLabel: '阿拉斯加 - 萬豪轉點通道 (0.576)',
+                miles: ecoMiles,
+                cost: calcMarriottToAsCost(ecoMiles, ecoTax),
+                subDesc: `萬豪轉點換算 (點數價值 ${rates.value.marriott_val}元) ＋ 真實稅金`,
+                priority: 4
+              });
             }
 
             // 處理商務艙方案
@@ -749,22 +770,33 @@
             const bizTax = item.biz_tax_usd || 44;
             if (bizMiles) {
               map[key].options.biz.push({
-                programLabel: '阿拉斯加買哩通道 (0.60)',
+                programLabel: '阿拉斯加 - 官方買哩通道 (0.60)',
                 miles: bizMiles,
                 cost: calcAsBuyCost(bizMiles, bizTax),
-                subDesc: `${bizMiles.toLocaleString()} 哩 × 0.6元 ＋ 真實稅金`
+                subDesc: `${bizMiles.toLocaleString()} 哩 × 0.6元 ＋ 真實稅金`,
+                priority: 1
               });
               map[key].options.biz.push({
-                programLabel: '萬豪轉點阿拉斯加通道',
+                programLabel: '阿拉斯加 - 萬豪轉點通道 (0.576)',
                 miles: bizMiles,
                 cost: calcMarriottToAsCost(bizMiles, bizTax),
-                subDesc: `萬豪轉點換算 (點數價值 ${rates.value.marriott_val}元) ＋ 真實稅金`
+                subDesc: `萬豪轉點換算 (點數價值 ${rates.value.marriott_val}元) ＋ 真實稅金`,
+                priority: 2
               });
             }
           });
 
+          // 內部排序：先依 program 優先級，若同計畫則由低到高排序
+          Object.values(map).forEach(route => {
+            ['eco', 'biz'].forEach(cabin => {
+              route.options[cabin].sort((a, b) => {
+                if (a.priority !== b.priority) return a.priority - b.priority;
+                return a.cost - b.cost;
+              });
+            });
+          });
+
           let results = Object.values(map);
-          // 💡 嚴格依照選定的艙等過濾
           if (selectedCabin.value !== 'ALL') {
             results = results.filter(r => r.options[selectedCabin.value] && r.options[selectedCabin.value].length > 0);
           }
@@ -785,36 +817,44 @@
             const tag = item.programTag || 'AS';
 
             if (item.eco_miles) {
-              if (tag === 'Etihad Guest') {
+              if (tag === 'Etihad Guest' || (item.origin === 'TPE' && item.dest === 'OKA')) {
                 list.push({
-                  id: `${item.origin}-${item.dest}_eco_etihad`,
+                  id: `${item.origin}-${item.dest}_eco_etihad_cube`,
                   programTag: 'Etihad Guest',
-                  sourceDesc: '阿提哈德通道 (0.42)',
+                  sourceDesc: '阿提哈德 - 國泰CUBE通道 (0.42)',
                   name: `${cleanOriginName}➔${cleanDestName} 經濟艙 [${airlineName}]`,
                   miles: Number(item.eco_miles),
                   taxUsd: 0,
-                  cost: calcEtihadCost(item.eco_miles)
-                });
-              } else {
-                list.push({
-                  id: `${item.origin}-${item.dest}_eco_as_buy`,
-                  programTag: 'AS',
-                  sourceDesc: '阿拉斯加買哩通道 (0.60)',
-                  name: `${cleanOriginName}➔${cleanDestName} 經濟艙 [${airlineName}]`,
-                  miles: Number(item.eco_miles),
-                  taxUsd: Number(item.eco_tax_usd || 44),
-                  cost: calcAsBuyCost(item.eco_miles, item.eco_tax_usd)
+                  cost: calcEtihadCubeCost(item.eco_miles)
                 });
                 list.push({
-                  id: `${item.origin}-${item.dest}_eco_marriott`,
-                  programTag: 'AS / Marriott',
-                  sourceDesc: '萬豪轉點通道',
+                  id: `${item.origin}-${item.dest}_eco_etihad_ctbc`,
+                  programTag: 'Etihad Guest',
+                  sourceDesc: '阿提哈德 - 中信紅利轉點通道 (0.27)',
                   name: `${cleanOriginName}➔${cleanDestName} 經濟艙 [${airlineName}]`,
                   miles: Number(item.eco_miles),
-                  taxUsd: Number(item.eco_tax_usd || 44),
-                  cost: calcMarriottToAsCost(item.eco_miles, item.eco_tax_usd)
+                  taxUsd: 0,
+                  cost: calcEtihadCtbcCost(item.eco_miles)
                 });
               }
+              list.push({
+                id: `${item.origin}-${item.dest}_eco_as_buy`,
+                programTag: 'AS',
+                sourceDesc: '阿拉斯加 - 官方買哩通道 (0.60)',
+                name: `${cleanOriginName}➔${cleanDestName} 經濟艙 [${airlineName}]`,
+                miles: Number(item.eco_miles),
+                taxUsd: Number(item.eco_tax_usd || 44),
+                cost: calcAsBuyCost(item.eco_miles, item.eco_tax_usd)
+              });
+              list.push({
+                id: `${item.origin}-${item.dest}_eco_marriott`,
+                programTag: 'AS / Marriott',
+                sourceDesc: '阿拉斯加 - 萬豪轉點通道 (0.576)',
+                name: `${cleanOriginName}➔${cleanDestName} 經濟艙 [${airlineName}]`,
+                miles: Number(item.eco_miles),
+                taxUsd: Number(item.eco_tax_usd || 44),
+                cost: calcMarriottToAsCost(item.eco_miles, item.eco_tax_usd)
+              });
             }
           });
 
