@@ -19,13 +19,10 @@
   </script>
   
   <title>常旅客哩程票兌換 | FongArea Points</title>
-  <meta name="description" content="輸入出發地與目的地，一鍵比較中信紅利、國泰CUBE、萬豪轉點與各大航空哩程實際台幣成本，解鎖雙軌方案對比。" />
-  <meta property="og:title" content="常旅客哩程票兌換 | FongArea Points" />
-  <meta property="og:description" content="商務艙、經濟艙哩程票怎麼換最便宜？新手實戰教學與多航點即時比價、哩程缺口拼圖工具。" />
-  <meta property="og:image" content="https://points.fongarea.com/icon.png" />
-  <meta property="og:type" content="website" />
+  <meta name="description" content="多計畫哩程決策聚合引擎，全面比價中信紅利、國泰CUBE、萬豪轉點與各大航空哩程實際成本。" />
   
-  <link rel="manifest" href="manifest.json?v=20260920_2358_dual_track" />
+  <!-- 版本時間戳記：2026-09-21 00:58 終極炫耀版 (修正中停航線、智慧聯動下拉選單與雙軌比價) -->
+  <link rel="manifest" href="manifest.json?v=20260921_0058_ultimate_showcase" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -60,12 +57,12 @@
       <!-- 主標題與頂部功能按鈕 -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-b pb-3" :class="currentTheme.borderClass">
         <h1 class="text-xl sm:text-2xl font-black tracking-tight leading-tight text-center sm:text-left" :class="currentTheme.titleClass">
-          常旅客哩程票<span class="text-cyan-400">兌換</span>
+          常旅客哩程票<span class="text-cyan-400">兌換聚合器</span>
         </h1>
         
         <div class="flex items-center gap-1.5 shrink-0 w-full sm:w-auto justify-center">
           <button @click="showGuideModal = true" class="text-xs font-bold px-3.5 py-2 rounded-xl border transition flex-1 sm:flex-initial text-center bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30">
-            📖 新手攻略
+            📖 攻略
           </button>
           <button @click="cycleTheme" class="text-xs font-bold px-2.5 py-2 rounded-xl border transition flex-1 sm:flex-initial text-center" :class="currentTheme.btnClass" title="切換背景主題">
             🎨 {{ currentTheme.name }}
@@ -136,6 +133,7 @@
           <button @click="showTricksBox = !showTricksBox" class="text-[11px] text-cyan-500 underline">✨ {{ showTricksBox ? '收合中停密技' : '展開中停密技' }}</button>
         </div>
 
+        <!-- 💡 完整保留並修復中停航線點擊直接代入 -->
         <div v-if="showTricksBox" class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-3 space-y-2">
           <div class="text-[11px] text-cyan-500 font-bold">🚀 阿拉斯加 1500哩內中停「精選航點」</div>
           <div class="max-h-40 overflow-y-auto space-y-1.5 pr-1">
@@ -184,7 +182,7 @@
           </div>
         </div>
 
-        <!-- 🛒 自由混搭購物車 (支援 Flying Blue 雙軌方案選擇與凸顯) -->
+        <!-- 🛒 自由混搭購物車 -->
         <div v-if="availableRouteOptions.length > 0" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3.5 space-y-3">
           <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
             <span class="text-xs font-black text-cyan-400">🛒 自由搭配購物車（支援雙軌方案選擇）</span>
@@ -272,7 +270,6 @@
             </div>
           </div>
 
-          <!-- 計算缺口與補齊方案 -->
           <div v-if="userAssets.asMiles >= 0" class="space-y-2 pt-1">
             <div class="flex justify-between items-center text-xs px-1">
               <span class="font-bold" :class="mileageGap > 0 ? 'text-amber-400' : 'text-emerald-400'">
@@ -288,7 +285,6 @@
                 </div>
                 <div class="text-[10px] opacity-80">
                   需轉入萬豪點數：<span class="font-bold text-white">{{ requiredMarriottForGap.toLocaleString() }} 點</span>
-                  <span v-if="requiredMarriottForGap < 60000" class="text-amber-400 block mt-0.5">💡 提醒：未達 60,000 點門檻（享 5k 額外獎勵）！</span>
                 </div>
               </div>
             </div>
@@ -383,7 +379,7 @@
       </div>
     </div>
 
-    <!-- 航點探索模式下的結果卡片顯示 (雙軌方案並列展示) -->
+    <!-- 航點探索模式下的結果卡片顯示 (💡 智慧航司下拉選單：無資料自動反灰 disabled) -->
     <div class="space-y-3" v-if="activeTab === 'explore'">
       <div v-if="loading" class="text-center py-12 opacity-50 text-sm">
         正在自 Google Sheet 載入最新數據...
@@ -406,18 +402,24 @@
             </div>
           </div>
 
-          <!-- 動態多航司選擇器 -->
+          <!-- 💡 智慧航司選擇器：依該航段是否支援自動反灰不給選 -->
           <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded-xl px-2.5 py-1.5 shrink-0 w-full sm:w-auto">
             <span>✨</span>
             <select v-model="selectedAirline" class="bg-transparent text-xs font-black focus:outline-none cursor-pointer w-full" :class="currentTheme.titleClass">
-              <option value="ci" class="bg-slate-900 text-white">CI 中華航空</option>
-              <option value="br" class="bg-slate-900 text-white">BR 長榮航空</option>
-              <option value="jx" class="bg-slate-900 text-white">JX 星宇航空</option>
+              <option value="ci" :disabled="!isAirlineSupported(item, 'ci')" :class="!isAirlineSupported(item, 'ci') ? 'text-slate-600 bg-slate-950' : 'bg-slate-900 text-white'">
+                CI 中華航空 {{ isAirlineSupported(item, 'ci') ? '' : '(無此航段)' }}
+              </option>
+              <option value="br" :disabled="!isAirlineSupported(item, 'br')" :class="!isAirlineSupported(item, 'br') ? 'text-slate-600 bg-slate-950' : 'bg-slate-900 text-white'">
+                BR 長榮航空 {{ isAirlineSupported(item, 'br') ? '' : '(無此航段)' }}
+              </option>
+              <option value="jx" :disabled="!isAirlineSupported(item, 'jx')" :class="!isAirlineSupported(item, 'jx') ? 'text-slate-600 bg-slate-950' : 'bg-slate-900 text-white'">
+                JX 星宇航空 {{ isAirlineSupported(item, 'jx') ? '' : '(無此航段)' }}
+              </option>
             </select>
           </div>
         </div>
 
-        <!-- 艙等總覽 (若是 Flying Blue 航線，展開雙軌方案對比) -->
+        <!-- 艙等總覽 (雙軌方案並列展示) -->
         <div v-for="cabinKey in ['biz', 'prem', 'eco']" :key="cabinKey">
           <div v-if="shouldShowCabinCard(item, cabinKey)" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-3.5 space-y-3 mt-2">
             <div class="text-xs font-extrabold text-amber-500 flex items-center justify-between border-b pb-2" :class="currentTheme.borderClass">
@@ -428,58 +430,37 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <!-- 如果是 Flying Blue，渲染雙軌對比卡片 -->
-              <template v-if="item.airline && item.airline.includes('Flying Blue')">
-                <!-- 方案 A：中信紅利低成本通道 (0.23元) -->
-                <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-2 border-emerald-500/50 bg-emerald-500/5">
-                  <div class="flex justify-between items-start">
-                    <div>
-                      <span class="text-[10px] bg-emerald-500 text-slate-950 font-black px-1.5 py-0.5 rounded">方案一：中信紅利通道</span>
-                      <div class="text-xl font-black text-emerald-400 mt-1">
-                        NT$ {{ getExploreCostDual(item, cabinKey, 'ctbc').toLocaleString() }}
-                      </div>
-                      <div class="text-[10px] opacity-70 mt-0.5">預估價值約 0.23 元/哩 ＋ 真實稅金</div>
+              <!-- 方案 A：中信紅利低成本通道 (0.23元) -->
+              <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-2 border-emerald-500/50 bg-emerald-500/5">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-[10px] bg-emerald-500 text-slate-950 font-black px-1.5 py-0.5 rounded">方案一：中信紅利通道</span>
+                    <div class="text-xl font-black text-emerald-400 mt-1">
+                      NT$ {{ getExploreCostDual(item, cabinKey, 'ctbc').toLocaleString() }}
                     </div>
-                    <div class="text-right">
-                      <span class="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded font-bold">{{ getExploreMiles(item, cabinKey).toLocaleString() }} 哩</span>
-                    </div>
+                    <div class="text-[10px] opacity-70 mt-0.5">預估價值約 0.23 元/哩 ＋ 真實稅金</div>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded font-bold">{{ getExploreMiles(item, cabinKey).toLocaleString() }} 哩</span>
                   </div>
                 </div>
+              </div>
 
-                <!-- 方案二：國泰 CUBE 點數通道 (0.34元) -->
-                <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-2 border-blue-500/50 bg-blue-500/5">
-                  <div class="flex justify-between items-start">
-                    <div>
-                      <span class="text-[10px] bg-blue-500 text-white font-black px-1.5 py-0.5 rounded">方案二：國泰 CUBE 通道</span>
-                      <div class="text-xl font-black text-blue-400 mt-1">
-                        NT$ {{ getExploreCostDual(item, cabinKey, 'cube').toLocaleString() }}
-                      </div>
-                      <div class="text-[10px] opacity-70 mt-0.5">國泰小樹點 0.34 元/點 ＋ 真實稅金</div>
+              <!-- 方案二：國泰 CUBE 點數通道 (0.34元) -->
+              <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-2 border-blue-500/50 bg-blue-500/5">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-[10px] bg-blue-500 text-white font-black px-1.5 py-0.5 rounded">方案二：國泰 CUBE 通道</span>
+                    <div class="text-xl font-black text-blue-400 mt-1">
+                      NT$ {{ getExploreCostDual(item, cabinKey, 'cube').toLocaleString() }}
                     </div>
-                    <div class="text-right">
-                      <span class="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded font-bold">{{ getExploreMiles(item, cabinKey).toLocaleString() }} 哩</span>
-                    </div>
+                    <div class="text-[10px] opacity-70 mt-0.5">國泰小樹點 0.34 元/點 ＋ 真實稅金</div>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded font-bold">{{ getExploreMiles(item, cabinKey).toLocaleString() }} 哩</span>
                   </div>
                 </div>
-              </template>
-
-              <!-- 一般單軌航線 -->
-              <template v-else>
-                <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-3 sm:col-span-2">
-                  <div class="flex justify-between items-start">
-                    <div>
-                      <div class="text-xs opacity-70 font-bold">{{ item.airline }}</div>
-                      <div class="text-2xl font-black text-cyan-400 mt-1">
-                        NT$ {{ getExploreCost(item, cabinKey).toLocaleString() }}
-                      </div>
-                      <div class="text-[10px] opacity-50 mt-0.5">預估總成本（含哩程與稅金）</div>
-                    </div>
-                    <div class="text-right">
-                      <span class="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded font-bold">{{ getExploreMiles(item, cabinKey).toLocaleString() }} 哩</span>
-                    </div>
-                  </div>
-                </div>
-              </template>
+              </div>
             </div>
           </div>
         </div>
@@ -667,6 +648,7 @@
           { origin: 'TPE', dest: 'OKA', origin_name: '台北桃園', dest_name: '沖繩', programTag: 'Etihad Guest', airline: 'EY 兌換星宇', eco_miles: 6000, eco_tax_usd: 44, note: '✨ 阿提哈德神級甜蜜點' }
         ];
 
+        // 💡 完整保留並確保中停航線不遺漏
         const secretTricks = [
           { origin: 'KMJ', dest: 'MFM', origin_name: '熊本', dest_name: '澳門', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 83, biz_miles: 15000, biz_tax_usd: 83, programTag: 'AS', note: '✨ 熊本 ➔ 台北(TPE) (中停14天) ➔ 澳門' },
           { origin: 'MFM', dest: 'KMJ', origin_name: '澳門', dest_name: '熊本', airline: 'AS (精選中停)', eco_miles: 7500, eco_tax_usd: 61, biz_miles: 15000, biz_tax_usd: 61, programTag: 'AS', note: '✨ 澳門 ➔ 台北(TPE) (中停14天) ➔ 熊本' }
@@ -700,15 +682,12 @@
           return codes;
         });
 
-        // 💡 實作 Flying Blue 雙軌計算模型：
-        // 方案 A：中信紅利低成本通道 (預設 0.23 元/哩) + 真實稅金
         const calcFlyingBlueCtbcCost = (miles, taxUsd) => {
           if (!miles) return 0;
           const taxTwd = Number(taxUsd || 56) * rates.value.usd_twd;
           return Math.round(Number(miles) * rates.value.fb_default_val + taxTwd);
         };
 
-        // 方案 B：國泰 CUBE 點數通道 (0.34 元/點換算) + 真實稅金
         const calcFlyingBlueCubeCost = (miles, taxUsd) => {
           if (!miles) return 0;
           const taxTwd = Number(taxUsd || 56) * rates.value.usd_twd;
@@ -745,7 +724,6 @@
 
             if (item.eco_miles) {
               if (tag === 'Flying Blue' || airlineName.includes('Flying Blue')) {
-                // 產生雙軌方案供用戶選擇
                 list.push({
                   id: `${item.origin}-${item.dest}_eco_FB_ctbc_${airlineName}`,
                   programTag: 'Flying Blue',
@@ -926,7 +904,6 @@
           return calcAsCost(miles, tax, 'buy');
         };
 
-        // 💡 航點探索專用：雙軌成本計算 (ctbc 0.23 兌換 vs cube 0.34 兌換)
         const getExploreCostDual = (item, cabin, type) => {
           const miles = getExploreMiles(item, cabin);
           const tax = cabin === 'biz' ? (item.biz_tax_usd || 56) : (item.eco_tax_usd || 56);
@@ -942,6 +919,15 @@
           return false;
         };
 
+        // 💡 智慧航司支援度判定函式（如果該航段資料庫無此航司，下拉選單將自動反灰）
+        const isAirlineSupported = (item, airlineKey) => {
+          const airlineStr = (item.airline || '').toLowerCase();
+          if (airlineKey === 'ci') return airlineStr.includes('ci') || airlineStr.includes('華航') || airlineStr.includes('flying blue');
+          if (airlineKey === 'br') return airlineStr.includes('br') || airlineStr.includes('長榮');
+          if (airlineKey === 'jx') return airlineStr.includes('jx') || airlineStr.includes('星宇');
+          return true;
+        };
+
         const filteredRoutes = computed(() => {
           let list = combinedAllRoutes.value.filter(item => {
             if (selectedCountry.value !== 'ALL') {
@@ -952,6 +938,12 @@
             if (selectedDestAirport.value !== 'ALL' && item.dest !== selectedDestAirport.value) return false;
             if (selectedCabin.value === 'biz' && !item.biz_miles) return false;
             if (selectedCabin.value === 'eco' && !item.eco_miles) return false;
+
+            // 💡 確保如果選了特定航司但該航段不支援，則自動過濾掉該卡片
+            if (selectedAirline.value && !isAirlineSupported(item, selectedAirline.value)) {
+              return false;
+            }
+
             return true;
           });
 
@@ -974,7 +966,7 @@
           userAssets, mileageGap, requiredMarriottForGap, marriottBridgeCost,
           cartItems, selectedCartOptionId, tempCartQty, availableRouteOptions, addToCart, cartSummary,
           onOutOriginChange, onOutPortChange, onInOriginChange, onInPortChange, fetchData,
-          getExploreMiles, getExploreCost, getExploreCostDual, shouldShowCabinCard, applyTrick
+          getExploreMiles, getExploreCost, getExploreCostDual, shouldShowCabinCard, applyTrick, isAirlineSupported
         };
       }
     }).mount('#app');
