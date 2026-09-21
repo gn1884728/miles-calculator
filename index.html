@@ -21,8 +21,8 @@
   <title>常旅客哩程票兌換 | FongArea Points</title>
   <meta name="description" content="多計畫哩程決策聚合引擎，全面比價阿拉斯加、阿提哈德與國內信用卡通道實際成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 14:00 艙等過濾與哩程計畫精準對應版 -->
-  <link rel="manifest" href="manifest.json?v=20260921_1400_precise_program_fix" />
+  <!-- 版本時間戳記：2026-09-21 14:20 航點顯示修復與萬豪轉點公式精準校正版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1420_fix_marriott_math" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -372,7 +372,7 @@
       </div>
     </div>
 
-    <!-- 航點探索模式下的結果卡片顯示 (✨ 嚴格過濾艙等，明確標註哩程計畫來源) -->
+    <!-- 航點探索模式下的結果卡片顯示 -->
     <div class="space-y-3" v-if="activeTab === 'explore'">
       <div v-if="uniqueAggregatedRoutes.length === 0" class="text-center py-12 opacity-50 text-sm">
         查無符合條件之跨國航點，請調整出發地或艙等
@@ -402,7 +402,7 @@
           </div>
         </div>
 
-        <!-- 艙等總覽：嚴格依照選定的艙等渲染 -->
+        <!-- 艙等總覽：嚴格過濾 -->
         <div v-for="cabinKey in (selectedCabin.value === 'ALL' ? ['biz', 'eco'] : [selectedCabin.value])" :key="cabinKey">
           <div v-if="routeItem.options[cabinKey] && routeItem.options[cabinKey].length > 0" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-3.5 space-y-3 mt-2">
             <div class="text-xs font-extrabold text-amber-500 flex items-center justify-between border-b pb-2" :class="currentTheme.borderClass">
@@ -412,7 +412,7 @@
               </span>
             </div>
 
-            <!-- 方案並列清單 (明確標註計畫來源、買哩0.6元、萬豪轉點0.24元) -->
+            <!-- 方案並列清單 -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div v-for="(opt, oIdx) in routeItem.options[cabinKey]" :key="oIdx" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="rounded-xl p-3.5 relative flex flex-col justify-between space-y-2 border-slate-700 bg-slate-950/30">
                 <div class="flex justify-between items-start">
@@ -559,9 +559,9 @@
           jpy_twd: savedRates.jpy_twd !== undefined ? savedRates.jpy_twd : 0.21,
           cube_rate: savedRates.cube_rate !== undefined ? savedRates.cube_rate : 0.34,
           ctbc_rate: savedRates.ctbc_rate !== undefined ? savedRates.ctbc_rate : 0.23,
-          marriott_val: savedRates.marriott_val !== undefined ? savedRates.marriott_val : 0.24, // 預設 0.24
+          marriott_val: savedRates.marriott_val !== undefined ? savedRates.marriott_val : 0.24,
           etihad_val: savedRates.etihad_val !== undefined ? savedRates.etihad_val : 0.42,
-          as_buy_val: savedRates.as_buy_val !== undefined ? savedRates.as_buy_val : 0.60 // 官方買哩 0.6 元
+          as_buy_val: savedRates.as_buy_val !== undefined ? savedRates.as_buy_val : 0.60
         });
 
         const saveRates = () => { localStorage.setItem('miles_rates', JSON.stringify(rates.value)); };
@@ -684,6 +684,7 @@
           return Math.round(Number(miles) * rates.value.as_buy_val + taxTwd);
         };
 
+        // 💡 萬豪轉點正確公式：若哩程>=25000 點數=哩程*2.4，否則哩程*3，再乘以萬豪點數價值(0.24)加真實稅金
         const calcMarriottToAsCost = (miles, taxUsd) => {
           if (!miles) return 0;
           const taxTwd = Number(taxUsd || 44) * rates.value.usd_twd;
@@ -691,7 +692,7 @@
           return Math.round(marriottPoints * rates.value.marriott_val + taxTwd);
         };
 
-        // ✨ 核心升級：精準判別航線計畫來源（EY, AS 買哩 0.6, 萬豪轉點 0.24，以及 Flying Blue 雙軌）
+        // ✨ 聚合航線去重與精準過濾
         const uniqueAggregatedRoutes = computed(() => {
           let map = {};
 
@@ -716,6 +717,7 @@
               };
             }
 
+            // 處理經濟艙方案
             const ecoMiles = item.eco_miles;
             const ecoTax = item.eco_tax_usd || 44;
             if (ecoMiles) {
@@ -723,11 +725,10 @@
                 map[key].options.eco.push({
                   programLabel: '阿提哈德換星宇 (0.42)',
                   miles: ecoMiles,
-                  cost: calcEtixCost = calcEtihadCost(ecoMiles),
+                  cost: calcEtihadCost(ecoMiles),
                   subDesc: '6,000 哩 × 0.42 ＋ 750元真實稅'
                 });
-              } else if (item.programTag === 'AS' || item.airline?.includes('AS') || item.airline?.includes('免費中停') || item.airline?.includes('JX星宇航空')) {
-                // 💡 判別為阿拉斯加哩程計畫（包含 Sheet 內的星宇直飛或中停）
+              } else {
                 map[key].options.eco.push({
                   programLabel: '阿拉斯加買哩通道 (0.60)',
                   miles: ecoMiles,
@@ -738,33 +739,32 @@
                   programLabel: '萬豪轉點阿拉斯加通道',
                   miles: ecoMiles,
                   cost: calcMarriottToAsCost(ecoMiles, ecoTax),
-                  subDesc: `萬豪點數轉航司 (以每點 ${rates.value.marriott_val} 元計算)`
+                  subDesc: `萬豪轉點換算 (點數價值 ${rates.value.marriott_val}元) ＋ 真實稅金`
                 });
               }
             }
 
+            // 處理商務艙方案
             const bizMiles = item.biz_miles;
             const bizTax = item.biz_tax_usd || 44;
             if (bizMiles) {
-              if (item.programTag === 'AS' || item.airline?.includes('AS') || item.airline?.includes('免費中停') || item.airline?.includes('JX星宇航空')) {
-                map[key].options.biz.push({
-                  programLabel: '阿拉斯加買哩通道 (0.60)',
-                  miles: bizMiles,
-                  cost: calcAsBuyCost(bizMiles, bizTax),
-                  subDesc: `${bizMiles.toLocaleString()} 哩 × 0.6元 ＋ 真實稅金`
-                });
-                map[key].options.biz.push({
-                  programLabel: '萬豪轉點阿拉斯加通道',
-                  miles: bizMiles,
-                  cost: calcMarriottToAsCost(bizMiles, bizTax),
-                  subDesc: `萬豪點數轉航司 (以每點 ${rates.value.marriott_val} 元計算)`
-                });
-              }
+              map[key].options.biz.push({
+                programLabel: '阿拉斯加買哩通道 (0.60)',
+                miles: bizMiles,
+                cost: calcAsBuyCost(bizMiles, bizTax),
+                subDesc: `${bizMiles.toLocaleString()} 哩 × 0.6元 ＋ 真實稅金`
+              });
+              map[key].options.biz.push({
+                programLabel: '萬豪轉點阿拉斯加通道',
+                miles: bizMiles,
+                cost: calcMarriottToAsCost(bizMiles, bizTax),
+                subDesc: `萬豪轉點換算 (點數價值 ${rates.value.marriott_val}元) ＋ 真實稅金`
+              });
             }
           });
 
           let results = Object.values(map);
-          // 💡 嚴格依照選定的艙等過濾，選經濟艙就絕對不出商務艙
+          // 💡 嚴格依照選定的艙等過濾，選經濟艙就絕對不顯示商務艙區塊
           if (selectedCabin.value !== 'ALL') {
             results = results.filter(r => r.options[selectedCabin.value] && r.options[selectedCabin.value].length > 0);
           }
@@ -782,7 +782,7 @@
             const cleanOriginName = item.origin_name || allAirports.find(a => a.code === item.origin)?.name || item.origin;
             const cleanDestName = item.dest_name || allAirports.find(a => a.code === item.dest)?.name || item.dest;
             const airlineName = item.airline || 'AS';
-            const tag = item.programTag || (airlineName.includes('Flying Blue') ? 'Flying Blue' : 'AS');
+            const tag = item.programTag || 'AS';
 
             if (item.eco_miles) {
               if (tag === 'Etihad Guest') {
