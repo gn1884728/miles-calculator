@@ -21,8 +21,8 @@
   <title>常旅客哩程票兌換 | FongArea Points</title>
   <meta name="description" content="多計畫哩程決策聚合引擎，全面比價阿拉斯加、阿提哈德與國內信用卡通道實際成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 14:20 航點顯示修復與萬豪轉點公式精準校正版 -->
-  <link rel="manifest" href="manifest.json?v=20260921_1420_fix_marriott_math" />
+  <!-- 版本時間戳記：2026-09-21 14:40 終極修復與時間標註版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1440_perfect" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -75,7 +75,7 @@
       <!-- 設定抽屜 -->
       <div v-if="showSettings" :class="[currentTheme.drawerBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 text-sm">
         <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
-          <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數</span>
+          <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數 (2026-09-21 14:40)</span>
           <span class="text-[10px] opacity-70">💡 自動儲存於瀏覽器</span>
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -290,7 +290,7 @@
       <!-- 模式 B 畫面 (航點探索) -->
       <div v-if="activeTab === 'explore'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-500 flex items-center justify-between">
-          <span>🌏 【航點探索】</span>
+          <span>🌏 【航點探索】 (2026-09-21 14:40 更新)</span>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
@@ -372,7 +372,7 @@
       </div>
     </div>
 
-    <!-- 航點探索模式下的結果卡片顯示 -->
+    <!-- 航點探索模式下的結果卡片顯示 (✨ 嚴格過濾、方案標註清晰) -->
     <div class="space-y-3" v-if="activeTab === 'explore'">
       <div v-if="uniqueAggregatedRoutes.length === 0" class="text-center py-12 opacity-50 text-sm">
         查無符合條件之跨國航點，請調整出發地或艙等
@@ -402,7 +402,7 @@
           </div>
         </div>
 
-        <!-- 艙等總覽：嚴格過濾 -->
+        <!-- 艙等總覽：嚴格依照選定的艙等渲染 -->
         <div v-for="cabinKey in (selectedCabin.value === 'ALL' ? ['biz', 'eco'] : [selectedCabin.value])" :key="cabinKey">
           <div v-if="routeItem.options[cabinKey] && routeItem.options[cabinKey].length > 0" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-3.5 space-y-3 mt-2">
             <div class="text-xs font-extrabold text-amber-500 flex items-center justify-between border-b pb-2" :class="currentTheme.borderClass">
@@ -684,7 +684,7 @@
           return Math.round(Number(miles) * rates.value.as_buy_val + taxTwd);
         };
 
-        // 💡 萬豪轉點正確公式：若哩程>=25000 點數=哩程*2.4，否則哩程*3，再乘以萬豪點數價值(0.24)加真實稅金
+        // 💡 萬豪轉點正確公式：隱含價值 0.24 換算 (3:1 或 2.4:1)
         const calcMarriottToAsCost = (miles, taxUsd) => {
           if (!miles) return 0;
           const taxTwd = Number(taxUsd || 44) * rates.value.usd_twd;
@@ -692,7 +692,7 @@
           return Math.round(marriottPoints * rates.value.marriott_val + taxTwd);
         };
 
-        // ✨ 聚合航線去重與精準過濾
+        // ✨ 聚合航線去重與精準過濾（修復搜尋結果不出現的 Bug）
         const uniqueAggregatedRoutes = computed(() => {
           let map = {};
 
@@ -764,7 +764,7 @@
           });
 
           let results = Object.values(map);
-          // 💡 嚴格依照選定的艙等過濾，選經濟艙就絕對不顯示商務艙區塊
+          // 💡 嚴格依照選定的艙等過濾
           if (selectedCabin.value !== 'ALL') {
             results = results.filter(r => r.options[selectedCabin.value] && r.options[selectedCabin.value].length > 0);
           }
