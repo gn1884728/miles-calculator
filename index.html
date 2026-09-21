@@ -21,8 +21,8 @@
   <title>常旅客里程兌換 | FongArea Points</title>
   <meta name="description" content="多計畫哩程決策聚合引擎，全面比價中信紅利、國泰CUBE、滙豐旅人卡、萬豪、阿提哈德與阿拉斯加最佳化成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 17:35 精簡專業版 -->
-  <link rel="manifest" href="manifest.json?v=20260921_1735_clean" />
+  <!-- 版本時間戳記：2026-09-21 17:50 來回混艙購物車保留與對調升級版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1750_swap_fix" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -75,7 +75,7 @@
       <!-- 設定抽屜 -->
       <div v-if="showSettings" :class="[currentTheme.drawerBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 text-sm">
         <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
-          <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數 (2026-09-21 17:35)</span>
+          <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數 (2026-09-21 17:50)</span>
           <span class="text-[10px] opacity-70">💡 自動儲存於瀏覽器</span>
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -134,7 +134,7 @@
           </div>
         </div>
         
-        <!-- 旅程條件 (先選艙等) -->
+        <!-- 旅程條件 (先選艙等，支援混艙彈性) -->
         <div class="grid grid-cols-2 gap-2 text-sm">
           <div>
             <label class="text-[11px] opacity-70 block mb-1 font-bold">1️⃣ 旅程行程</label>
@@ -144,7 +144,7 @@
             </select>
           </div>
           <div>
-            <label class="text-[11px] text-amber-400 block mb-1 font-bold">2️⃣ 目標艙等</label>
+            <label class="text-[11px] text-amber-400 block mb-1 font-bold">2️⃣ 當前選擇艙等</label>
             <select v-model="flightSearch.cabin" @change="selectedCartOptionId = ''" :class="currentTheme.inputBg" class="w-full border rounded-xl px-3 py-2 font-black text-amber-400 focus:outline-none">
               <option value="eco">✈️ 經濟艙 (Economy)</option>
               <option value="prem">⭐ 豪華經濟艙 (Prem Eco)</option>
@@ -153,15 +153,17 @@
           </div>
         </div>
 
-        <!-- 航段選擇 (修剪贅詞) -->
+        <!-- 航段選擇 (💡 新增雙向對調按鈕 ⇄，保留購物車) -->
         <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3 space-y-2 text-sm">
-          <div class="text-xs font-bold opacity-90">
+          <div class="text-xs font-bold opacity-90 flex justify-between items-center">
             <span>✈️ 航段選擇</span>
+            <span class="text-[10px] text-cyan-400">💡 點擊「⇄」可直接秒切換回程</span>
           </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
+
+          <div class="flex items-center gap-2">
+            <div class="flex-1">
               <label class="text-[11px] opacity-70 block mb-1">出發地</label>
-              <select v-model="flightSearch.outOrigin" @change="onOutOriginChange" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2.5 font-bold text-sm focus:outline-none">
+              <select v-model="flightSearch.outOrigin" @change="onOutOriginChange" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold text-xs focus:outline-none">
                 <option value="">選擇出發機場</option>
                 <optgroup v-for="group in airportGroups" :key="group.country" :label="group.label">
                   <option v-for="apt in group.airports" :key="apt.code" :value="apt.code" :disabled="!availableOutOriginCodes.has(apt.code)">
@@ -170,9 +172,17 @@
                 </optgroup>
               </select>
             </div>
-            <div>
+
+            <!-- 雙向快速對調按鈕 -->
+            <div class="pt-5 shrink-0">
+              <button type="button" @click="swapPorts" class="w-9 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-cyan-400 border border-slate-700 flex items-center justify-center font-black text-base transition shadow" title="對調出發地與目的地">
+                ⇄
+              </button>
+            </div>
+
+            <div class="flex-1">
               <label class="text-[11px] opacity-70 block mb-1">目的地</label>
-              <select v-model="flightSearch.outDest" @change="onOutPortChange" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2.5 font-bold text-sm focus:outline-none">
+              <select v-model="flightSearch.outDest" @change="onOutPortChange" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold text-xs focus:outline-none">
                 <option value="">選擇抵達機場</option>
                 <optgroup v-for="group in airportGroups" :key="group.country" :label="group.label">
                   <option v-for="apt in group.airports" :key="apt.code" :value="apt.code" :disabled="!availableOutDestCodes.has(apt.code)">
@@ -184,7 +194,7 @@
           </div>
         </div>
 
-        <!-- 🛒 兌換方案選擇 (修剪贅詞) -->
+        <!-- 🛒 兌換方案選擇 -->
         <div v-if="availableRouteOptions.length > 0" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3.5 space-y-3">
           <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
             <span class="text-xs font-black text-cyan-400">🛒 兌換方案選擇</span>
@@ -193,7 +203,7 @@
 
           <div class="space-y-2 text-xs">
             <div>
-              <label class="block mb-1 opacity-70">選擇兌換方案 (依最優通道排序)</label>
+              <label class="block mb-1 opacity-70">選擇方案 (依最優通道排序)</label>
               <select v-model="selectedCartOptionId" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold focus:outline-none">
                 <option value="">-- 請選擇方案 --</option>
                 <option v-for="opt in availableRouteOptions" :key="opt.id" :value="opt.id">
@@ -213,7 +223,7 @@
             </div>
           </div>
 
-          <!-- 已加入購物車清單 -->
+          <!-- 已加入購物車清單 (去程與回程皆完整並存展示) -->
           <div v-if="cartItems.length > 0" class="space-y-2 pt-2 border-t" :class="currentTheme.borderClass">
             <div v-for="(item, cIdx) in cartItems" :key="cIdx" class="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs bg-slate-950/40 p-2.5 rounded-lg border border-slate-800 gap-2">
               <div class="flex flex-col gap-1">
@@ -238,7 +248,7 @@
           </div>
         </div>
 
-        <!-- 試算結果與極大化總結算金額面板 -->
+        <!-- 試算結果與極大化總結算金額面板 (成本鎖定，呈現全團人數與票數) -->
         <div v-if="cartSummary.totalCost > 0" class="bg-gradient-to-r from-amber-500/20 to-cyan-500/20 border-2 border-amber-500/60 rounded-2xl p-4 space-y-3 text-sm shadow-lg">
           <div class="flex flex-col items-center justify-center border-b border-amber-500/30 pb-3 text-center">
             <span class="text-xs uppercase tracking-widest text-amber-400 font-black mb-1">
@@ -256,7 +266,7 @@
           </div>
         </div>
 
-        <!-- 🧮 互動式點數資產拼圖 (修剪贅詞標籤) -->
+        <!-- 🧮 互動式點數資產拼圖 -->
         <div v-if="cartSummary.totalMiles > 0" class="bg-slate-950/70 border border-cyan-500/30 rounded-xl p-3.5 space-y-3 mt-3">
           <div class="flex justify-between items-center border-b border-cyan-500/20 pb-2">
             <span class="text-cyan-400 font-black text-xs">🧩 手上有現成點數嗎？還缺多少點數？</span>
@@ -346,7 +356,7 @@
       <!-- 模式 B 畫面 (航點探索) -->
       <div v-if="activeTab === 'explore'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-500 flex items-center justify-between">
-          <span>🌏 【航點探索】 (2026-09-21 17:35 精簡版)</span>
+          <span>🌏 【航點探索】 (2026-09-21 17:50 版)</span>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
@@ -660,7 +670,7 @@
           { country: 'ID', label: '🇮🇩 印尼 (Indonesia)', airports: allAirports.filter(a => a.country === 'ID') }
         ];
 
-        // 💡 內建完整航線
+        // 內建完整資料庫
         const defaultSheetRoutes = [
           { origin: 'TSA', dest: 'SHA', origin_name: '台北松山', dest_name: '上海虹橋', airline: 'CI中華航空', eco_miles: 5000, eco_tax_usd: 56, biz_miles: 15000, biz_tax_usd: 56, programTag: 'Flying Blue' },
           { origin: 'SHA', dest: 'TSA', origin_name: '上海虹橋', dest_name: '台北松山', airline: 'CI中華航空', eco_miles: 5000, eco_tax_usd: 56, biz_miles: 15000, biz_tax_usd: 56, programTag: 'Flying Blue' },
@@ -735,6 +745,14 @@
           });
           return codes;
         });
+
+        // 💡 雙向快速對調函式 (絕對不觸碰、不清除購物車！)
+        const swapPorts = () => {
+          const temp = flightSearch.value.outOrigin;
+          flightSearch.value.outOrigin = flightSearch.value.outDest;
+          flightSearch.value.outDest = temp;
+          selectedCartOptionId.value = ''; // 僅重置單次方案選單，購物車保持完整！
+        };
 
         // 計價函式
         const calcEtihadCtbcCost = (miles) => Math.round(Number(miles) * 0.27 + 750);
@@ -1207,6 +1225,7 @@
           return { totalCost, totalTaxTwd, totalMiles, totalTickets, dominantProgram };
         });
 
+        // 缺口計算 (僅供參考與補齊建議)
         const mileageGap = computed(() => {
           const required = cartSummary.value.totalMiles;
           const owned = Number(userOwnedPoints.value || 0);
@@ -1219,11 +1238,12 @@
           flightSearch.value.cabin = 'eco';
           flightSearch.value.outOrigin = origin;
           flightSearch.value.outDest = dest;
-          cartItems.value = [];
+          // 💡 此處不清除 cartItems，讓使用者能連續點擊並保留既有行程
         };
 
-        const onOutOriginChange = () => { flightSearch.value.outDest = ''; cartItems.value = []; };
-        const onOutPortChange = () => { cartItems.value = []; };
+        // 💡 徹底移除原本的 cartItems = []，換機場絕不清空已加的票！
+        const onOutOriginChange = () => { selectedCartOptionId.value = ''; };
+        const onOutPortChange = () => { selectedCartOptionId.value = ''; };
 
         const fetchData = async () => {
           try {
@@ -1267,7 +1287,7 @@
           availableOutOriginCodes, availableOutDestCodes,
           userOwnedPoints, mileageGap,
           cartItems, selectedCartOptionId, tempCartQty, availableRouteOptions, addToCart, cartSummary,
-          onOutOriginChange, onOutPortChange, applyTrick
+          onOutOriginChange, onOutPortChange, swapPorts, applyTrick
         };
       }
     }).mount('#app');
