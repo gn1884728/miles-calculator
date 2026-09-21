@@ -21,8 +21,8 @@
   <title>常旅客哩程票兌換 | FongArea Points</title>
   <meta name="description" content="多計畫哩程決策聚合引擎，全面比價中信紅利、國泰CUBE、萬豪轉點與各大航空哩程實際成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 13:20 卡片去重複與多方案完美聚合版 -->
-  <link rel="manifest" href="manifest.json?v=20260921_1320_deduplicate_cards" />
+  <!-- 版本時間戳記：2026-09-21 13:30 括號語法完全修復版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1330_syntax_ok" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -193,7 +193,7 @@
               <select v-model="selectedCartOptionId" :class="currentTheme.inputBg" class="w-full border rounded-lg p-2 font-bold focus:outline-none">
                 <option value="">-- 請選擇航段與方案 --</option>
                 <option v-for="opt in availableRouteOptions" :key="opt.id" :value="opt.id">
-                  [{{ opt.programTag ]] {{ opt.name }} ➔ 來源：{{ opt.sourceDesc }} (NT$ {{ opt.cost }})
+                  [{{ opt.programTag }}] {{ opt.name }} ➔ 來源：{{ opt.sourceDesc }} (NT$ {{ opt.cost }})
                 </option>
               </select>
             </div>
@@ -407,7 +407,7 @@
           </div>
         </div>
 
-        <!-- 艙等總覽：自動聚合該航線所有可用的兌換方案 (EY, AS 7500, 萬豪轉點, 國內雙軌) -->
+        <!-- 艙等總覽：自動聚合該航線所有可用的兌換方案 -->
         <div v-for="cabinKey in ['biz', 'eco']" :key="cabinKey">
           <div v-if="routeItem.options[cabinKey] && routeItem.options[cabinKey].length > 0" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-3.5 space-y-3 mt-2">
             <div class="text-xs font-extrabold text-amber-500 flex items-center justify-between border-b pb-2" :class="currentTheme.borderClass">
@@ -761,7 +761,6 @@
                   subDesc: '萬豪點數轉航司最優化成本'
                 });
               } else {
-                // Flying Blue 雙軌
                 map[key].options.eco.push({
                   programLabel: '方案一：中信紅利通道 (0.23)',
                   miles: ecoMiles,
@@ -812,7 +811,6 @@
           });
 
           let results = Object.values(map);
-          // 過濾符合艙等的航線
           if (selectedCabin.value !== 'ALL') {
             results = results.filter(r => r.options[selectedCabin.value] && r.options[selectedCabin.value].length > 0);
           }
