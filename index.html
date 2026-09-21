@@ -18,11 +18,11 @@
     gtag('config', 'G-7KV8ELE3K4');
   </script>
   
-  <title>常旅客哩程票兌換 | FongArea Points</title>
+  <title>常旅客里程兌換 | FongArea Points</title>
   <meta name="description" content="多計畫哩程決策聚合引擎，全面比價中信紅利、國泰CUBE、滙豐旅人卡、萬豪、阿提哈德與阿拉斯加最佳化成本。" />
   
-  <!-- 版本時間戳記：2026-09-21 17:25 終極五通道完工版 (人數顯示、松山虹橋FB五通道、成本鎖定) -->
-  <link rel="manifest" href="manifest.json?v=20260921_1725_ultimate_fb" />
+  <!-- 版本時間戳記：2026-09-21 17:35 精簡專業版 -->
+  <link rel="manifest" href="manifest.json?v=20260921_1735_clean" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" type="image/png" href="icon.png" />
   
@@ -44,7 +44,7 @@
 <body :class="currentTheme.bgClass" class="min-h-screen p-3 sm:p-6 flex flex-col items-center text-sm transition-colors duration-300" style="padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);">
 
   <div class="sr-only">
-    <h1>常旅客哩程票兌換工具</h1>
+    <h1>常旅客里程兌換</h1>
     <p>支援阿提哈德、阿拉斯加與藍天飛行 (FB) 最佳通道對比試算。</p>
   </div>
 
@@ -56,7 +56,7 @@
       <!-- 主標題與頂部功能按鈕 -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-b pb-3" :class="currentTheme.borderClass">
         <h1 class="text-xl sm:text-2xl font-black tracking-tight leading-tight text-center sm:text-left" :class="currentTheme.titleClass">
-          常旅客哩程票<span class="text-cyan-400">兌換聚合器</span>
+          常旅客里程<span class="text-cyan-400">兌換</span>
         </h1>
         
         <div class="flex items-center gap-1.5 shrink-0 w-full sm:w-auto justify-center">
@@ -75,7 +75,7 @@
       <!-- 設定抽屜 -->
       <div v-if="showSettings" :class="[currentTheme.drawerBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 text-sm">
         <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
-          <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數 (2026-09-21 17:25)</span>
+          <span class="text-amber-500 font-bold">⚙️ 點數與多國匯率參數 (2026-09-21 17:35)</span>
           <span class="text-[10px] opacity-70">💡 自動儲存於瀏覽器</span>
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -134,7 +134,7 @@
           </div>
         </div>
         
-        <!-- 💡 核心優化：第一步先選艙等 -->
+        <!-- 旅程條件 (先選艙等) -->
         <div class="grid grid-cols-2 gap-2 text-sm">
           <div>
             <label class="text-[11px] opacity-70 block mb-1 font-bold">1️⃣ 旅程行程</label>
@@ -144,7 +144,7 @@
             </select>
           </div>
           <div>
-            <label class="text-[11px] text-amber-400 block mb-1 font-bold">2️⃣ 目標艙等 (先選艙等)</label>
+            <label class="text-[11px] text-amber-400 block mb-1 font-bold">2️⃣ 目標艙等</label>
             <select v-model="flightSearch.cabin" @change="selectedCartOptionId = ''" :class="currentTheme.inputBg" class="w-full border rounded-xl px-3 py-2 font-black text-amber-400 focus:outline-none">
               <option value="eco">✈️ 經濟艙 (Economy)</option>
               <option value="prem">⭐ 豪華經濟艙 (Prem Eco)</option>
@@ -153,10 +153,10 @@
           </div>
         </div>
 
-        <!-- 航段選擇 -->
+        <!-- 航段選擇 (修剪贅詞) -->
         <div :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3 space-y-2 text-sm">
           <div class="text-xs font-bold opacity-90">
-            <span>✈️ 航段選擇 (含松山、桃園、廈門、虹橋)</span>
+            <span>✈️ 航段選擇</span>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
@@ -184,10 +184,10 @@
           </div>
         </div>
 
-        <!-- 🛒 自由混搭購物車 (依所選艙等過濾) -->
+        <!-- 🛒 兌換方案選擇 (修剪贅詞) -->
         <div v-if="availableRouteOptions.length > 0" :class="[currentTheme.cardBg, currentTheme.cardBorder]" class="border rounded-xl p-3.5 space-y-3">
           <div class="flex justify-between items-center border-b pb-2" :class="currentTheme.borderClass">
-            <span class="text-xs font-black text-cyan-400">🛒 兌換方案選擇（已鎖定所選艙等）</span>
+            <span class="text-xs font-black text-cyan-400">🛒 兌換方案選擇</span>
             <button @click="cartItems = []" class="text-[10px] opacity-70 hover:underline">清空購物車</button>
           </div>
 
@@ -238,7 +238,7 @@
           </div>
         </div>
 
-        <!-- 試算結果與極大化總結算金額面板 (💡 加上全團人數標註，成本徹底鎖定) -->
+        <!-- 試算結果與極大化總結算金額面板 -->
         <div v-if="cartSummary.totalCost > 0" class="bg-gradient-to-r from-amber-500/20 to-cyan-500/20 border-2 border-amber-500/60 rounded-2xl p-4 space-y-3 text-sm shadow-lg">
           <div class="flex flex-col items-center justify-center border-b border-amber-500/30 pb-3 text-center">
             <span class="text-xs uppercase tracking-widest text-amber-400 font-black mb-1">
@@ -249,7 +249,6 @@
             </div>
           </div>
           
-          <!-- 明確呈現點數加總與稅金 -->
           <div class="flex justify-around text-xs opacity-90 pt-1 font-bold">
             <div>全團人數：<span class="text-amber-400">{{ cartSummary.totalTickets }} 人</span></div>
             <div>所需總哩程：<span class="text-cyan-400">{{ cartSummary.totalMiles.toLocaleString() }} 點/哩</span></div>
@@ -257,11 +256,10 @@
           </div>
         </div>
 
-        <!-- 🧮 互動式點數資產拼圖與缺口補齊規劃 (多元組合，不改動上方結算金額) -->
+        <!-- 🧮 互動式點數資產拼圖 (修剪贅詞標籤) -->
         <div v-if="cartSummary.totalMiles > 0" class="bg-slate-950/70 border border-cyan-500/30 rounded-xl p-3.5 space-y-3 mt-3">
           <div class="flex justify-between items-center border-b border-cyan-500/20 pb-2">
             <span class="text-cyan-400 font-black text-xs">🧩 手上有現成點數嗎？還缺多少點數？</span>
-            <span class="text-[10px] opacity-70">多元補齊組合 (不改動上方結算)</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -301,7 +299,7 @@
                 </div>
                 <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 space-y-1">
                   <div class="font-bold text-amber-400">FB 組合三：官方特賣買點</div>
-                  <div class="text-[11px]">買點單價 0.34 元/哩</div>
+                  <div class="text-[11px]">官方單價 0.34 元/哩</div>
                   <div class="text-[10px] opacity-70">折合約 NT$ {{ Math.round(mileageGap * 0.34).toLocaleString() }}</div>
                 </div>
                 <div class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-2.5 space-y-1">
@@ -348,7 +346,7 @@
       <!-- 模式 B 畫面 (航點探索) -->
       <div v-if="activeTab === 'explore'" :class="[currentTheme.subBoxBg, currentTheme.cardBorder]" class="border rounded-2xl p-4 space-y-3 shadow-inner">
         <div class="text-xs font-black text-purple-500 flex items-center justify-between">
-          <span>🌏 【航點探索】 (2026-09-21 17:25 終極版)</span>
+          <span>🌏 【航點探索】 (2026-09-21 17:35 精簡版)</span>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-sm">
@@ -662,9 +660,8 @@
           { country: 'ID', label: '🇮🇩 印尼 (Indonesia)', airports: allAirports.filter(a => a.country === 'ID') }
         ];
 
-        // 💡 內建完整航線 (涵蓋松山-虹橋、桃園-廈門/浦東等 FB 華航天合聯盟，以及星宇阿提哈德/AS 航線)
+        // 💡 內建完整航線
         const defaultSheetRoutes = [
-          // 藍天飛行 Flying Blue (CI 華航 / 天合聯盟) - 台北松山 ⇄ 上海虹橋、台北桃園 ⇄ 廈門/上海浦東
           { origin: 'TSA', dest: 'SHA', origin_name: '台北松山', dest_name: '上海虹橋', airline: 'CI中華航空', eco_miles: 5000, eco_tax_usd: 56, biz_miles: 15000, biz_tax_usd: 56, programTag: 'Flying Blue' },
           { origin: 'SHA', dest: 'TSA', origin_name: '上海虹橋', dest_name: '台北松山', airline: 'CI中華航空', eco_miles: 5000, eco_tax_usd: 56, biz_miles: 15000, biz_tax_usd: 56, programTag: 'Flying Blue' },
           { origin: 'TPE', dest: 'XMN', origin_name: '台北桃園', dest_name: '廈門', airline: 'CI中華航空', eco_miles: 5000, eco_tax_usd: 56, biz_miles: 15000, biz_tax_usd: 56, programTag: 'Flying Blue' },
@@ -672,11 +669,9 @@
           { origin: 'TPE', dest: 'PVG', origin_name: '台北桃園', dest_name: '上海浦東', airline: 'CI中華航空', eco_miles: 5000, eco_tax_usd: 56, biz_miles: 15000, biz_tax_usd: 56, programTag: 'Flying Blue' },
           { origin: 'PVG', dest: 'TPE', origin_name: '上海浦東', dest_name: '台北桃園', airline: 'CI中華航空', eco_miles: 5000, eco_tax_usd: 56, biz_miles: 15000, biz_tax_usd: 56, programTag: 'Flying Blue' },
 
-          // 阿提哈德 & 星宇航空 (沖繩航點)
           { origin: 'TPE', dest: 'OKA', origin_name: '台北桃園', dest_name: '沖繩', airline: 'JX星宇航空', eco_miles: 6000, eco_tax_usd: 44, biz_miles: 20000, biz_tax_usd: 44, programTag: 'Etihad Guest' },
           { origin: 'OKA', dest: 'TPE', origin_name: '沖繩', dest_name: '台北桃園', airline: 'JX星宇航空', eco_miles: 6000, eco_tax_usd: 50, biz_miles: 20000, biz_tax_usd: 50, programTag: 'Etihad Guest' },
 
-          // 阿拉斯加 AS 直飛星宇航線
           { origin: 'TPE', dest: 'SDJ', origin_name: '台北桃園', dest_name: '仙台', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 44, biz_miles: 15000, biz_tax_usd: 44, programTag: 'AS' },
           { origin: 'SDJ', dest: 'TPE', origin_name: '仙台', dest_name: '台北桃園', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 62, biz_miles: 15000, biz_tax_usd: 62, programTag: 'AS' },
           { origin: 'TPE', dest: 'UKB', origin_name: '台北桃園', dest_name: '神戶', airline: 'JX星宇航空', eco_miles: 7500, eco_tax_usd: 44, biz_miles: 15000, biz_tax_usd: 44, programTag: 'AS' },
@@ -724,7 +719,6 @@
           { origin: 'PUS', dest: 'HKG', origin_name: '釜山', dest_name: '香港', airline: 'AS (免費中停)', eco_miles: 7500, eco_tax_usd: 58, biz_miles: 15000, biz_tax_usd: 58, programTag: 'AS', note: '✨ 釜山 ➔ 台北(TPE) (中停) ➔ 香港' }
         ];
 
-        // 旅程試算條件 (預設先選經濟艙)
         const flightSearch = ref({ tripType: 'oneWay', cabin: 'eco', outOrigin: '', outDest: '' });
 
         const combinedAllRoutes = computed(() => [...routesData.value, ...secretTricks]);
@@ -742,23 +736,20 @@
           return codes;
         });
 
-        // 💡 各計畫精準計價函式
-        // 1. 阿提哈德：中信5400換3000 (0.27) / 國泰CUBE (0.42) ＋ 750元真實稅
+        // 計價函式
         const calcEtihadCtbcCost = (miles) => Math.round(Number(miles) * 0.27 + 750);
         const calcEtihadCubeCost = (miles) => Math.round(Number(miles) * 0.42 + 750);
 
-        // 2. 阿拉斯加：萬豪0.24換算 (0.576) / AS買哩 (0.60) ＋ 真實稅金
         const calcMarriottToAsCost = (miles, taxUsd) => Math.round(Number(miles) * 0.576 + (Number(taxUsd || 44) * rates.value.usd_twd));
         const calcAsBuyCost = (miles, taxUsd) => Math.round(Number(miles) * rates.value.as_buy_val + (Number(taxUsd || 44) * rates.value.usd_twd));
 
-        // 3. 藍天飛行 Flying Blue (華航)：五大通道
-        const calcFbCtbcCost = (miles, taxUsd) => Math.round(Number(miles) * 0.215 + (Number(taxUsd || 56) * rates.value.usd_twd)); // 4300換3000
-        const calcFbCubeCost = (miles, taxUsd) => Math.round(Number(miles) * 0.34 + (Number(taxUsd || 56) * rates.value.usd_twd));  // 340換1000
-        const calcFbBuyCost = (miles, taxUsd) => Math.round(Number(miles) * 0.34 + (Number(taxUsd || 56) * rates.value.usd_twd));   // 官網買點 0.34
-        const calcFbHsbcCost = (miles, taxUsd) => Math.round(Number(miles) * 0.40 + (Number(taxUsd || 56) * rates.value.usd_twd));  // 旅人卡 1:1 (估值0.4)
-        const calcFbMarriottCost = (miles, taxUsd) => Math.round(Number(miles) * 0.576 + (Number(taxUsd || 56) * rates.value.usd_twd)); // 60000換25000
+        const calcFbCtbcCost = (miles, taxUsd) => Math.round(Number(miles) * 0.215 + (Number(taxUsd || 56) * rates.value.usd_twd));
+        const calcFbCubeCost = (miles, taxUsd) => Math.round(Number(miles) * 0.34 + (Number(taxUsd || 56) * rates.value.usd_twd));
+        const calcFbBuyCost = (miles, taxUsd) => Math.round(Number(miles) * 0.34 + (Number(taxUsd || 56) * rates.value.usd_twd));
+        const calcFbHsbcCost = (miles, taxUsd) => Math.round(Number(miles) * 0.40 + (Number(taxUsd || 56) * rates.value.usd_twd));
+        const calcFbMarriottCost = (miles, taxUsd) => Math.round(Number(miles) * 0.576 + (Number(taxUsd || 56) * rates.value.usd_twd));
 
-        // ✨ 航點探索聚合運算：精準依航線判定所屬計畫
+        // 航點探索聚合運算
         const uniqueAggregatedRoutes = computed(() => {
           let map = {};
 
@@ -794,7 +785,6 @@
             const ecoTax = item.eco_tax_usd || 44;
             if (ecoMiles) {
               if (isFbRoute) {
-                // 💡 藍天飛行 5 大通道
                 map[key].options.eco.push({
                   programLabel: 'FB - 中信紅利轉點 (0.215)',
                   miles: ecoMiles,
@@ -831,7 +821,6 @@
                   priority: 5
                 });
               } else if (isEyRoute) {
-                // 阿提哈德沖繩
                 map[key].options.eco.push({
                   programLabel: '阿提哈德 - 中信紅利轉點 (0.27)',
                   miles: ecoMiles,
@@ -861,7 +850,6 @@
                   priority: 4
                 });
               } else {
-                // 阿拉斯加日本航線 (仙台、神戶、福岡等)
                 map[key].options.eco.push({
                   programLabel: '阿拉斯加 - 萬豪轉點通道 (0.576)',
                   miles: ecoMiles,
@@ -968,7 +956,7 @@
           const isFb = item.programTag === 'Flying Blue' || (item.airline && (item.airline.includes('CI') || item.airline.includes('華航')));
           const isEySupported = item.programTag === 'Etihad Guest' || (item.origin === 'TPE' && item.dest === 'OKA');
 
-          const targetCabin = flightSearch.value.cabin; // 'eco', 'prem', 'biz'
+          const targetCabin = flightSearch.value.cabin;
 
           // 1. 經濟艙選項
           if (targetCabin === 'eco' && item.eco_miles) {
@@ -1200,7 +1188,7 @@
           tempCartQty.value = 1;
         };
 
-        // 購物車總結算 (金額與人數鎖定，絕不隨下方基數連動)
+        // 購物車總結算 (金額與人數鎖定)
         const cartSummary = computed(() => {
           let totalCost = 0;
           let totalTaxTwd = 0;
@@ -1219,7 +1207,6 @@
           return { totalCost, totalTaxTwd, totalMiles, totalTickets, dominantProgram };
         });
 
-        // 缺口計算 (僅供參考與補齊組合建議)
         const mileageGap = computed(() => {
           const required = cartSummary.value.totalMiles;
           const owned = Number(userOwnedPoints.value || 0);
